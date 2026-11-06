@@ -607,9 +607,9 @@ fn callWithContext(
     return @call(.always_inline, func, .{ &task, arg });
 }
 
-/// A single-use fork/join slot. Reinitialize with `.{}` before forking again;
-/// `join`/`tryJoin` leave the embedded job unlinked without resetting it so the
-/// common local join path stays branch-light.
+/// A single-use fork/join slot. `fork` requires pending storage initialized
+/// with `.{}`; `initFork` initializes unused storage directly. Join leaves the
+/// job unlinked without resetting it. Keep its address stable while queued.
 pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) type {
     return struct {
         const Self = @This();
@@ -659,6 +659,19 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
                 }
             };
             self.job.push(&task.worker.local_tail, Handler.run);
+        }
+
+        /// Initialize caller-owned storage and append the job directly. The
+        /// storage may be undefined, but must not contain an outstanding job.
+        /// Keep its address stable until join; never copy an enqueued Future.
+        pub inline fn initFork(
+            self: *Self,
+            task: *Task(Ctx),
+            comptime func: anytype,
+            input: Input,
+        ) void {
+            self.job.handler = null;
+            self.fork(task, func, input);
         }
 
         /// Wait for a forked job. Returns null when nobody picked the job up,
@@ -1077,6 +1090,65 @@ test "future: pending and error-union joins preserve caller fallback across lane
 test "Future shares input and output storage" {
     const F = Future(void, usize, usize);
     try std.testing.expect(@sizeOf(F) <= @sizeOf(Job) + @sizeOf(usize));
+}
+
+test "future: initFork accepts undefined storage and reuses joined slots" {
+    const Packet = struct { value: u64 align(64), bytes: [23]u8 };
+    const Result = error{ExpectedFailure}!Packet;
+    const Exec = struct {
+        fn run(_: *Task(void), input: *const Packet) Result {
+            if (input.value % 4 == 3) return error.ExpectedFailure;
+            var output = input.*;
+            output.value *%= 7;
+            for (&output.bytes) |*byte| byte.* ^= 0x5a;
+            return output;
+        }
+        fn empty(_: *Task(void), _: void) void {}
+    };
+    const F = Future(void, *const Packet, Result);
+    for (0..5) |workers| {
+        for ([_]usize{ 0, 16 }) |states| {
+            var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+                .workers = workers,
+                .max_workers = workers,
+                .max_callers = 1,
+                .max_execute_states = states,
+                .enable_heartbeat = false,
+            });
+            defer pool.deinit();
+            try pool.start();
+            const caller = pool.claimCaller().?;
+            defer pool.releaseCaller(caller);
+            var futures: [8]F = undefined;
+            var packets: [8]Packet = undefined;
+            for (0..10) |round| {
+                var task = caller.begin();
+                for (&futures, &packets, 0..) |*future, *packet, index| {
+                    packet.* = .{ .value = round + index, .bytes = @splat(@as(u8, @intCast(round + index))) };
+                    future.initFork(&task, Exec.run, packet);
+                    try std.testing.expectEqual(packet, future.getInput());
+                }
+                pool.kickstart(caller, futures.len);
+                for (&futures, &packets) |*future, *packet| {
+                    const result = future.joinOrCall(&task, Exec.run);
+                    if (packet.value % 4 == 3) {
+                        try std.testing.expectError(error.ExpectedFailure, result);
+                    } else {
+                        const output = try result;
+                        try std.testing.expectEqual(packet.value * 7, output.value);
+                        for (output.bytes, packet.bytes) |actual, input| {
+                            try std.testing.expectEqual(input ^ 0x5a, actual);
+                        }
+                    }
+                }
+                var empty: Future(void, void, void) = undefined;
+                empty.initFork(&task, Exec.empty, {});
+                empty.joinOrCall(&task, Exec.empty);
+                try std.testing.expect(caller.job_head.isTail());
+                try std.testing.expectEqual(&caller.job_head, caller.local_tail);
+            }
+        }
+    }
 }
 
 test "future: reclaimed parent fallback publishes descendant forks" {

@@ -20,8 +20,14 @@ fn parallelSum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            var future = parz.Future(void, *const Node, anyerror!i64){};
-            future.fork(task, parallelSum, right);
+            const F = parz.Future(void, *const Node, anyerror!i64);
+            var future: F = undefined;
+            if (comptime @hasDecl(F, "initFork")) {
+                future.initFork(task, parallelSum, right);
+            } else {
+                future = .{};
+                future.fork(task, parallelSum, right);
+            }
             result += try task.call(anyerror!i64, parallelSum, left);
             const joined = future.join(task);
             const other = if (joined) |value|

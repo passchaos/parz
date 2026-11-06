@@ -1,0 +1,39 @@
+{
+  "captured_at_utc": "2026-11-06T22:27:38.979115+00:00",
+  "baseline_commit": "f8b7afc4e0fcbfed41df172befa5377a3610401f",
+  "zig_version": "0.16.0",
+  "loadavg": "8.96 9.55 9.82 14/2203 3293327",
+  "source_sha256": {
+    "src/core.zig": "2f7e7ed3fb7d813f5fb09dfc3005e54eccebf8a9ea5088c9858cc608dd4be530",
+    "bench/micro.zig": "a0ca44ab074e2144bb9e7f25a7d4dfc74bd98eb7c066f8fd0436db47f4cb7102",
+    "bench/tree_sum.zig": "d3e315383704bdece5d055b3d8b501c2f814949b8c37ef98d5077e36463683f1"
+  },
+  "baseline_core_sha256": "dd9c77af026aeb7ec9a1ee62e5cc1bdce6a4a85075aa780fe13254db3a13dca9",
+  "binary_sha256": {
+    "direct-tree": "96579446171f5ba8323997e1ecd318e2593b9a0e6e99b28d3524b1b1e93bc4d3",
+    "baseline-tree": "85822a6fff14139166681102f56098d915354bcf0c28177e9cf5a778840f807f",
+    "baseline-micro": "9c224f78a6e351c83db74db647719ab63a93683978f95ec867943722c9b8d9f1",
+    "direct-micro": "7127b0a1098b6954ba4ee35b4f93c3302e636c67a29c2f3d19aeb27e389168f9"
+  },
+  "text_sha256": {
+    "baseline": "abbcd0e913050ad4d7bb4dfa164b9eed5d4c66b8e2811e402e43147958bcfd54",
+    "direct": "56b5539d704c572f54857dc2855a2f7f0d3b95595b2467808cbf41728f614aee"
+  },
+  "placements": [
+    {
+      "name": "direct",
+      "cpus": "24-31",
+      "caller": 31
+    },
+    {
+      "name": "direct-confirm",
+      "cpus": "24-31",
+      "caller": 31
+    },
+    {
+      "name": "direct-pcores",
+      "cpus": "0,2,4,6,8,10,12,14",
+      "caller": 14
+    }
+  ]
+}

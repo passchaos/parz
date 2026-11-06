@@ -45,14 +45,16 @@ adding parallelism to a small workload must not make it meaningfully slower.
 
 ## Scheduling model
 
-- Each worker owns a truly local intrusive job list. `fork` is three local
-  stores; it takes no lock and performs no atomic operation.
+- Each worker owns a truly local intrusive job list. `fork` appends through
+  plain stores; it takes no lock and performs no atomic operation.
 - Work leaves the local list only when:
   - a heartbeat fires (default every 10 µs), or
   - a flat loop calls `kickstart` explicitly.
 - The heartbeat only sets a flag; the owning worker checks it at the next
   `Task.call`, so the call hot path stays a single atomic load.
-- Tiny workloads finish before any sharing, so they stay at serial cost.
+- Tiny workloads usually finish before sharing and stay on the caller. They
+  still incur recursive call and Future bookkeeping costs; strict small-tree
+  parity remains an open gate.
 - Flat loops share one job per lane up front and fall back to serial below
   `serial_threshold` items (default 4096) or when there are fewer chunks than
   lanes. This keeps small loops at serial cost and lets large loops pull work
@@ -128,13 +130,13 @@ fn sum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            var future = parz.Future(void, *const Node, anyerror!i64){};
-            future.fork(task, sum, right);
-            result += try task.call(anyerror!i64, sum, left);
-            result += if (future.join(task)) |value|
-                try value
-            else
-                try task.call(anyerror!i64, sum, right);
+            var future: parz.Future(void, *const Node, anyerror!i64) = undefined;
+            future.initFork(task, sum, right);
+            const left_value = task.call(anyerror!i64, sum, left);
+            const right_value = future.joinOrCall(task, sum);
+            // Join both branches before propagating either error.
+            result += try left_value;
+            result += try right_value;
             return result;
         }
         result += try task.call(anyerror!i64, sum, left);
@@ -157,8 +159,12 @@ Correctness rules:
 - A `Future` is single-use. Reinitialize it with `.{}` before forking again;
   `join`/`tryJoin` intentionally leave the embedded job unlinked without
   resetting it so the local join path stays cheap.
-- A `Future` must be joined by the same task that forked it. It lives on that
-  task's stack and its job is linked into that task's local list.
+- `initFork` initializes unused caller-owned storage, including `undefined`
+  storage or a previously joined slot. Keep its address stable until joined;
+  do not copy or return an enqueued Future by value.
+- A `Future` must be joined on the worker that forked it. Nested tasks on that
+  worker share its local list. Join every fork before propagating an error
+  that could unwind its storage.
 - `fork` must be followed by `join`/`tryJoin`/`joinOrCall`; do not drop a
   forked future.
 - `Task.call` is the only legal way to invoke a recursive parallel function.
@@ -371,6 +377,9 @@ overaligned contexts. [Worker layout experiments](docs/validation/2026-11-07-wor
 did not establish a stable padding benefit, so the compact worker layout is retained.
 Three [Future storage trials](docs/validation/2026-11-07-future-storage/README.md)
 emitted identical executable code; the byte-array payload remains in use.
+`Future.initFork` bypasses the pending value constructor when forking
+immediately. [Direct initialization evidence](docs/validation/2026-11-07-future-init/README.md)
+records the removed initialization write, lifecycle checks and measured limits.
 
 Optional NUMA-backed allocation:
 

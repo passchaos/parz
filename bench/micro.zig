@@ -25,8 +25,14 @@ fn plainParallel(task: *parz.Task(void), node: *const Node) i64 {
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            var future = parz.Future(void, *const Node, i64){};
-            future.fork(task, plainParallel, right);
+            const F = parz.Future(void, *const Node, i64);
+            var future: F = undefined;
+            if (comptime @hasDecl(F, "initFork")) {
+                future.initFork(task, plainParallel, right);
+            } else {
+                future = .{};
+                future.fork(task, plainParallel, right);
+            }
             result += task.call(i64, plainParallel, left);
             result += if (future.join(task)) |value|
                 value
@@ -46,8 +52,14 @@ fn errParallel(task: *parz.Task(void), node: *const Node) anyerror!i64 {
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            var future = parz.Future(void, *const Node, anyerror!i64){};
-            future.fork(task, errParallel, right);
+            const F = parz.Future(void, *const Node, anyerror!i64);
+            var future: F = undefined;
+            if (comptime @hasDecl(F, "initFork")) {
+                future.initFork(task, errParallel, right);
+            } else {
+                future = .{};
+                future.fork(task, errParallel, right);
+            }
             result += try task.call(anyerror!i64, errParallel, left);
             result += if (future.join(task)) |value|
                 try value
