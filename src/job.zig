@@ -4,11 +4,13 @@
 //! Magnus Holm). The job is embedded in the caller's stack frame, so `fork`
 //! does not allocate. A sentinel head keeps `push` branch-free.
 //!
-//! Unlike the original, the job state lives in a small atomic flag. `join` is
-//! allowed to read the state without the pool mutex, while a worker may be
-//! transitioning a job from "shared" to "executing" under it. The flag makes
-//! that transition observable in one step instead of through a pointer
-//! encoding with a transient inconsistent window.
+//! The job state is encoded in pointer tags instead of a separate atomic flag:
+//! - `prev_or_null` low bit: queued_shared.
+//! - `next_or_null` low bit: executing (the rest is *ExecuteState).
+//! Both pointers are naturally aligned, so the low bit is free on every target
+//! (including wasm). `state()` reads the handler and the two pointers with
+//! acquire loads; the transitions publish them with release stores under the
+//! pool mutex, so a reader never observes a half-updated execute state.
 
 const std = @import("std");
 
@@ -19,6 +21,10 @@ pub const JobState = enum(u8) {
     executing,
 };
 
+pub const Handler = *const fn (task: *anyopaque, job: *Job) void;
+
+const tag_bit: usize = 1;
+
 /// Out-of-line state for a job that has been handed to another worker.
 pub const ExecuteState = struct {
     io: std.Io,
@@ -28,19 +34,19 @@ pub const ExecuteState = struct {
 };
 
 pub const Job = struct {
-    handler: ?*const fn (task: *anyopaque, job: *Job) void,
-    /// Queued: previous job. Executing: null. Pending: undefined.
+    handler: ?Handler,
+    /// Queued: previous job, low bit set when the job is in a shared list.
+    /// Executing: null. Pending: undefined.
     prev_or_null: ?*anyopaque,
-    /// Queued: next job. Executing: *ExecuteState. Pending: undefined.
-    next_or_state: ?*anyopaque,
-    state_flag: std.atomic.Value(JobState) = .init(.pending),
+    /// Queued: next job. Executing: *ExecuteState with the low bit set.
+    /// Pending: undefined.
+    next_or_null: ?*anyopaque,
 
     pub fn head() Job {
         return .{
-            .handler = undefined,
+            .handler = null,
             .prev_or_null = null,
-            .next_or_state = null,
-            .state_flag = .init(.pending),
+            .next_or_null = null,
         };
     }
 
@@ -48,53 +54,65 @@ pub const Job = struct {
         return .{
             .handler = null,
             .prev_or_null = undefined,
-            .next_or_state = undefined,
-            .state_flag = .init(.pending),
+            .next_or_null = undefined,
         };
     }
 
     pub inline fn state(self: *const Job) JobState {
-        return self.state_flag.load(.acquire);
+        if (self.handler == null) return .pending;
+        const next = @atomicLoad(?*anyopaque, &self.next_or_null, .acquire);
+        if (next) |raw| {
+            if (@intFromPtr(raw) & tag_bit != 0) return .executing;
+        }
+        const prev = @atomicLoad(?*anyopaque, &self.prev_or_null, .acquire) orelse
+            return .executing;
+        return if (@intFromPtr(prev) & tag_bit == 0) .queued_local else .queued_shared;
     }
 
     pub inline fn isTail(self: *const Job) bool {
-        return self.next_or_state == null;
+        return self.next_or_null == null;
     }
 
     pub fn getExecuteState(self: *Job) *ExecuteState {
         std.debug.assert(self.state() == .executing);
-        return @ptrCast(@alignCast(self.next_or_state.?));
+        const raw = self.next_or_null.?;
+        return @ptrFromInt(@intFromPtr(raw) & ~tag_bit);
     }
 
     pub fn setExecuteState(self: *Job, execute_state: *ExecuteState) void {
         std.debug.assert(self.state() == .queued_shared);
-        self.next_or_state = @ptrCast(execute_state);
-        self.state_flag.store(.executing, .release);
+        // Publish the execute state and the executing tag in one store.
+        @atomicStore(
+            ?*anyopaque,
+            &self.next_or_null,
+            @ptrFromInt(@intFromPtr(execute_state) | tag_bit),
+            .release,
+        );
     }
 
     /// Append a pending job to the local list.
-    pub fn push(
-        self: *Job,
-        tail: **Job,
-        handler: *const fn (task: *anyopaque, job: *Job) void,
-    ) void {
+    pub fn push(self: *Job, tail: **Job, handler: Handler) void {
         std.debug.assert(self.state() == .pending);
         self.handler = handler;
-        tail.*.next_or_state = @ptrCast(self);
+        tail.*.next_or_null = @ptrCast(self);
         self.prev_or_null = @ptrCast(tail.*);
-        self.next_or_state = null;
+        self.next_or_null = null;
         tail.* = self;
-        // Local publication only; the pool mutex publishes shared work.
-        self.state_flag.store(.queued_local, .monotonic);
     }
 
     /// Append an already-detached job to a shared list.
     pub fn pushShared(self: *Job, tail: **Job) void {
-        self.prev_or_null = @ptrCast(tail.*);
-        self.next_or_state = null;
-        tail.*.next_or_state = @ptrCast(self);
+        self.next_or_null = null;
+        tail.*.next_or_null = @ptrCast(self);
+        // The release store publishes the handler, the next link, and the
+        // shared tag on the previous pointer.
+        @atomicStore(
+            ?*anyopaque,
+            &self.prev_or_null,
+            @ptrFromInt(@intFromPtr(tail.*) | tag_bit),
+            .release,
+        );
         tail.* = self;
-        self.state_flag.store(.queued_shared, .release);
     }
 
     /// Remove the tail job. The caller must have verified that `self` is the
@@ -103,23 +121,35 @@ pub const Job = struct {
     pub fn pop(self: *Job, tail: **Job) void {
         std.debug.assert(self.state() == .queued_local);
         std.debug.assert(tail.* == self);
-        const prev: *Job = @ptrCast(@alignCast(self.prev_or_null.?));
-        prev.next_or_state = null;
+        const prev: *Job = @ptrFromInt(@intFromPtr(self.prev_or_null.?) & ~tag_bit);
+        prev.next_or_null = null;
         tail.* = prev;
     }
 
     /// Remove a queued job from a local or shared list. The job is left
     /// unlinked but not reset; see `pop`.
     pub fn remove(self: *Job, tail: **Job) void {
-        const prev: *Job = @ptrCast(@alignCast(self.prev_or_null.?));
-        const next: ?*Job = if (self.next_or_state) |raw|
-            @ptrCast(@alignCast(raw))
+        const raw_prev = self.prev_or_null.?;
+        const shared_tag = @intFromPtr(raw_prev) & tag_bit;
+        const prev: *Job = @ptrFromInt(@intFromPtr(raw_prev) & ~tag_bit);
+        const next: ?*Job = if (self.next_or_null) |raw|
+            @ptrFromInt(@intFromPtr(raw) & ~tag_bit)
         else
             null;
 
-        prev.next_or_state = if (next) |n| @ptrCast(n) else null;
+        @atomicStore(
+            ?*anyopaque,
+            &prev.next_or_null,
+            if (next) |n| @as(?*anyopaque, @ptrCast(n)) else null,
+            .release,
+        );
         if (next) |n| {
-            n.prev_or_null = @ptrCast(prev);
+            @atomicStore(
+                ?*anyopaque,
+                &n.prev_or_null,
+                @ptrFromInt(@intFromPtr(prev) | shared_tag),
+                .release,
+            );
         } else {
             tail.* = prev;
         }
@@ -128,24 +158,26 @@ pub const Job = struct {
     /// Remove the head job from a shared list, including when it is the only
     /// element. The job stays `queued_shared` until an execute state is set.
     pub fn popHead(sentinel: *Job, tail: **Job) ?*Job {
-        const raw = sentinel.next_or_state orelse return null;
+        const raw = sentinel.next_or_null orelse return null;
         const job: *Job = @ptrCast(@alignCast(raw));
         std.debug.assert(job.state() == .queued_shared);
 
-        const next: ?*Job = if (job.next_or_state) |p|
+        const next: ?*Job = if (job.next_or_null) |p|
             @ptrCast(@alignCast(p))
         else
             null;
 
-        sentinel.next_or_state = if (next) |n| @ptrCast(n) else null;
+        sentinel.next_or_null = if (next) |n| @ptrCast(n) else null;
         if (next) |n| {
-            n.prev_or_null = @ptrCast(sentinel);
+            @atomicStore(
+                ?*anyopaque,
+                &n.prev_or_null,
+                @ptrFromInt(@intFromPtr(sentinel) | tag_bit),
+                .release,
+            );
         } else {
             tail.* = sentinel;
         }
-
-        job.prev_or_null = null;
-        job.next_or_state = undefined;
         return job;
     }
 
@@ -153,17 +185,15 @@ pub const Job = struct {
     /// sentinel cannot repair the caller's tail pointer. The returned job is
     /// still `queued_local` and must be moved with `pushShared`.
     pub fn shift(self: *Job) ?*Job {
-        const raw = self.next_or_state orelse return null;
+        const raw = self.next_or_null orelse return null;
         const job: *Job = @ptrCast(@alignCast(raw));
         std.debug.assert(job.state() == .queued_local);
 
-        const next_raw = job.next_or_state orelse return null;
+        const next_raw = job.next_or_null orelse return null;
         const next: *Job = @ptrCast(@alignCast(next_raw));
 
         next.prev_or_null = @ptrCast(self);
-        self.next_or_state = @ptrCast(next);
-        job.prev_or_null = null;
-        job.next_or_state = undefined;
+        self.next_or_null = @ptrCast(next);
         return job;
     }
 };
@@ -172,11 +202,11 @@ fn noop(_: *anyopaque, _: *Job) void {}
 
 fn count(head: *const Job) usize {
     var n: usize = 0;
-    var raw = head.next_or_state;
+    var raw = head.next_or_null;
     while (raw) |p| {
         const job: *Job = @ptrCast(@alignCast(p));
         n += 1;
-        raw = job.next_or_state;
+        raw = job.next_or_null;
     }
     return n;
 }

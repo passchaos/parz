@@ -311,7 +311,7 @@ pub fn Pool(comptime Ctx: type) type {
             defer self.mutex.unlock(self.io);
 
             if (self.is_stopping) return;
-            if (owner.shared_head.next_or_state != null) return;
+            if (owner.shared_head.next_or_null != null) return;
 
             var shared: usize = 0;
             while (shared < max) {
@@ -370,7 +370,7 @@ pub fn Pool(comptime Ctx: type) type {
         fn popReadyJob(self: *Self) ?*Job {
             for (self.workers[0..self.worker_count]) |w| {
                 if (!w.active) continue;
-                if (w.shared_head.next_or_state == null) continue;
+                if (w.shared_head.next_or_null == null) continue;
 
                 const state = self.acquireExecuteStateLocked() orelse continue;
                 const job = Job.popHead(&w.shared_head, &w.shared_tail).?;
@@ -468,7 +468,7 @@ pub fn Worker(comptime Ctx: type) type {
         }
 
         fn maybeShare(self: *Self) void {
-            if (self.shared_head.next_or_state != null) return;
+            if (self.shared_head.next_or_null != null) return;
             if (self.job_head.isTail()) return;
             const idle = self.pool.idle_workers.load(.monotonic);
             if (idle == 0) return;

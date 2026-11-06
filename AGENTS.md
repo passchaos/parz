@@ -25,7 +25,8 @@ iterator algebra; `imx` already chose direct callbacks for a reason.
 
 ## Design invariants
 
-- `fork` is three local stores on the owner's list. No atomics, no locks.
+- `fork` only appends to the owner's local list with plain stores: no
+  atomics, no locks.
 - Work leaves a local list only through heartbeat or explicit `kickstart`.
 - `join` returning `null` means "caller must run it"; every code path must
   preserve that fallback.
