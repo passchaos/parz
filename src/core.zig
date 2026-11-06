@@ -472,7 +472,7 @@ pub fn Worker(comptime Ctx: type) type {
             if (self.job_head.isTail()) return;
             const idle = self.pool.idle_workers.load(.monotonic);
             if (idle == 0) return;
-            self.pool.shareMany(self, idle);
+            self.pool.shareMany(self, @min(idle, 4));
         }
 
         fn executeJob(self: *Self, job: *Job) void {
