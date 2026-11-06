@@ -972,3 +972,50 @@ test "Future shares input and output storage" {
     const F = Future(void, usize, usize);
     try std.testing.expect(@sizeOf(F) <= @sizeOf(Job) + @sizeOf(usize));
 }
+
+test "future: tryJoin/result and joinOrCall with a large payload" {
+    const io = std.testing.io;
+    var pool = try Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 2,
+        .max_execute_states = 64,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    const Big = struct {
+        a: u64,
+        b: u64,
+        c: u64,
+        d: u64,
+    };
+    const produce = struct {
+        fn run(_: *Task(void), value: u64) Big {
+            return .{ .a = value, .b = value + 1, .c = value + 2, .d = value + 3 };
+        }
+    }.run;
+
+    const caller = pool.claimCaller() orelse return error.NoCallerSlot;
+    defer pool.releaseCaller(caller);
+    var task = caller.begin();
+
+    var first = Future(void, u64, Big){};
+    first.fork(&task, produce, 42);
+    if (first.tryJoin(&task)) {
+        const value = first.result();
+        try std.testing.expectEqual(@as(u64, 42), value.a);
+        try std.testing.expectEqual(@as(u64, 45), value.d);
+    } else {
+        const value = task.call(Big, produce, 42);
+        try std.testing.expectEqual(@as(u64, 42), value.a);
+        try std.testing.expectEqual(@as(u64, 45), value.d);
+    }
+
+    var second = Future(void, u64, Big){};
+    second.fork(&task, produce, 7);
+    const value = second.joinOrCall(&task, produce);
+    try std.testing.expectEqual(@as(u64, 7), value.a);
+    try std.testing.expectEqual(@as(u64, 10), value.d);
+}
