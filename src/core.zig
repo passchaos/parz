@@ -53,6 +53,10 @@ pub fn Options(comptime Ctx: type) type {
         /// Prefer allocations on this NUMA node for background workers
         /// (Linux MPOL_PREFERRED). The caller thread is not affected.
         numa_node: ?u16 = null,
+        /// When `numa_node` is null, use the node of the CPU the worker is
+        /// currently running on (Linux getcpu). Best combined with
+        /// `pin_workers = true`.
+        auto_numa: bool = false,
         /// Optional per-worker context constructor.
         context_init: ?*const fn (allocator: std.mem.Allocator, index: usize) anyerror!Ctx = null,
         /// Optional per-worker context destructor.
@@ -399,9 +403,24 @@ pub fn Pool(comptime Ctx: type) type {
             self.shareMany(owner, max);
         }
 
+        fn currentNumaNode() ?u16 {
+            var cpu: u32 = 0;
+            var node: u32 = 0;
+            const rc = std.os.linux.syscall3(
+                .getcpu,
+                @intFromPtr(&cpu),
+                @intFromPtr(&node),
+                0,
+            );
+            if (@as(isize, @bitCast(rc)) < 0) return null;
+            if (node == std.math.maxInt(u32)) return null;
+            return @intCast(node);
+        }
+
         fn applyNumaPolicy(self: *Self) void {
-            const node = self.options.numa_node orelse return;
             if (comptime builtin.os.tag != .linux) return;
+            const node: u16 = self.options.numa_node orelse
+                (if (self.options.auto_numa) currentNumaNode() orelse return else return);
             if (node >= @bitSizeOf(usize)) return;
 
             var mask: usize = @as(usize, 1) << @intCast(node);
@@ -834,6 +853,22 @@ test "pool applies a preferred numa node" {
         .max_callers = 1,
         .max_execute_states = 8,
         .numa_node = 0,
+    });
+    defer pool.deinit();
+    try pool.start();
+    try std.testing.expectEqual(@as(usize, 1), pool.spawned_background);
+}
+
+test "pool applies automatic numa policy" {
+    if (comptime builtin.os.tag != .linux) return error.SkipZigTest;
+    const io = std.testing.io;
+    var pool = try Pool(void).init(std.testing.allocator, io, .{
+        .workers = 1,
+        .max_workers = 1,
+        .max_callers = 1,
+        .max_execute_states = 8,
+        .pin_workers = true,
+        .auto_numa = true,
     });
     defer pool.deinit();
     try pool.start();

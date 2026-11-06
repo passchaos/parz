@@ -61,5 +61,5 @@ cancellation tokens, the infallible fold fast path, the `sync` module
 wait group),
 `parallelFor2D`, and optional Linux CPU affinity pinning.
 
-Not implemented yet: automatic NUMA topology discovery (explicit
-`Options.numa_node` is implemented).
+Not implemented yet: NUMA-aware allocator integration. Work stealing is
+intentionally out of scope to match Spice's design.
