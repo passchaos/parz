@@ -219,9 +219,10 @@ Treat these as indicative, not as a fixed gate.
 
 Sync primitives have a separate throughput smoke benchmark
 (`zig build bench-sync`). On the same loaded 32-thread host, 1M operations
-give roughly 0.27 Gops/s for SPSC, 13–15 Mops/s for the Treiber stack, and
-7–8 Mops/s for the bounded MPSC/blocking queues. These are indicative
-throughput numbers, not competitive gates.
+give roughly 0.3 Gops/s for SPSC, 11–17 Mops/s for the Treiber stack,
+21–25 Mops/s for MPSC with one producer, and 7–8 Mops/s for MPSC with four
+producers or the blocking queue. These are indicative throughput numbers,
+not competitive gates.
 
 ## Known limits / next steps
 

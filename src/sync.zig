@@ -70,8 +70,8 @@ pub fn MpscQueue(comptime T: type) type {
 
         buffer: []Slot,
         mask: usize,
-        enqueue_pos: std.atomic.Value(usize) = .init(0),
-        dequeue_pos: std.atomic.Value(usize) = .init(0),
+        enqueue_pos: std.atomic.Value(usize) align(std.atomic.cache_line) = .init(0),
+        dequeue_pos: usize align(std.atomic.cache_line) = 0,
         allocator: std.mem.Allocator,
 
         pub fn init(allocator: std.mem.Allocator, requested_capacity: usize) !Self {
@@ -122,21 +122,22 @@ pub fn MpscQueue(comptime T: type) type {
             }
         }
 
-        /// Single consumer only.
+        /// Single consumer only. The consumer position is a plain field, so
+        /// it does not share a cache line with the producers' enqueue position.
         pub fn tryPop(self: *Self) ?T {
-            var pos = self.dequeue_pos.load(.monotonic);
+            var pos = self.dequeue_pos;
             while (true) {
                 const slot = &self.buffer[pos & self.mask];
                 const seq = slot.sequence.load(.acquire);
                 const dif = @as(isize, @bitCast(seq -% (pos +% 1)));
                 if (dif == 0) {
-                    self.dequeue_pos.store(pos +% 1, .monotonic);
+                    self.dequeue_pos = pos +% 1;
                     const value = slot.value;
                     slot.sequence.store(pos +% self.buffer.len, .release);
                     return value;
                 }
                 if (dif < 0) return null;
-                pos = self.dequeue_pos.load(.monotonic);
+                pos = self.dequeue_pos;
             }
         }
     };
