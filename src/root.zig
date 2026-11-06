@@ -12,12 +12,15 @@
 pub const core = @import("core.zig");
 pub const parallel = @import("parallel.zig");
 pub const job = @import("job.zig");
+pub const cancel = @import("cancel.zig");
+pub const sync = @import("sync.zig");
 
 pub const Pool = core.Pool;
 pub const Options = core.Options;
 pub const Worker = core.Worker;
 pub const Task = core.Task;
 pub const Future = core.Future;
+pub const CancelToken = cancel.CancelToken;
 
 pub const Chunk = parallel.Chunk;
 pub const ParallelOptions = parallel.Options;
@@ -33,4 +36,6 @@ test {
     _ = job;
     _ = core;
     _ = parallel;
+    _ = cancel;
+    _ = sync;
 }

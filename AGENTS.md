@@ -53,7 +53,8 @@ iterator algebra; `imx` already chose direct callbacks for a reason.
 
 Implemented: `Pool`, `Worker`, `Task`, `Future`, `parallelFor`,
 `parallelForEach`, `parallelForRange`, `parallelFold`, `parallelReduce`,
-per-worker context, error propagation, caller fallback, heartbeat pacing.
+per-worker context, error propagation, caller fallback, heartbeat pacing,
+cancellation tokens, the infallible fold fast path, and the `sync` module
+(bounded SPSC/MPSC queues, Treiber stack, semaphore, wait group).
 
-Not implemented yet: cancellation tokens, `sync` module (bounded MPSC/SPSC,
-Treiber stack, semaphore, wait group), `parallelFor2D`/collapse, NUMA pinning.
+Not implemented yet: `parallelFor2D`/collapse, NUMA pinning.

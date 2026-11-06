@@ -22,7 +22,12 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - `tryJoin` / `result` for large or error-union payloads without materializing
   `?Output`.
 - `parallelFor`, `parallelForEach`, `parallelForRange`, `parallelFold`,
-  `parallelReduce` with deterministic chunk-index combination.
+  `parallelFoldInfallible`, `parallelReduce` with deterministic chunk-index
+  combination.
+- `CancelToken` with cooperative cancellation checked at chunk boundaries and
+  every 4096 items inside a chunk.
+- `sync` module: bounded SPSC/MPSC queues, a multi-producer/single-consumer
+  Treiber stack, a counting semaphore, and a wait group.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
@@ -81,6 +86,19 @@ const Add = struct {
 };
 const total = try parz.parallelFold(
     &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, Map.map, Add.combine,
+);
+
+// When `map` cannot fail, the infallible variant removes the per-item error
+// check from the chunk loop.
+const total_infallible = try parz.parallelFoldInfallible(
+    &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, Map.map, Add.combine,
+);
+
+// Cooperative cancellation. The flat APIs check the token at chunk
+// boundaries and every 4096 items.
+var token = parz.CancelToken{};
+try parz.parallelFor(
+    &pool, rows, rows.len, .{ .min_chunk = 1, .cancel = &token }, Run.run,
 );
 ```
 
@@ -179,11 +197,6 @@ Treat these as indicative, not as a fixed gate.
 
 ## Known limits / next steps
 
-- No cancellation token yet. A `CancelToken` checked at chunk boundaries is the
-  next hardening step.
-- No dedicated `sync` module yet. Bounded MPSC/SPSC queues, Treiber stack,
-  semaphore, and wait-group are planned as a separate module so scheduler and
-  queue semantics can evolve independently.
 - No `parallelFor2D`/collapse helper yet.
 - No NUMA/affinity pinning beyond CPU-count discovery.
 - No work stealing: idle workers consume shared jobs; they do not steal from

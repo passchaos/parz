@@ -8,6 +8,15 @@
 const std = @import("std");
 const core = @import("core.zig");
 const Job = @import("job.zig").Job;
+const CancelToken = @import("cancel.zig").CancelToken;
+
+const cancel_block = 4096;
+
+inline fn checkCancel(token: ?*CancelToken) anyerror!void {
+    if (token) |t| {
+        if (t.isCancelled()) return error.Cancelled;
+    }
+}
 
 pub const Chunk = struct {
     start: usize,
@@ -29,6 +38,9 @@ pub const Options = struct {
     /// this is almost always dominated by caller-slot setup, future
     /// allocation, and worker wake-up cost. Set to 0 to force parallelism.
     serial_threshold: usize = 4096,
+    /// Optional cooperative cancellation token. It is checked at chunk
+    /// boundaries and every 4096 items inside a chunk.
+    cancel: ?*CancelToken = null,
 };
 
 /// Parallel loop over `[0, count)`.
@@ -45,18 +57,23 @@ pub fn parallelFor(
 
     const IndexRunner = struct {
         shared: *const Shared,
+        cancel: ?*CancelToken,
 
         fn range(w: *W, self: *@This(), chunk: Chunk) anyerror!void {
             var i = chunk.start;
-            while (i < chunk.end) : (i += 1) {
-                // Call the comptime callback directly so the per-item call is
-                // inlined instead of going through a function pointer.
-                try run(w, self.shared.*, i);
+            while (i < chunk.end) {
+                try checkCancel(self.cancel);
+                const block_end = @min(i + cancel_block, chunk.end);
+                while (i < block_end) : (i += 1) {
+                    // Call the comptime callback directly so the per-item call
+                    // is inlined instead of going through a function pointer.
+                    try run(w, self.shared.*, i);
+                }
             }
         }
     };
 
-    var runner = IndexRunner{ .shared = &shared };
+    var runner = IndexRunner{ .shared = &shared, .cancel = options.cancel };
     return parallelForRange(pool, &runner, count, options, IndexRunner.range);
 }
 
@@ -87,6 +104,7 @@ pub fn parallelForRange(
 
     const Runner = struct {
         shared: *const Shared,
+        cancel: ?*CancelToken,
     };
     const Input = struct {
         runner: *Runner,
@@ -95,16 +113,17 @@ pub fn parallelForRange(
     const Fut = core.Future(Ctx, Input, anyerror!void);
     const Exec = struct {
         fn exec(t: *T, input: Input) anyerror!void {
+            try checkCancel(input.runner.cancel);
             try run(t.worker, input.runner.shared.*, input.chunk);
         }
     };
 
-    var runner = Runner{ .shared = &shared };
+    var runner = Runner{ .shared = &shared, .cancel = options.cancel };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialRange(pool, shared, count, run);
+        return serialRange(pool, shared, count, options.cancel, run);
     }
     const caller = pool.claimCaller() orelse {
-        return serialRange(pool, shared, count, run);
+        return serialRange(pool, shared, count, options.cancel, run);
     };
     defer pool.releaseCaller(caller);
     var task = caller.begin();
@@ -176,6 +195,7 @@ pub fn parallelFold(
     const Runner = struct {
         shared: *const Shared,
         identity: T,
+        cancel: ?*CancelToken,
     };
     const Input = struct {
         runner: *Runner,
@@ -187,8 +207,12 @@ pub fn parallelFold(
             const runner = input.runner;
             var acc = runner.identity;
             var i = input.chunk.start;
-            while (i < input.chunk.end) : (i += 1) {
-                acc = combine(acc, try map(t.worker, runner.shared.*, i));
+            while (i < input.chunk.end) {
+                try checkCancel(runner.cancel);
+                const block_end = @min(i + cancel_block, input.chunk.end);
+                while (i < block_end) : (i += 1) {
+                    acc = combine(acc, try map(t.worker, runner.shared.*, i));
+                }
             }
             return acc;
         }
@@ -197,12 +221,13 @@ pub fn parallelFold(
     var runner = Runner{
         .shared = &shared,
         .identity = identity,
+        .cancel = options.cancel,
     };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFold(pool, T, shared, count, identity, map, combine);
+        return serialFold(pool, T, shared, count, options.cancel, identity, map, combine);
     }
     const caller = pool.claimCaller() orelse {
-        return serialFold(pool, T, shared, count, identity, map, combine);
+        return serialFold(pool, T, shared, count, options.cancel, identity, map, combine);
     };
     defer pool.releaseCaller(caller);
     var task = caller.begin();
@@ -276,6 +301,7 @@ pub fn parallelFoldInfallible(
     const Runner = struct {
         shared: *const Shared,
         identity: T,
+        cancel: ?*CancelToken,
     };
     const Input = struct {
         runner: *Runner,
@@ -287,8 +313,12 @@ pub fn parallelFoldInfallible(
             const runner = input.runner;
             var acc = runner.identity;
             var i = input.chunk.start;
-            while (i < input.chunk.end) : (i += 1) {
-                acc = combine(acc, map(t.worker, runner.shared.*, i));
+            while (i < input.chunk.end) {
+                try checkCancel(runner.cancel);
+                const block_end = @min(i + cancel_block, input.chunk.end);
+                while (i < block_end) : (i += 1) {
+                    acc = combine(acc, map(t.worker, runner.shared.*, i));
+                }
             }
             return acc;
         }
@@ -297,12 +327,13 @@ pub fn parallelFoldInfallible(
     var runner = Runner{
         .shared = &shared,
         .identity = identity,
+        .cancel = options.cancel,
     };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFoldInfallible(pool, T, shared, count, identity, map, combine);
+        return serialFoldInfallible(pool, T, shared, count, options.cancel, identity, map, combine);
     }
     const caller = pool.claimCaller() orelse {
-        return serialFoldInfallible(pool, T, shared, count, identity, map, combine);
+        return serialFoldInfallible(pool, T, shared, count, options.cancel, identity, map, combine);
     };
     defer pool.releaseCaller(caller);
     var task = caller.begin();
@@ -412,6 +443,7 @@ fn serialRange(
     pool: anytype,
     shared: anytype,
     count: usize,
+    cancel: ?*CancelToken,
     comptime run: anytype,
 ) anyerror!void {
     const P = @TypeOf(pool.*);
@@ -419,6 +451,7 @@ fn serialRange(
     var ctx = try pool.createTempContext();
     defer pool.destroyTempContext(&ctx);
     var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
+    try checkCancel(cancel);
     try run(&temp, shared, .{ .start = 0, .end = count });
 }
 
@@ -427,6 +460,7 @@ fn serialFold(
     comptime T: type,
     shared: anytype,
     count: usize,
+    cancel: ?*CancelToken,
     identity: T,
     comptime map: anytype,
     comptime combine: anytype,
@@ -438,8 +472,12 @@ fn serialFold(
     var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
     var total = identity;
     var i: usize = 0;
-    while (i < count) : (i += 1) {
-        total = combine(total, try map(&temp, shared, i));
+    while (i < count) {
+        try checkCancel(cancel);
+        const block_end = @min(i + cancel_block, count);
+        while (i < block_end) : (i += 1) {
+            total = combine(total, try map(&temp, shared, i));
+        }
     }
     return total;
 }
@@ -449,6 +487,7 @@ fn serialFoldInfallible(
     comptime T: type,
     shared: anytype,
     count: usize,
+    cancel: ?*CancelToken,
     identity: T,
     comptime map: anytype,
     comptime combine: anytype,
@@ -460,8 +499,12 @@ fn serialFoldInfallible(
     var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
     var total = identity;
     var i: usize = 0;
-    while (i < count) : (i += 1) {
-        total = combine(total, map(&temp, shared, i));
+    while (i < count) {
+        try checkCancel(cancel);
+        const block_end = @min(i + cancel_block, count);
+        while (i < block_end) : (i += 1) {
+            total = combine(total, map(&temp, shared, i));
+        }
     }
     return total;
 }
@@ -738,3 +781,138 @@ test "parallelFoldInfallible matches the fallible fold" {
     try std.testing.expectEqual(expected, total);
 }
 
+
+test "parallelFor returns Cancelled for an already-cancelled token" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 128,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    var token = CancelToken{};
+    token.cancel();
+    const Ctx = struct {
+        fn run(_: *core.Worker(void), _: void, _: usize) anyerror!void {}
+    };
+    try std.testing.expectError(
+        error.Cancelled,
+        parallelFor(&pool, {}, 10_000, .{
+            .min_chunk = 16,
+            .serial_threshold = 0,
+            .cancel = &token,
+        }, Ctx.run),
+    );
+}
+
+test "parallelFold cancels from a callback" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 128,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    var token = CancelToken{};
+    const Ctx = struct {
+        token: *CancelToken,
+        fn map(_: *core.Worker(void), ctx: *@This(), index: usize) anyerror!u64 {
+            if (index == 100) ctx.token.cancel();
+            return index;
+        }
+    };
+    var ctx = Ctx{ .token = &token };
+    const Add = struct {
+        fn combine(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    try std.testing.expectError(
+        error.Cancelled,
+        parallelFold(&pool, u64, &ctx, 10_000, .{
+            .min_chunk = 1,
+            .chunks_per_worker = 1,
+            .serial_threshold = 0,
+            .cancel = &token,
+        }, 0, Ctx.map, Add.combine),
+    );
+}
+
+test "parallelFoldInfallible honors cancellation" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 128,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    var token = CancelToken{};
+    const Ctx = struct {
+        token: *CancelToken,
+        fn map(_: *core.Worker(void), ctx: *@This(), index: usize) u64 {
+            if (index == 100) ctx.token.cancel();
+            return index;
+        }
+    };
+    var ctx = Ctx{ .token = &token };
+    const Add = struct {
+        fn combine(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    try std.testing.expectError(
+        error.Cancelled,
+        parallelFoldInfallible(&pool, u64, &ctx, 10_000, .{
+            .min_chunk = 1,
+            .chunks_per_worker = 1,
+            .serial_threshold = 0,
+            .cancel = &token,
+        }, 0, Ctx.map, Add.combine),
+    );
+}
+
+test "serial fold honors cancellation" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 128,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    var token = CancelToken{};
+    token.cancel();
+    const Map = struct {
+        fn map(_: *core.Worker(void), _: void, index: usize) anyerror!u64 {
+            return index;
+        }
+    };
+    const Add = struct {
+        fn combine(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    try std.testing.expectError(
+        error.Cancelled,
+        parallelFold(&pool, u64, {}, 100, .{
+            .min_chunk = 1,
+            .serial_threshold = 1000,
+            .cancel = &token,
+        }, 0, Map.map, Add.combine),
+    );
+}
