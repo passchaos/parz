@@ -7,15 +7,29 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-/// Bounded single-producer/single-consumer ring buffer.
+/// Bounded single-producer/single-consumer ring buffer. Each endpoint caches
+/// its peer's position, refreshing it only at a possible full/empty boundary.
 pub fn SpscQueue(comptime T: type) type {
     return struct {
         const Self = @This();
 
+        const Cursor = struct {
+            position: std.atomic.Value(usize) = .init(0),
+            // Only this cursor's owner reads or writes the cached peer value.
+            cached_peer: usize = 0,
+            // Fill the line: immutable buffer metadata must not occupy the
+            // producer's line and make every consumer access contend with it.
+            _padding: [std.atomic.cache_line - 2 * @sizeOf(usize)]u8 = undefined,
+        };
+
+        comptime {
+            std.debug.assert(@sizeOf(Cursor) == std.atomic.cache_line);
+        }
+
         buffer: []T,
         mask: usize,
-        head: std.atomic.Value(usize) = .init(0),
-        tail: std.atomic.Value(usize) = .init(0),
+        consumer: Cursor align(std.atomic.cache_line) = .{},
+        producer: Cursor align(std.atomic.cache_line) = .{},
         allocator: std.mem.Allocator,
 
         pub fn init(allocator: std.mem.Allocator, requested_capacity: usize) !Self {
@@ -38,26 +52,33 @@ pub fn SpscQueue(comptime T: type) type {
         /// Exact when quiescent. Reading the released head first also observes
         /// the tail publication that allowed the consumer to reach that head.
         pub fn len(self: *const Self) usize {
-            const head = self.head.load(.acquire);
-            const tail = self.tail.load(.acquire);
+            const head = self.consumer.position.load(.acquire);
+            const tail = self.producer.position.load(.acquire);
             return @min(tail -% head, self.buffer.len);
         }
 
         pub fn tryPush(self: *Self, value: T) bool {
-            const tail = self.tail.load(.monotonic);
-            const head = self.head.load(.acquire);
-            if (tail -% head >= self.buffer.len) return false;
+            const tail = self.producer.position.load(.monotonic);
+            // A cached head is conservative: only an acquired newer head
+            // authorizes reuse of additional slots, including across wrap.
+            if (tail -% self.producer.cached_peer >= self.buffer.len) {
+                self.producer.cached_peer = self.consumer.position.load(.acquire);
+                if (tail -% self.producer.cached_peer >= self.buffer.len) return false;
+            }
             self.buffer[tail & self.mask] = value;
-            self.tail.store(tail +% 1, .release);
+            self.producer.position.store(tail +% 1, .release);
             return true;
         }
 
         pub fn tryPop(self: *Self) ?T {
-            const head = self.head.load(.monotonic);
-            const tail = self.tail.load(.acquire);
-            if (head == tail) return null;
+            const head = self.consumer.position.load(.monotonic);
+            // The cached tail authorizes only slots from an earlier acquire.
+            if (head == self.consumer.cached_peer) {
+                self.consumer.cached_peer = self.producer.position.load(.acquire);
+                if (head == self.consumer.cached_peer) return null;
+            }
             const value = self.buffer[head & self.mask];
-            self.head.store(head +% 1, .release);
+            self.consumer.position.store(head +% 1, .release);
             return value;
         }
     };
@@ -452,6 +473,60 @@ test "spsc queue: single-threaded order and bounds" {
     try std.testing.expect(queue.tryPop() == null);
 }
 
+test "spsc queue: capacity boundaries and cached cursors survive wraparound" {
+    for ([_]usize{ 0, 1, 2, 3, 8, 1024 }) |requested| {
+        var queue = try SpscQueue(u32).init(std.testing.allocator, requested);
+        defer queue.deinit();
+        const origin = std.math.maxInt(usize) - 5;
+        queue.consumer = .{ .position = .init(origin), .cached_peer = origin };
+        queue.producer = .{ .position = .init(origin), .cached_peer = origin };
+        var next_push: u32 = 0;
+        var next_pop: u32 = 0;
+        var count: usize = 0;
+        var random = std.Random.DefaultPrng.init(0x73707363);
+        // Always cross the integer boundary, including for singleton queues.
+        for (0..16) |_| {
+            for (0..queue.capacity()) |_| {
+                try std.testing.expect(queue.tryPush(next_push));
+                next_push += 1;
+            }
+            try std.testing.expect(!queue.tryPush(next_push));
+            try std.testing.expectEqual(queue.capacity(), queue.len());
+            for (0..queue.capacity()) |_| {
+                try std.testing.expectEqual(next_pop, queue.tryPop().?);
+                next_pop += 1;
+            }
+            try std.testing.expect(queue.tryPop() == null);
+        }
+        // Partial fills/drains exercise refreshes with unread cached slots.
+        for (0..5000) |_| {
+            if (random.random().boolean()) {
+                const pushed = queue.tryPush(next_push);
+                try std.testing.expectEqual(count < queue.capacity(), pushed);
+                if (pushed) {
+                    next_push += 1;
+                    count += 1;
+                }
+            } else {
+                const value = queue.tryPop();
+                try std.testing.expectEqual(count > 0, value != null);
+                if (value) |actual| {
+                    try std.testing.expectEqual(next_pop, actual);
+                    next_pop += 1;
+                    count -= 1;
+                }
+            }
+            try std.testing.expectEqual(count, queue.len());
+        }
+        while (queue.tryPop()) |value| {
+            try std.testing.expectEqual(next_pop, value);
+            next_pop += 1;
+        }
+        try std.testing.expectEqual(next_push, next_pop);
+        try std.testing.expectEqual(@as(usize, 0), queue.len());
+    }
+}
+
 test "mpsc queue: singleton rejects pushes until the value is consumed" {
     for ([_]usize{ 0, 1 }) |requested| {
         var queue = try MpscQueue(u32).init(std.testing.allocator, requested);
@@ -579,11 +654,8 @@ test "spsc queue: concurrent observer length stays within capacity" {
     }
 }
 
-test "spsc queue: threaded producer and consumer" {
+test "spsc queue: repeated threaded FIFO across capacities and counter wrap" {
     if (builtin.single_threaded) return error.SkipZigTest;
-
-    var queue = try SpscQueue(u32).init(std.testing.allocator, 1024);
-    defer queue.deinit();
 
     const Producer = struct {
         fn run(q: *SpscQueue(u32)) void {
@@ -597,17 +669,30 @@ test "spsc queue: threaded producer and consumer" {
             }
         }
     };
-    const thread = try std.Thread.spawn(.{}, Producer.run, .{&queue});
-    var received: u32 = 0;
-    while (received < spsc_count) {
-        if (queue.tryPop()) |value| {
-            std.debug.assert(value == received);
-            received += 1;
-        } else {
-            std.atomic.spinLoopHint();
+    for ([_]usize{ 1, 2, 16, 1024 }) |capacity| {
+        for (0..2) |_| {
+            var queue = try SpscQueue(u32).init(std.testing.allocator, capacity);
+            defer queue.deinit();
+            const origin = std.math.maxInt(usize) - 5;
+            queue.consumer = .{ .position = .init(origin), .cached_peer = origin };
+            queue.producer = .{ .position = .init(origin), .cached_peer = origin };
+            const thread = try std.Thread.spawn(.{}, Producer.run, .{&queue});
+            var received: u32 = 0;
+            var bad_order = false;
+            var checksum: u64 = 0;
+            while (received < spsc_count) {
+                if (queue.tryPop()) |value| {
+                    bad_order = bad_order or value != received;
+                    checksum += value;
+                    received += 1;
+                } else std.atomic.spinLoopHint();
+            }
+            thread.join();
+            try std.testing.expect(!bad_order);
+            try std.testing.expectEqual(@as(u64, spsc_count) * (spsc_count - 1) / 2, checksum);
+            try std.testing.expectEqual(@as(usize, 0), queue.len());
         }
     }
-    thread.join();
 }
 
 test "mpsc queue: threaded producers and consumer" {

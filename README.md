@@ -194,6 +194,13 @@ group.wait(io);
 `MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
 `BlockingQueue` is the multi-consumer blocking option.
 
+`SpscQueue` caches the opposite endpoint's position until a possible full or
+empty boundary. Producer state, consumer state, and immutable buffer metadata
+occupy separate cache lines. This reduces communication between cores at the
+cost of larger queue metadata: 384 bytes on x86_64 using Zig's 128-byte padding
+unit. Sharded MPSC queues inherit this layout. Single-threaded use is supported;
+same-thread throughput is measured separately in the SPSC benchmark.
+
 ## Per-worker context
 
 ```zig
@@ -233,6 +240,8 @@ taskset -c 0,2,4,6,8,10,12,14 zig build bench-irregular \
     -Doptimize=ReleaseFast -- 200000 8 9 skewed
 zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput
+zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
+# bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
 # Cross-library comparison (needs a spice checkout, Cargo, and GCC/OpenMP).
@@ -300,12 +309,13 @@ than the current fork/join path for the 1000-node case, especially with an
 error-union result.
 
 Sync primitives have a separate throughput smoke benchmark
-(`zig build bench-sync`). On the same loaded 32-thread host, 1M operations
-give roughly 0.3 Gops/s for SPSC, 11–17 Mops/s for the Treiber stack,
-21–25 Mops/s for MPSC with one producer, 22–30 Mops/s for the sharded MPSC
-with four producers, and 7–8 Mops/s for the global MPSC with four producers
-or the blocking queue. These are indicative throughput numbers, not
-competitive gates.
+(`zig build bench-sync`); its SPSC path verifies FIFO order and checksum.
+`bench-spsc` pins both endpoints, checks every warmup and measured transfer,
+and alternates baseline/current and serial/parallel paths. Allocation, thread
+creation, and affinity setup occur before timing. It retains the SPSC
+implementation from `efeb092` as a frozen baseline. Paired medians and layout
+tradeoffs are recorded in
+[the SPSC validation report](docs/validation/2026-11-07-cached-spsc/README.md).
 
 ## Known limits / next steps
 

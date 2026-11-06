@@ -1,0 +1,13 @@
+spsc count=3000000 capacity=1024 producer_cpu=0 consumer_cpu=2 checksum=4499998500000 baseline_bytes=56 candidate_bytes=384
+sample=0 baseline_serial_ns=5216975 baseline_parallel_ns=22639098 candidate_serial_ns=4549528 candidate_parallel_ns=32903586
+sample=1 baseline_serial_ns=5225180 baseline_parallel_ns=23146281 candidate_serial_ns=4558698 candidate_parallel_ns=32732471
+sample=2 baseline_serial_ns=4800140 baseline_parallel_ns=22717391 candidate_serial_ns=4421659 candidate_parallel_ns=32536665
+sample=3 baseline_serial_ns=5158057 baseline_parallel_ns=22832182 candidate_serial_ns=4254211 candidate_parallel_ns=32033924
+sample=4 baseline_serial_ns=5230517 baseline_parallel_ns=22348911 candidate_serial_ns=4277776 candidate_parallel_ns=32587842
+sample=5 baseline_serial_ns=2704205 baseline_parallel_ns=114026466 candidate_serial_ns=2441234 candidate_parallel_ns=18945115
+sample=6 baseline_serial_ns=2747114 baseline_parallel_ns=66274694 candidate_serial_ns=2329261 candidate_parallel_ns=68833537
+sample=7 baseline_serial_ns=2672359 baseline_parallel_ns=109134055 candidate_serial_ns=2406804 candidate_parallel_ns=40604025
+sample=8 baseline_serial_ns=2698297 baseline_parallel_ns=67117524 candidate_serial_ns=2380134 candidate_parallel_ns=56142088
+spsc implementation=baseline serial_ns=4800140 parallel_ns=23146281 speedup=0.207 statistic=median
+spsc implementation=candidate serial_ns=4254211 parallel_ns=32732471 speedup=0.130 statistic=median
+spsc comparison baseline_ns=23146281 candidate_ns=32732471 speedup=0.707 statistic=median

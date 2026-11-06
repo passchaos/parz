@@ -132,6 +132,17 @@ pub fn build(b: *std.Build) void {
     const bench_sync_step = b.step("bench-sync", "Run sync primitive throughput benchmarks");
     bench_sync_step.dependOn(&run_sync_bench.step);
 
+    const spsc_mod = b.createModule(.{
+        .root_source_file = b.path("bench/spsc.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const spsc = b.addExecutable(.{ .name = "parz-spsc-bench", .root_module = spsc_mod });
+    const run_spsc = b.addRunArtifact(spsc);
+    if (b.args) |args| run_spsc.addArgs(args);
+    b.step("bench-spsc", "Compare checksum-verified SPSC paths on fixed CPUs").dependOn(&run_spsc.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);

@@ -1,0 +1,8 @@
+spsc count=1000000 ns=10499035 ops_per_sec=95246849
+spsc checksum=499999500000
+mpsc count=1000000 ns=158627286 ops_per_sec=6304086
+mpsc-1p count=1000000 ns=32867702 ops_per_sec=30425005
+mpsc-sharded count=1000000 ns=41985181 ops_per_sec=23817928
+mpsc-mutex count=1000000 ns=303808118 ops_per_sec=3291551
+treiber count=1000000 ns=66190396 ops_per_sec=15107932
+blocking count=1000000 ns=124390497 ops_per_sec=8039199

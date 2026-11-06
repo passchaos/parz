@@ -44,15 +44,22 @@ fn runSpsc(allocator: std.mem.Allocator, io: std.Io) !void {
     const start = now(io);
     const thread = try std.Thread.spawn(.{}, Producer.run, .{&queue});
     var received: usize = 0;
+    var checksum: u64 = 0;
+    var bad_order = false;
     while (received < total) {
-        if (queue.tryPop()) |_| {
+        if (queue.tryPop()) |value| {
+            checksum += value;
+            bad_order = bad_order or value != received;
             received += 1;
         } else {
             std.atomic.spinLoopHint();
         }
     }
     thread.join();
+    if (bad_order or checksum != @as(u64, total) * (total - 1) / 2 or queue.len() != 0)
+        return error.ChecksumMismatch;
     report("spsc", start.untilNow(io).raw.toNanoseconds(), total);
+    std.debug.print("spsc checksum={d}\n", .{checksum});
 }
 
 fn runMpsc(allocator: std.mem.Allocator, io: std.Io) !void {

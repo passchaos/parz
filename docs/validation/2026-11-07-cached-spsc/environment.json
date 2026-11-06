@@ -1,0 +1,46 @@
+{
+  "captured_at_utc": "2026-11-06T21:12:30.710566+00:00",
+  "baseline_commit": "efeb092d467b2e997257cf72c18f91d6101d5c33",
+  "zig_version": "0.16.0",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+  "loadavg": "8.50 8.71 8.49 6/2003 3083070",
+  "sha256": {
+    "src/sync.zig": "1ab3f057dc4c0c009aa4eccc07e57166f8b1f2471772151c0e8a00817372c29b",
+    "bench/spsc.zig": "adbfda42411436a35d65dba573f131637d18924d0cb54da3888594039559e8c3",
+    "bench/spsc_baseline.zig": "b0c78f24ab08cf77b5f8e40e11c7c1da156fb8305b762ea37603007b416cf035",
+    "bench/sync.zig": "df575cc13244a0bd367a9ef09abf4638db1194302dbd9bfa37388f4c938800a3",
+    "build.zig": "bbf48c149a85d638a59c3da593200e2dbe66602f9ad2978875ee33a21f29d7e7"
+  },
+  "cpus": {
+    "0": {
+      "core_id": "0",
+      "thread_siblings_list": "0-1",
+      "l2_shared_cpu_list": "0-1"
+    },
+    "2": {
+      "core_id": "4",
+      "thread_siblings_list": "2-3",
+      "l2_shared_cpu_list": "2-3"
+    },
+    "24": {
+      "core_id": "40",
+      "thread_siblings_list": "24",
+      "l2_shared_cpu_list": "24-27"
+    },
+    "26": {
+      "core_id": "42",
+      "thread_siblings_list": "26",
+      "l2_shared_cpu_list": "24-27"
+    }
+  },
+  "passed_gates": [
+    "zig build test: 62 unit tests + 3 integration tests",
+    "zig build test -Doptimize=ReleaseSafe: 62 unit tests + 3 integration tests",
+    "zig test src/root.zig -fsanitize-thread -OReleaseSafe: 62 tests",
+    "zig test src/root.zig -fsingle-threaded -OReleaseSafe: 50 passed, 12 skipped",
+    "wasm32-wasi generic+atomics test-instance compilation",
+    "x86_64-windows-gnu test-instance compilation",
+    "aarch64-macos test-instance compilation",
+    "x86_64-linux-musl test-instance compilation"
+  ]
+}
