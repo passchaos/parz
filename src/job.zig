@@ -98,17 +98,18 @@ pub const Job = struct {
     }
 
     /// Remove the tail job. The caller must have verified that `self` is the
-    /// current tail.
+    /// current tail. The job is left unlinked but not reset: `Future` is
+    /// single-use and is reinitialized before it is forked again.
     pub fn pop(self: *Job, tail: **Job) void {
         std.debug.assert(self.state() == .queued_local);
         std.debug.assert(tail.* == self);
         const prev: *Job = @ptrCast(@alignCast(self.prev_or_null.?));
         prev.next_or_state = null;
         tail.* = prev;
-        self.reset();
     }
 
-    /// Remove a queued job from a local or shared list.
+    /// Remove a queued job from a local or shared list. The job is left
+    /// unlinked but not reset; see `pop`.
     pub fn remove(self: *Job, tail: **Job) void {
         const prev: *Job = @ptrCast(@alignCast(self.prev_or_null.?));
         const next: ?*Job = if (self.next_or_state) |raw|
@@ -122,7 +123,6 @@ pub const Job = struct {
         } else {
             tail.* = prev;
         }
-        self.reset();
     }
 
     /// Remove the head job from a shared list, including when it is the only
@@ -165,13 +165,6 @@ pub const Job = struct {
         job.prev_or_null = null;
         job.next_or_state = undefined;
         return job;
-    }
-
-    fn reset(self: *Job) void {
-        self.handler = null;
-        self.prev_or_null = undefined;
-        self.next_or_state = undefined;
-        self.state_flag.store(.pending, .monotonic);
     }
 };
 

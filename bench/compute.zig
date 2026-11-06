@@ -72,7 +72,7 @@ pub fn main(init: std.process.Init) !void {
             u64,
             {},
             count,
-            .{ .min_chunk = 1024, .chunks_per_worker = 4 },
+            .{ .min_chunk = 1024 },
             0,
             Map.map,
             Combine.combine,

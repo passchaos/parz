@@ -26,8 +26,7 @@ iterator algebra; `imx` already chose direct callbacks for a reason.
 ## Design invariants
 
 - `fork` is three local stores on the owner's list. No atomics, no locks.
-- Work leaves a local list only through heartbeat, tick budget, or explicit
-  `kickstart`.
+- Work leaves a local list only through heartbeat or explicit `kickstart`.
 - `join` returning `null` means "caller must run it"; every code path must
   preserve that fallback.
 - Results are combined in chunk-index order so output does not depend on
@@ -53,8 +52,7 @@ iterator algebra; `imx` already chose direct callbacks for a reason.
 
 Implemented: `Pool`, `Worker`, `Task`, `Future`, `parallelFor`,
 `parallelForEach`, `parallelForRange`, `parallelFold`, `parallelReduce`,
-per-worker context, error propagation, caller fallback, heartbeat and tick
-pacing.
+per-worker context, error propagation, caller fallback, heartbeat pacing.
 
 Not implemented yet: cancellation tokens, `sync` module (bounded MPSC/SPSC,
 Treiber stack, semaphore, wait group), `parallelFor2D`/collapse, NUMA pinning.

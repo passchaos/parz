@@ -36,11 +36,9 @@ pub fn Options(comptime Ctx: type) type {
         max_execute_states: usize = 1024,
         /// Heartbeat period. A worker only offers queued work to idle lanes
         /// once per period, which keeps tiny fork/join trees at serial cost.
-        heartbeat_interval_ns: i96 = 100 * std.time.ns_per_us,
-        /// Additional pacing: offer work after this many nested calls even if
-        /// no heartbeat has fired. This lets medium workloads parallelize
-        /// without shortening the heartbeat period.
-        share_after_ticks: usize = 4096,
+        /// 10us is short enough to fill lanes on medium trees while still
+        /// leaving microsecond-scale trees untouched.
+        heartbeat_interval_ns: i96 = 10 * std.time.ns_per_us,
         /// Start a dedicated heartbeat thread. Without it, `tick` never
         /// shares work and only eager `kickstart` paths (flat loops) run in
         /// parallel.
@@ -449,7 +447,6 @@ pub fn Worker(comptime Ctx: type) type {
         shared_head: Job = Job.head(),
         shared_tail: *Job = undefined,
         heartbeat: std.atomic.Value(bool) = .init(false),
-        ticks_since_share: usize = 0,
 
         pub fn context(self: *Self) *Ctx {
             return &self.ctx;
@@ -463,18 +460,18 @@ pub fn Worker(comptime Ctx: type) type {
         /// lets work leave the local list, so tiny workloads stay serial.
         pub inline fn tick(self: *Self) void {
             if (!self.active) return;
-            // Plain atomic load: only this thread writes `heartbeat`, so no
-            // read-modify-write barrier is needed on the hot path.
-            const beat = self.heartbeat.load(.monotonic);
-            const ticks = self.ticks_since_share +% 1;
-            self.ticks_since_share = ticks;
-            if (!beat and ticks < self.pool.options.share_after_ticks) return;
+            // Plain atomic load: only the heartbeat thread writes `heartbeat`,
+            // so no read-modify-write barrier is needed on the hot path.
+            if (!self.heartbeat.load(.monotonic)) return;
+            self.heartbeat.store(false, .monotonic);
+            self.maybeShare();
+        }
+
+        fn maybeShare(self: *Self) void {
             if (self.shared_head.next_or_state != null) return;
             if (self.job_head.isTail()) return;
             const idle = self.pool.idle_workers.load(.monotonic);
             if (idle == 0) return;
-            self.heartbeat.store(false, .monotonic);
-            self.ticks_since_share = 0;
             self.pool.shareMany(self, idle);
         }
 
@@ -526,6 +523,9 @@ fn callWithContext(
     return @call(.always_inline, func, .{ &task, arg });
 }
 
+/// A single-use fork/join slot. Reinitialize with `.{}` before forking again;
+/// `join`/`tryJoin` leave the embedded job unlinked without resetting it so the
+/// common local join path stays branch-light.
 pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) type {
     return struct {
         const Self = @This();
@@ -567,7 +567,14 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             switch (self.job.state()) {
                 .pending => return false,
                 .queued_local => {
-                    self.job.remove(&task.job_tail);
+                    // The forked job is normally the local tail: deeper jobs
+                    // have already been joined. Keep the common case off the
+                    // doubly-linked remove path.
+                    if (task.job_tail == &self.job) {
+                        self.job.pop(&task.job_tail);
+                    } else {
+                        self.job.remove(&task.job_tail);
+                    }
                     return false;
                 },
                 .queued_shared => {

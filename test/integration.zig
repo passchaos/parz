@@ -68,7 +68,7 @@ test "integration: scratch, flat loops, and fork/join share one pool" {
             try worker.context().scratch.append(worker.context().allocator, shared[index]);
         }
     };
-    try parz.parallelFor(&pool, data, data.len, .{ .min_chunk = 8 }, Scratch.run);
+    try parz.parallelFor(&pool, data, data.len, .{ .min_chunk = 8, .serial_threshold = 0 }, Scratch.run);
 
     var total: u64 = 0;
     for (pool.background_storage) |*worker| {
@@ -100,7 +100,7 @@ test "integration: scratch, flat loops, and fork/join share one pool" {
         u64,
         data,
         n,
-        .{ .min_chunk = 8 },
+        .{ .min_chunk = 8, .serial_threshold = 0 },
         0,
         Map.map,
         Add.combine,

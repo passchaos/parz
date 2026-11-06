@@ -19,10 +19,16 @@ pub const Options = struct {
     min_chunk: usize = 1,
     /// Hard upper bound on chunks for one call.
     max_chunks: usize = 4096,
-    /// Target chunks per available lane.
-    chunks_per_worker: usize = 4,
+    /// Target chunks per available lane. More chunks improve load balance on
+    /// heterogeneous CPUs; the flat APIs share the whole chunk list up front,
+    /// so this is no longer a wake-up batching knob.
+    chunks_per_worker: usize = 16,
     /// Per-call worker cap. 0 uses all available lanes.
     max_workers: usize = 0,
+    /// Run serially below this item count. A flat call with fewer items than
+    /// this is almost always dominated by caller-slot setup, future
+    /// allocation, and worker wake-up cost. Set to 0 to force parallelism.
+    serial_threshold: usize = 4096,
 };
 
 /// Parallel loop over `[0, count)`.
@@ -39,17 +45,18 @@ pub fn parallelFor(
 
     const IndexRunner = struct {
         shared: *const Shared,
-        run: *const fn (*W, Shared, usize) anyerror!void,
 
         fn range(w: *W, self: *@This(), chunk: Chunk) anyerror!void {
             var i = chunk.start;
             while (i < chunk.end) : (i += 1) {
-                try self.run(w, self.shared.*, i);
+                // Call the comptime callback directly so the per-item call is
+                // inlined instead of going through a function pointer.
+                try run(w, self.shared.*, i);
             }
         }
     };
 
-    var runner = IndexRunner{ .shared = &shared, .run = run };
+    var runner = IndexRunner{ .shared = &shared };
     return parallelForRange(pool, &runner, count, options, IndexRunner.range);
 }
 
@@ -75,13 +82,11 @@ pub fn parallelForRange(
 
     const P = @TypeOf(pool.*);
     const Ctx = P.Context;
-    const W = P.WorkerType;
     const T = P.TaskType;
     const Shared = @TypeOf(shared);
 
     const Runner = struct {
         shared: *const Shared,
-        run: *const fn (*W, Shared, Chunk) anyerror!void,
     };
     const Input = struct {
         runner: *Runner,
@@ -90,11 +95,14 @@ pub fn parallelForRange(
     const Fut = core.Future(Ctx, Input, anyerror!void);
     const Exec = struct {
         fn exec(t: *T, input: Input) anyerror!void {
-            try input.runner.run(t.worker, input.runner.shared.*, input.chunk);
+            try run(t.worker, input.runner.shared.*, input.chunk);
         }
     };
 
-    var runner = Runner{ .shared = &shared, .run = run };
+    var runner = Runner{ .shared = &shared };
+    if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
+        return serialRange(pool, shared, count, run);
+    }
     const caller = pool.claimCaller() orelse {
         return serialRange(pool, shared, count, run);
     };
@@ -115,7 +123,7 @@ pub fn parallelForRange(
             .chunk = .{ .start = start, .end = end },
         });
     }
-    pool.kickstart(caller, pool.parallelWorkerCount());
+    pool.kickstart(caller, chunk_count);
 
     for (futures) |*fut| {
         switch (fut.job.state()) {
@@ -155,14 +163,11 @@ pub fn parallelFold(
 
     const P = @TypeOf(pool.*);
     const Ctx = P.Context;
-    const W = P.WorkerType;
     const Tm = P.TaskType;
     const Shared = @TypeOf(shared);
 
     const Runner = struct {
         shared: *const Shared,
-        map: *const fn (*W, Shared, usize) anyerror!T,
-        combine: *const fn (T, T) T,
         identity: T,
     };
     const Input = struct {
@@ -176,7 +181,8 @@ pub fn parallelFold(
             var acc = runner.identity;
             var i = input.chunk.start;
             while (i < input.chunk.end) : (i += 1) {
-                acc = runner.combine(acc, try runner.map(t.worker, runner.shared.*, i));
+                // Direct comptime calls: no per-item function pointers.
+                acc = combine(acc, try map(t.worker, runner.shared.*, i));
             }
             return acc;
         }
@@ -184,10 +190,11 @@ pub fn parallelFold(
 
     var runner = Runner{
         .shared = &shared,
-        .map = map,
-        .combine = combine,
         .identity = identity,
     };
+    if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
+        return serialFold(pool, T, shared, count, identity, map, combine);
+    }
     const caller = pool.claimCaller() orelse {
         return serialFold(pool, T, shared, count, identity, map, combine);
     };
@@ -208,7 +215,7 @@ pub fn parallelFold(
             .chunk = .{ .start = start, .end = end },
         });
     }
-    pool.kickstart(caller, pool.parallelWorkerCount());
+    pool.kickstart(caller, chunk_count);
 
     for (futures) |*fut| {
         switch (fut.job.state()) {
@@ -249,18 +256,32 @@ pub fn parallelReduce(
     return parallelFold(pool, T, shared, count, options, identity, map, combine);
 }
 
-fn plannedChunkCount(count: usize, options: Options, worker_count: usize) usize {
-    if (count == 0) return 0;
-    const min_chunk = @max(options.min_chunk, 1);
-    const by_chunk = (count + min_chunk - 1) / min_chunk;
+fn plannedLaneCount(options: Options, worker_count: usize) usize {
     const requested_lanes = if (options.max_workers == 0)
         worker_count
     else
         @min(options.max_workers, worker_count);
-    const lanes = @max(requested_lanes, 1);
+    return @max(requested_lanes, 1);
+}
+
+fn plannedChunkCount(count: usize, options: Options, worker_count: usize) usize {
+    if (count == 0) return 0;
+    const min_chunk = @max(options.min_chunk, 1);
+    const by_chunk = (count + min_chunk - 1) / min_chunk;
+    const lanes = plannedLaneCount(options, worker_count);
     const by_lanes = lanes * @max(options.chunks_per_worker, 1);
     const cap = @max(options.max_chunks, 1);
     return @max(1, @min(@min(by_chunk, by_lanes), cap));
+}
+
+/// Small flat calls are dominated by caller-slot setup, future allocation and
+/// worker wake-up. Run them on the caller instead. A call that cannot produce
+/// at least one chunk per lane cannot use the pool effectively either.
+fn shouldRunSerial(count: usize, options: Options, worker_count: usize) bool {
+    if (options.serial_threshold == 0) return false;
+    if (count < options.serial_threshold) return true;
+    return plannedChunkCount(count, options, worker_count) <
+        plannedLaneCount(options, worker_count);
 }
 
 fn serialRange(
@@ -274,10 +295,7 @@ fn serialRange(
     var ctx = try pool.createTempContext();
     defer pool.destroyTempContext(&ctx);
     var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
-    var i: usize = 0;
-    while (i < count) : (i += 1) {
-        try run(&temp, shared, .{ .start = i, .end = i + 1 });
-    }
+    try run(&temp, shared, .{ .start = 0, .end = count });
 }
 
 fn serialFold(
@@ -323,7 +341,7 @@ test "parallelFor covers every index exactly once" {
         }
     };
 
-    try parallelFor(&pool, &counts, n, .{ .min_chunk = 1, .chunks_per_worker = 4 }, Ctx.run);
+    try parallelFor(&pool, &counts, n, .{ .min_chunk = 1, .chunks_per_worker = 4, .serial_threshold = 0 }, Ctx.run);
     for (counts) |count| {
         try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
     }
@@ -353,7 +371,7 @@ test "parallelFold is deterministic and ordered" {
         }
     };
 
-    const total = try parallelFold(&pool, u64, {}, n, .{ .min_chunk = 1 }, 0, Map.map, Combine.combine);
+    const total = try parallelFold(&pool, u64, {}, n, .{ .min_chunk = 1, .serial_threshold = 0 }, 0, Map.map, Combine.combine);
     const expected = @as(u64, n - 1) * @as(u64, n) / 2;
     try std.testing.expectEqual(expected, total);
 }
@@ -405,11 +423,11 @@ test "nested parallelFor" {
                     _ = inner_shared[inner_index].fetchAdd(1, .monotonic);
                 }
             };
-            try parallelFor(w.pool, shared, n, .{ .min_chunk = 1 }, Inner.run);
+            try parallelFor(w.pool, shared, n, .{ .min_chunk = 1, .serial_threshold = 0 }, Inner.run);
         }
     };
 
-    try parallelFor(&pool, &counts, n, .{ .min_chunk = 1 }, Outer.run);
+    try parallelFor(&pool, &counts, n, .{ .min_chunk = 1, .serial_threshold = 0 }, Outer.run);
     for (counts) |count| {
         try std.testing.expectEqual(@as(u32, n), count.load(.monotonic));
     }
@@ -436,6 +454,6 @@ test "parallelFor returns the first error by index" {
 
     try std.testing.expectError(
         error.FirstFailure,
-        parallelFor(&pool, {}, 64, .{ .min_chunk = 1 }, Ctx.run),
+        parallelFor(&pool, {}, 64, .{ .min_chunk = 1, .serial_threshold = 0 }, Ctx.run),
     );
 }

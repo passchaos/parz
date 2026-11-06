@@ -32,10 +32,15 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - Each worker owns a truly local intrusive job list. `fork` is three local
   stores; it takes no lock and performs no atomic operation.
 - Work leaves the local list only when:
-  - a heartbeat fires (default every 100 µs), or
-  - the worker has made `share_after_ticks` nested calls (default 4096), or
+  - a heartbeat fires (default every 10 µs), or
   - a flat loop calls `kickstart` explicitly.
+- The heartbeat only sets a flag; the owning worker checks it at the next
+  `Task.call`, so the call hot path stays a single atomic load.
 - Tiny workloads finish before any sharing, so they stay at serial cost.
+- Flat loops share the whole chunk list up front and fall back to serial below
+  `serial_threshold` items (default 4096) or when there are fewer chunks than
+  lanes. This keeps small loops at serial cost and lets large loops pull work
+  dynamically.
 - A worker never executes user code while the pool mutex is held.
 - `join` returns `null` when the job is still local or was reclaimed; the
   caller then executes it. This is the same fallback that makes zero-worker
@@ -107,6 +112,9 @@ checks and the caller-fallback protocol.
 
 Correctness rules:
 
+- A `Future` is single-use. Reinitialize it with `.{}` before forking again;
+  `join`/`tryJoin` intentionally leave the embedded job unlinked without
+  resetting it so the local join path stays cheap.
 - A `Future` must be joined by the same task that forked it. It lives on that
   task's stack and its job is linked into that task's local list.
 - `fork` must be followed by `join`/`tryJoin`/`joinOrCall`; do not drop a
@@ -154,20 +162,20 @@ zig build bench                      # all benchmarks
 Benchmarks print `serial_ns`, `parallel_ns`, and `speedup`; they verify the
 checksum before reporting.
 
-Indicative snapshot from a 32-core x86-64 Linux host (31 background workers,
-ReleaseFast, best of several runs):
+Indicative snapshot from a 32-thread x86-64 Linux host (31 background workers,
+ReleaseFast, best of several runs, machine otherwise loaded):
 
 | Workload | Serial | Parallel | Speedup |
 |---|---|---|---|
-| tree sum, 1K nodes | ~3 µs | ~5 µs | 0.6–0.9x |
-| tree sum, 100K nodes | ~170 µs | ~210 µs | 0.8–1.2x |
-| tree sum, 10M nodes | ~17 ms | ~5.3 ms | 3.2–3.8x |
-| flat sum, 16M u64 | ~7.0 ms | ~3.0 ms | 2.3x |
-| CPU-bound fold, 1M items | ~65 ms | ~5.8 ms | 11–13x |
+| tree sum, 1K nodes | ~3.9 µs | ~3.6–4.6 µs | 0.8–1.1x |
+| tree sum, 100K nodes | ~165 µs | ~160–170 µs | 1.0–1.2x |
+| tree sum, 10M nodes | ~16.2 ms | ~3.8–3.9 ms | 4.1–4.5x |
+| flat sum, 16M u64 | ~7.1 ms | ~1.6 ms | 4.3–5.2x |
+| CPU-bound fold, 1M items | ~62.7 ms | ~3.5–3.7 ms | 16.9–17.8x |
 
-Small trees stay close to serial cost; medium trees break even; memory-bound
-flat scans are limited by bandwidth, not scheduling; CPU-bound work scales near
-linearly. Treat these as indicative, not as a fixed gate.
+Small trees stay close to serial cost; medium trees break even or improve;
+flat scans saturate memory bandwidth; CPU-bound work scales near linearly.
+Treat these as indicative, not as a fixed gate.
 
 ## Known limits / next steps
 

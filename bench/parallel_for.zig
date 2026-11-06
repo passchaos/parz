@@ -65,7 +65,7 @@ pub fn main(init: std.process.Init) !void {
             u64,
             data,
             count,
-            .{ .min_chunk = 4096, .chunks_per_worker = 4 },
+            .{ .min_chunk = 4096 },
             0,
             Map.map,
             Combine.combine,
