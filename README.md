@@ -380,6 +380,9 @@ emitted identical executable code; the byte-array payload remains in use.
 `Future.initFork` bypasses the pending value constructor when forking
 immediately. [Direct initialization evidence](docs/validation/2026-11-07-future-init/README.md)
 records the removed initialization write, lifecycle checks and measured limits.
+[Cold-path code layout trials](docs/validation/2026-11-07-cold-paths/README.md)
+found that branch hints emitted identical code and explicit outlining regressed
+the P-core large-tree control; automatic inlining is retained.
 
 Optional NUMA-backed allocation:
 

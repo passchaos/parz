@@ -1,0 +1,11 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -363 +363 @@
+-        fn reclaimShared(self: *Self, owner: *Worker(Ctx), job: *Job) bool {
++        noinline fn reclaimShared(self: *Self, owner: *Worker(Ctx), job: *Job) bool {
+@@ -556 +556 @@
+-        fn maybeShare(self: *Self) void {
++        noinline fn maybeShare(self: *Self) void {
+@@ -731 +731 @@
+-        fn joinExecuting(self: *Self, task: *Task(Ctx)) bool {
++        noinline fn joinExecuting(self: *Self, task: *Task(Ctx)) bool {

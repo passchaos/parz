@@ -1,0 +1,29 @@
+{
+  "captured_at_utc": "2026-11-06T22:44:39.929347+00:00",
+  "baseline_commit": "86504eded754d3814af90242243b4fd70769cc3f",
+  "zig_version": "0.16.0",
+  "loadavg": "5.99 6.08 7.28 5/1968 3351293",
+  "core_sha256": "2f7e7ed3fb7d813f5fb09dfc3005e54eccebf8a9ea5088c9858cc608dd4be530",
+  "binary_sha256": {
+    "outlined-tree": "da49f72f5db82ed394fac2e797b22fd696145ed45984fda22afcf5767605e758",
+    "baseline-tree": "d41b4fbcfded50c490122f46b13b1e938dd63137350c7c814b4350f89bf15c74",
+    "wait-helper-tree": "c82f5405d5181bf1f80590d2d8679129d5ef5f7093a92e59c428a3450c127607",
+    "hinted-tree": "7501f1ddae9c03935a008afd6330192b33a8aa8ae17e484c5a6b1cf9b5ccbf27",
+    "baseline-micro": "404c91d1e1cf6d025da46ff6c3a2b5da0e6d0563f701756a5b0039c6e1067974",
+    "wait-helper-micro": "27b9c0f7a7313012b76f850acd623c1b27cd45bc2fe92005079c7f8675de11e7",
+    "outlined-micro": "d710e5770d57d07471b580b6583fb1fbea870b075ec83116fc4bfeaac0164e8d",
+    "hinted-micro": "82783b52cf5b2d715eb1ebc98b95382f24379a30a73fd7ecf30e6e94aa3b3b29"
+  },
+  "local_stack_reservation_bytes": {
+    "baseline": 104,
+    "hinted": 104,
+    "wait-helper": 104,
+    "outlined": 88
+  },
+  "placements": {
+    "E": "caller=31 workers=24..30",
+    "P": "caller=14 workers=0,2,4,6,8,10,12"
+  },
+  "hinted_text_sha256": "56b5539d704c572f54857dc2855a2f7f0d3b95595b2467808cbf41728f614aee",
+  "baseline_text_sha256": "56b5539d704c572f54857dc2855a2f7f0d3b95595b2467808cbf41728f614aee"
+}

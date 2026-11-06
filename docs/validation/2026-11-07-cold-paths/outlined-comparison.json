@@ -1,0 +1,406 @@
+{
+  "micro-local": {
+    "baseline": [
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1475,
+          "parallel": 3286,
+          "speed": "0.449"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1452,
+          "parallel": 3235,
+          "speed": "0.449"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1522,
+          "parallel": 3390,
+          "speed": "0.449"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1496,
+          "parallel": 3328,
+          "speed": "0.450"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1451,
+          "parallel": 3299,
+          "speed": "0.440"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1447,
+          "parallel": 3226,
+          "speed": "0.449"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1489,
+          "parallel": 3356,
+          "speed": "0.444"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1464,
+          "parallel": 3214,
+          "speed": "0.456"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1652,
+          "parallel": 3307,
+          "speed": "0.500"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1573,
+          "parallel": 3272,
+          "speed": "0.481"
+        }
+      ]
+    ],
+    "outlined": [
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1486,
+          "parallel": 2906,
+          "speed": "0.511"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1443,
+          "parallel": 3234,
+          "speed": "0.446"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1555,
+          "parallel": 2998,
+          "speed": "0.519"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1484,
+          "parallel": 3314,
+          "speed": "0.448"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1732,
+          "parallel": 2910,
+          "speed": "0.595"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1721,
+          "parallel": 3226,
+          "speed": "0.533"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1469,
+          "parallel": 3101,
+          "speed": "0.474"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1481,
+          "parallel": 3301,
+          "speed": "0.449"
+        }
+      ],
+      [
+        {
+          "label": "micro callback=plain",
+          "serial": 1481,
+          "parallel": 2909,
+          "speed": "0.509"
+        },
+        {
+          "label": "micro callback=error-union",
+          "serial": 1445,
+          "parallel": 3314,
+          "speed": "0.436"
+        }
+      ]
+    ]
+  },
+  "tree-small": {
+    "baseline": [
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1493,
+          "parallel": 3104,
+          "speed": "0.481"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1474,
+          "parallel": 3115,
+          "speed": "0.473"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1425,
+          "parallel": 3110,
+          "speed": "0.458"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1483,
+          "parallel": 3201,
+          "speed": "0.463"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1443,
+          "parallel": 3109,
+          "speed": "0.464"
+        }
+      ]
+    ],
+    "outlined": [
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1516,
+          "parallel": 3095,
+          "speed": "0.490"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1466,
+          "parallel": 3107,
+          "speed": "0.472"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1504,
+          "parallel": 3152,
+          "speed": "0.477"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1466,
+          "parallel": 3207,
+          "speed": "0.457"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000 workers=7",
+          "serial": 1455,
+          "parallel": 3084,
+          "speed": "0.472"
+        }
+      ]
+    ]
+  },
+  "tree-medium": {
+    "baseline": [
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 162262,
+          "parallel": 156873,
+          "speed": "1.034"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 162278,
+          "parallel": 167844,
+          "speed": "0.967"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 161360,
+          "parallel": 175295,
+          "speed": "0.921"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 157649,
+          "parallel": 133699,
+          "speed": "1.179"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 158800,
+          "parallel": 137868,
+          "speed": "1.152"
+        }
+      ]
+    ],
+    "outlined": [
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 164379,
+          "parallel": 135588,
+          "speed": "1.212"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 158862,
+          "parallel": 157266,
+          "speed": "1.010"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 167566,
+          "parallel": 159682,
+          "speed": "1.049"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 166146,
+          "parallel": 145262,
+          "speed": "1.144"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=100000 workers=7",
+          "serial": 164128,
+          "parallel": 141793,
+          "speed": "1.158"
+        }
+      ]
+    ]
+  },
+  "tree-large": {
+    "baseline": [
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1803421,
+          "parallel": 793455,
+          "speed": "2.273"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1831131,
+          "parallel": 798769,
+          "speed": "2.292"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1846041,
+          "parallel": 788212,
+          "speed": "2.342"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1814250,
+          "parallel": 756330,
+          "speed": "2.399"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1834599,
+          "parallel": 765084,
+          "speed": "2.398"
+        }
+      ]
+    ],
+    "outlined": [
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1848710,
+          "parallel": 752170,
+          "speed": "2.458"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1920756,
+          "parallel": 729566,
+          "speed": "2.633"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1813000,
+          "parallel": 738850,
+          "speed": "2.454"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 1835590,
+          "parallel": 695314,
+          "speed": "2.640"
+        }
+      ],
+      [
+        {
+          "label": "tree_sum nodes=1000000 workers=7",
+          "serial": 2049258,
+          "parallel": 729144,
+          "speed": "2.810"
+        }
+      ]
+    ]
+  }
+}

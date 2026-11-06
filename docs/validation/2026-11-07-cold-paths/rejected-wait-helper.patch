@@ -1,0 +1,5 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -731 +731 @@
+-        fn joinExecuting(self: *Self, task: *Task(Ctx)) bool {
++        noinline fn joinExecuting(self: *Self, task: *Task(Ctx)) bool {
