@@ -26,7 +26,8 @@ adding parallelism to a small workload must not make it meaningfully slower.
   combination.
 - `CancelToken` with cooperative cancellation checked at chunk boundaries and
   every 4096 items inside a chunk.
-- `sync` module: bounded SPSC/MPSC queues, a bounded blocking MPMC queue, a
+- `sync` module: bounded SPSC/MPSC queues, a sharded MPSC queue with
+  per-producer FIFO shards, a bounded blocking MPMC queue, a
   multi-producer/single-consumer Treiber stack, a counting semaphore, and a
   wait group.
 - `parallelFor2D` for row-major grids, optional Linux CPU affinity via
@@ -224,9 +225,10 @@ Treat these as indicative, not as a fixed gate.
 Sync primitives have a separate throughput smoke benchmark
 (`zig build bench-sync`). On the same loaded 32-thread host, 1M operations
 give roughly 0.3 Gops/s for SPSC, 11–17 Mops/s for the Treiber stack,
-21–25 Mops/s for MPSC with one producer, and 7–8 Mops/s for MPSC with four
-producers or the blocking queue. These are indicative throughput numbers,
-not competitive gates.
+21–25 Mops/s for MPSC with one producer, 22–30 Mops/s for the sharded MPSC
+with four producers, and 7–8 Mops/s for the global MPSC with four producers
+or the blocking queue. These are indicative throughput numbers, not
+competitive gates.
 
 ## Known limits / next steps
 

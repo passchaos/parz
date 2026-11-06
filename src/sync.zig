@@ -143,6 +143,65 @@ pub fn MpscQueue(comptime T: type) type {
     };
 }
 
+/// Bounded sharded multi-producer/single-consumer queue. Each producer uses
+/// its own SPSC shard, so producers never contend. The consumer round-robins
+/// across shards; ordering is FIFO per shard, not globally.
+pub fn ShardedMpscQueue(comptime T: type, comptime shard_count: usize) type {
+    if (shard_count == 0) @compileError("ShardedMpscQueue needs at least one shard");
+
+    return struct {
+        const Self = @This();
+        const shard_size = @sizeOf(SpscQueue(T));
+        const pad_size = if (shard_size % std.atomic.cache_line == 0)
+            0
+        else
+            std.atomic.cache_line - (shard_size % std.atomic.cache_line);
+        const Shard = struct {
+            queue: SpscQueue(T),
+            _padding: [pad_size]u8 = undefined,
+        };
+
+        shards: [shard_count]Shard align(std.atomic.cache_line),
+        next: usize = 0,
+        allocator: std.mem.Allocator,
+
+        pub fn init(allocator: std.mem.Allocator, capacity_per_shard: usize) !Self {
+            var self = Self{
+                .shards = undefined,
+                .allocator = allocator,
+            };
+            var initialized: usize = 0;
+            errdefer for (self.shards[0..initialized]) |*shard| shard.queue.deinit();
+            for (&self.shards) |*shard| {
+                shard.queue = try SpscQueue(T).init(allocator, capacity_per_shard);
+                initialized += 1;
+            }
+            return self;
+        }
+
+        pub fn deinit(self: *Self) void {
+            for (&self.shards) |*shard| shard.queue.deinit();
+            self.* = undefined;
+        }
+
+        pub fn tryPush(self: *Self, shard_index: usize, value: T) bool {
+            std.debug.assert(shard_index < shard_count);
+            return self.shards[shard_index].queue.tryPush(value);
+        }
+
+        /// Single consumer only.
+        pub fn tryPop(self: *Self) ?T {
+            var checked: usize = 0;
+            while (checked < shard_count) : (checked += 1) {
+                const index = self.next;
+                self.next = (self.next + 1) % shard_count;
+                if (self.shards[index].queue.tryPop()) |value| return value;
+            }
+            return null;
+        }
+    };
+}
+
 /// Bounded blocking multi-producer/multi-consumer queue. `put` and `get`
 /// wait on `std.Io` conditions; `tryPut`/`tryGet` are non-blocking.
 pub fn BlockingQueue(comptime T: type) type {
@@ -595,4 +654,72 @@ test "blocking queue: threaded producers and consumers" {
     for (consumer_threads) |thread| thread.join();
 
     for (seen) |slot| try std.testing.expect(slot.load(.monotonic));
+}
+
+test "sharded mpsc queue: single-threaded round robin" {
+    var queue = try ShardedMpscQueue(u32, 2).init(std.testing.allocator, 4);
+    defer queue.deinit();
+
+    try std.testing.expect(queue.tryPop() == null);
+    try std.testing.expect(queue.tryPush(0, 0));
+    try std.testing.expect(queue.tryPush(1, 2));
+    try std.testing.expect(queue.tryPush(0, 1));
+    try std.testing.expect(queue.tryPush(1, 3));
+
+    var seen = [_]bool{ false, false, false, false };
+    for (0..4) |_| {
+        const value = queue.tryPop().?;
+        try std.testing.expect(value < 4);
+        try std.testing.expect(!seen[value]);
+        seen[value] = true;
+    }
+    try std.testing.expect(queue.tryPop() == null);
+}
+
+test "sharded mpsc queue: threaded producers and consumer" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+
+    const shard_count = 4;
+    const per_producer = 10_000;
+    const total = shard_count * per_producer;
+    var queue = try ShardedMpscQueue(u32, shard_count).init(std.testing.allocator, 1024);
+    defer queue.deinit();
+
+    const Producer = struct {
+        fn run(q: *ShardedMpscQueue(u32, shard_count), shard: usize, base: u32) void {
+            var offset: usize = 0;
+            while (offset < per_producer) {
+                if (q.tryPush(shard, base + @as(u32, @intCast(offset)))) {
+                    offset += 1;
+                } else {
+                    std.atomic.spinLoopHint();
+                }
+            }
+        }
+    };
+
+    var threads: [shard_count]std.Thread = undefined;
+    for (&threads, 0..) |*thread, index| {
+        thread.* = try std.Thread.spawn(.{}, Producer.run, .{
+            &queue,
+            index,
+            @as(u32, @intCast(index * per_producer)),
+        });
+    }
+
+    var seen = try std.testing.allocator.alloc(bool, total);
+    defer std.testing.allocator.free(seen);
+    @memset(seen, false);
+    var received: usize = 0;
+    while (received < total) {
+        if (queue.tryPop()) |value| {
+            try std.testing.expect(value < total);
+            try std.testing.expect(!seen[value]);
+            seen[value] = true;
+            received += 1;
+        } else {
+            std.atomic.spinLoopHint();
+        }
+    }
+    for (threads) |thread| thread.join();
 }

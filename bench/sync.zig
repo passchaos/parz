@@ -123,6 +123,45 @@ fn runMpscSingle(allocator: std.mem.Allocator, io: std.Io) !void {
     report("mpsc-1p", start.untilNow(io).raw.toNanoseconds(), total);
 }
 
+fn runShardedMpsc(allocator: std.mem.Allocator, io: std.Io) !void {
+    const shards = 4;
+    var queue = try parz.sync.ShardedMpscQueue(u64, shards).init(allocator, 1024);
+    defer queue.deinit();
+
+    const Producer = struct {
+        fn run(q: *parz.sync.ShardedMpscQueue(u64, shards), shard: usize, base: u64) void {
+            var offset: usize = 0;
+            while (offset < mpsc_per_producer) {
+                if (q.tryPush(shard, base + @as(u64, @intCast(offset)))) {
+                    offset += 1;
+                } else {
+                    std.atomic.spinLoopHint();
+                }
+            }
+        }
+    };
+
+    const start = now(io);
+    var threads: [shards]std.Thread = undefined;
+    for (&threads, 0..) |*thread, index| {
+        thread.* = try std.Thread.spawn(.{}, Producer.run, .{
+            &queue,
+            index,
+            @as(u64, @intCast(index * mpsc_per_producer)),
+        });
+    }
+    var received: usize = 0;
+    while (received < total) {
+        if (queue.tryPop()) |_| {
+            received += 1;
+        } else {
+            std.atomic.spinLoopHint();
+        }
+    }
+    for (threads) |thread| thread.join();
+    report("mpsc-sharded", start.untilNow(io).raw.toNanoseconds(), total);
+}
+
 fn runMutexMpsc(allocator: std.mem.Allocator, io: std.Io) !void {
     var queue = try parz.sync.BlockingQueue(u64).init(allocator, 1024);
     defer queue.deinit();
@@ -238,6 +277,7 @@ pub fn main(init: std.process.Init) !void {
     try runSpsc(allocator, io);
     try runMpsc(allocator, io);
     try runMpscSingle(allocator, io);
+    try runShardedMpsc(allocator, io);
     try runMutexMpsc(allocator, io);
     try runTreiber(allocator, io);
     try runBlocking(allocator, io);

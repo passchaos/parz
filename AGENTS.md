@@ -57,8 +57,8 @@ Implemented: `Pool`, `Worker`, `Task`, `Future`, `parallelFor`,
 `parallelForEach`, `parallelForRange`, `parallelFold`, `parallelReduce`,
 per-worker context, error propagation, caller fallback, heartbeat pacing,
 cancellation tokens, the infallible fold fast path, the `sync` module
-(bounded SPSC/MPSC queues, blocking MPMC queue, Treiber stack, semaphore,
-wait group),
+(bounded SPSC/MPSC queues, sharded MPSC, blocking MPMC queue, Treiber stack,
+semaphore, wait group),
 `parallelFor2D`, and optional Linux CPU affinity pinning.
 
 Not implemented yet: NUMA-aware allocator integration. Work stealing is
