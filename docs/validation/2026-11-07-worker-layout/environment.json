@@ -1,0 +1,42 @@
+{
+  "captured_at_utc": "2026-11-06T22:04:57.786680+00:00",
+  "baseline_commit": "03c23aa7f9b2a86da2e9ab5fbd97d396762b5022",
+  "zig_version": "0.16.0",
+  "loadavg": "13.02 11.51 9.52 10/2141 3220172",
+  "sha256": {
+    "src/core.zig": "dd9c77af026aeb7ec9a1ee62e5cc1bdce6a4a85075aa780fe13254db3a13dca9",
+    "bench/worker_layout.zig": "8e54cdce894be64ef97872942418bb14ff92b4542415852013989b4fb7dfe696",
+    "bench/micro.zig": "26acf978b5715929e80c6ba7cfb0082725f4585ed30284df40de3d2de0b82600",
+    "bench/tree_sum.zig": "1cbefd57a01bda204747f85ebb9d280a51e14c61c42d33b192e71bbadf0a072e"
+  },
+  "binary_sha256": {
+    "aligned-tree": "7e6de356f82404efd51634ee9c7ea8ca66a5d3a1c6efaf025ca31d26df3e31f7",
+    "baseline-tree": "47f7aadda5e31813c6d427bbd348ff0876cf93b9d72ab2075ec799302b0b74c4",
+    "isolated-tree": "dd310d6f04ef4df1c488ab02418816e0606f11096e5ca52403b3c9fe36099465",
+    "aligned-micro": "e926e180f11fb44f4dee423a5be1ee783aec7c2bf97d25ef40e908873cfae35c",
+    "baseline-micro": "53b0c5447d34a730c8d354e95edd58b89c61931ad20a0b12d10c1cd2195b46bb",
+    "isolated-micro": "d9ff9024b84c3953d3507d4a451758283a4ce71d1e2e5d00a324371805c4a80f"
+  },
+  "comparisons": [
+    {
+      "name": "isolated",
+      "cpus": "24-31",
+      "caller": 31
+    },
+    {
+      "name": "aligned",
+      "cpus": "24-31",
+      "caller": 31
+    },
+    {
+      "name": "aligned-confirm",
+      "cpus": "24-31",
+      "caller": 31
+    },
+    {
+      "name": "aligned-pcores",
+      "cpus": "0,2,4,6,8,10,12,14",
+      "caller": 14
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+ctx_bytes=0 worker_bytes=128 worker_align=128 cache_unit=128
+field=_cache_alignment offset=0 bytes=0
+field=pool offset=0 bytes=8
+field=index offset=8 bytes=8
+field=active offset=96 bytes=1
+field=caller_slot offset=16 bytes=16
+field=ctx offset=97 bytes=0
+field=job_head offset=32 bytes=24
+field=local_tail offset=56 bytes=8
+field=shared_head offset=64 bytes=24
+field=shared_tail offset=88 bytes=8
+field=heartbeat offset=97 bytes=1
+ctx_bytes=64 worker_bytes=256 worker_align=128 cache_unit=128
+field=_cache_alignment offset=0 bytes=0
+field=pool offset=0 bytes=8
+field=index offset=8 bytes=8
+field=active offset=160 bytes=1
+field=caller_slot offset=16 bytes=16
+field=ctx offset=32 bytes=64
+field=job_head offset=96 bytes=24
+field=local_tail offset=120 bytes=8
+field=shared_head offset=128 bytes=24
+field=shared_tail offset=152 bytes=8
+field=heartbeat offset=161 bytes=1
+ctx_bytes=16 worker_bytes=128 worker_align=128 cache_unit=128
+field=_cache_alignment offset=0 bytes=0
+field=pool offset=16 bytes=8
+field=index offset=24 bytes=8
+field=active offset=112 bytes=1
+field=caller_slot offset=32 bytes=16
+field=ctx offset=0 bytes=16
+field=job_head offset=48 bytes=24
+field=local_tail offset=72 bytes=8
+field=shared_head offset=80 bytes=24
+field=shared_tail offset=104 bytes=8
+field=heartbeat offset=113 bytes=1
+ctx_bytes=64 worker_bytes=256 worker_align=128 cache_unit=128
+field=_cache_alignment offset=0 bytes=0
+field=pool offset=64 bytes=8
+field=index offset=72 bytes=8
+field=active offset=160 bytes=1
+field=caller_slot offset=80 bytes=16
+field=ctx offset=0 bytes=64
+field=job_head offset=96 bytes=24
+field=local_tail offset=120 bytes=8
+field=shared_head offset=128 bytes=24
+field=shared_tail offset=152 bytes=8
+field=heartbeat offset=161 bytes=1
+ctx_bytes=256 worker_bytes=512 worker_align=256 cache_unit=128
+field=_cache_alignment offset=256 bytes=0
+field=pool offset=256 bytes=8
+field=index offset=264 bytes=8
+field=active offset=352 bytes=1
+field=caller_slot offset=272 bytes=16
+field=ctx offset=0 bytes=256
+field=job_head offset=288 bytes=24
+field=local_tail offset=312 bytes=8
+field=shared_head offset=320 bytes=24
+field=shared_tail offset=344 bytes=8
+field=heartbeat offset=353 bytes=1

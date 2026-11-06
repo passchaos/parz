@@ -244,6 +244,7 @@ taskset -c 24-31 zig build bench-tree-sum -Doptimize=ReleaseFast \
 taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 8 31
 zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput
+zig build check-worker-layout        # field offsets and context alignment
 zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
@@ -365,6 +366,9 @@ The regression, worker-count checks, and paired measurements are recorded in
 The obsolete pending-future specialization and repeated local-tail checks
 have since been removed; [the join simplification report](docs/validation/2026-11-07-join-simplification/README.md)
 records the aligned controls and rejected register-return experiments.
+`check-worker-layout` reports the actual compiler layout for ordinary and
+overaligned contexts. [Worker layout experiments](docs/validation/2026-11-07-worker-layout/README.md)
+did not establish a stable padding benefit, so the compact worker layout is retained.
 
 Optional NUMA-backed allocation:
 

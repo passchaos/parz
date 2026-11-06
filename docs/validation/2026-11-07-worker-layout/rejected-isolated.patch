@@ -1,0 +1,10 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -524 +524,4 @@
+-        pool: *Pool(Ctx),
++        // Keep the cross-thread heartbeat flag in its own cache unit. The
++        // equally aligned pool field starts all remaining metadata afterward.
++        heartbeat: std.atomic.Value(bool) align(std.atomic.cache_line) = .init(false),
++        pool: *Pool(Ctx) align(std.atomic.cache_line),
+@@ -534 +536,0 @@
+-        heartbeat: std.atomic.Value(bool) = .init(false),

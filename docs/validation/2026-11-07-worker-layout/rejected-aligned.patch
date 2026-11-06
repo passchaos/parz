@@ -1,0 +1,6 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -523,0 +524,3 @@
++        // A zero-sized alignment anchor preserves field offsets, including
++        // contexts with stronger natural alignment, while separating workers.
++        _cache_alignment: [0]u8 align(std.atomic.cache_line) = .{},

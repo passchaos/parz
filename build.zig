@@ -37,6 +37,15 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_numa.addArgs(args);
     b.step("check-numa", "Check NUMA policy, fallback and allocator lifetime").dependOn(&run_numa.step);
 
+    const layout_mod = b.createModule(.{
+        .root_source_file = b.path("bench/worker_layout.zig"),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const layout_check = b.addExecutable(.{ .name = "parz-worker-layout", .root_module = layout_mod });
+    b.step("check-worker-layout", "Report worker field layout across context alignments").dependOn(&b.addRunArtifact(layout_check).step);
+
     const tree_sum_mod = b.createModule(.{
         .root_source_file = b.path("bench/tree_sum.zig"),
         .target = target,
