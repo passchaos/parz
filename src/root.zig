@@ -14,6 +14,8 @@ pub const parallel = @import("parallel.zig");
 pub const job = @import("job.zig");
 pub const cancel = @import("cancel.zig");
 pub const sync = @import("sync.zig");
+pub const numa = @import("numa.zig");
+pub const NumaAllocator = numa.NumaAllocator;
 
 pub const Pool = core.Pool;
 pub const Options = core.Options;
@@ -39,4 +41,5 @@ test {
     _ = parallel;
     _ = cancel;
     _ = sync;
+    _ = numa;
 }

@@ -1,6 +1,56 @@
 //! Package-level integration: per-worker scratch, flat loops, deterministic
 //! fold, and recursive fork/join in one pool.
 
+test "integration: NUMA allocator backs pool metadata and per-worker arenas" {
+    const Arena = struct {
+        scratch: std.heap.ArenaAllocator,
+
+        fn init(allocator: std.mem.Allocator, _: usize) !@This() {
+            return .{ .scratch = std.heap.ArenaAllocator.init(allocator) };
+        }
+        fn deinit(_: std.mem.Allocator, self: *@This()) void {
+            self.scratch.deinit();
+        }
+        fn map(w: *parz.Worker(@This()), _: void, index: usize) anyerror!u64 {
+            const memory = try w.context().scratch.allocator().alloc(u64, 8);
+            @memset(memory, index);
+            return memory[7];
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    for (0..4) |workers| {
+        var numa = try parz.NumaAllocator.init(std.testing.allocator, .{});
+        defer numa.deinit();
+        {
+            var pool = try parz.Pool(Arena).init(numa.allocator(), std.testing.io, .{
+                .workers = workers,
+                .max_workers = workers,
+                .max_callers = 1,
+                .context_init = Arena.init,
+                .context_deinit = Arena.deinit,
+            });
+            defer pool.deinit();
+            try pool.start();
+            for (0..3) |_| {
+                try std.testing.expectEqual(@as(u64, 32640), try parz.parallelFold(
+                    &pool,
+                    u64,
+                    {},
+                    256,
+                    .{ .serial_threshold = 0, .min_chunk = 16 },
+                    0,
+                    Arena.map,
+                    Arena.add,
+                ));
+            }
+        }
+        try std.testing.expectEqual(@as(usize, 0), numa.stats().live_allocations);
+        try std.testing.expect(numa.stats().policy_applied + numa.stats().policy_fallbacks > 0);
+    }
+}
+
 const std = @import("std");
 const parz = @import("parz");
 
