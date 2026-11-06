@@ -1,0 +1,218 @@
+[
+  {
+    "cap": 0,
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 7355134,
+    "parallel_ns": 2010654
+  },
+  {
+    "cap": 2,
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 7004916,
+    "parallel_ns": 3935377
+  },
+  {
+    "cap": 4,
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 7066816,
+    "parallel_ns": 2459838
+  },
+  {
+    "cap": 0,
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62409730,
+    "parallel_ns": 10229926
+  },
+  {
+    "cap": 2,
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62619620,
+    "parallel_ns": 32987754
+  },
+  {
+    "cap": 4,
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62128995,
+    "parallel_ns": 18034511
+  },
+  {
+    "cap": 0,
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 63466062,
+    "parallel_ns": 10328814
+  },
+  {
+    "cap": 2,
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62557773,
+    "parallel_ns": 32019790
+  },
+  {
+    "cap": 4,
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62694523,
+    "parallel_ns": 17064213
+  },
+  {
+    "cap": 4,
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6964141,
+    "parallel_ns": 2397283
+  },
+  {
+    "cap": 2,
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6850465,
+    "parallel_ns": 3844835
+  },
+  {
+    "cap": 0,
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 7058654,
+    "parallel_ns": 2016877
+  },
+  {
+    "cap": 4,
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 63175203,
+    "parallel_ns": 17122507
+  },
+  {
+    "cap": 2,
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 72416045,
+    "parallel_ns": 34247415
+  },
+  {
+    "cap": 0,
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62450631,
+    "parallel_ns": 10415827
+  },
+  {
+    "cap": 4,
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 63208263,
+    "parallel_ns": 17692880
+  },
+  {
+    "cap": 2,
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62401416,
+    "parallel_ns": 31818297
+  },
+  {
+    "cap": 0,
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62434268,
+    "parallel_ns": 9932533
+  },
+  {
+    "cap": 0,
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 7097482,
+    "parallel_ns": 1825436
+  },
+  {
+    "cap": 2,
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6974413,
+    "parallel_ns": 3746095
+  },
+  {
+    "cap": 4,
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6923985,
+    "parallel_ns": 2424442
+  },
+  {
+    "cap": 0,
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62314146,
+    "parallel_ns": 9037904
+  },
+  {
+    "cap": 2,
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62079541,
+    "parallel_ns": 31961609
+  },
+  {
+    "cap": 4,
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62120684,
+    "parallel_ns": 16623889
+  },
+  {
+    "cap": 0,
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62425845,
+    "parallel_ns": 11586271
+  },
+  {
+    "cap": 2,
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62442282,
+    "parallel_ns": 31346045
+  },
+  {
+    "cap": 4,
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62582843,
+    "parallel_ns": 16726061
+  }
+]

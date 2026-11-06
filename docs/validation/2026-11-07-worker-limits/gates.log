@@ -1,0 +1,123 @@
+1/54 root.test_0...OK
+2/54 job.test.job list: push, shift, and remove preserve order...OK
+3/54 job.test.job list: shared list supports single-element pop...OK
+4/54 job.test.job list: remove middle node repairs tail...OK
+5/54 core.test.pool: per-worker context init and deinit...OK
+6/54 core.test.pool: start and stop without workers...OK
+7/54 core.test.future: fork/join tree sum with caller fallback...OK
+8/54 core.test.pool pins workers when requested...OK
+9/54 core.test.affinity: first allowed siblings survive restricted CPU sets...OK
+10/54 core.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+11/54 core.test.affinity: context initialization failure releases selected CPU storage...OK
+12/54 core.test.pool applies a preferred numa node...OK
+13/54 core.test.pool applies automatic numa policy...OK
+14/54 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+15/54 core.test.Future shares input and output storage...OK
+16/54 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+17/54 parallel.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+18/54 parallel.test.parallelForRange accepts usize limits and saturates lane planning...OK
+19/54 parallel.test.balanced folds preserve sequence order across worker counts...OK
+20/54 parallel.test.parallelForRange enforces worker caps including the caller...OK
+21/54 parallel.test.capped folds preserve ordered results and errors across worker counts...OK
+22/54 parallel.test.capped allocation failures release caller slots before invoking callbacks...SKIP
+23/54 parallel.test.capped nested calls and cancellation drain their lane futures...OK
+24/54 parallel.test.parallelFor covers every index exactly once...OK
+25/54 parallel.test.parallelFold is deterministic and ordered...OK
+26/54 parallel.test.serial fallback destroys the mutated worker context...OK
+27/54 parallel.test.parallelFor serial fallback with no background workers...OK
+28/54 parallel.test.nested parallelFor...OK
+29/54 parallel.test.parallelFor returns the first error by index...OK
+30/54 parallel.test.parallelFold covers stack and heap dispatch storage...OK
+31/54 parallel.test.parallelFold is deterministic across worker counts...OK
+32/54 parallel.test.parallelFoldInfallible matches the fallible fold...OK
+33/54 parallel.test.parallelFor returns Cancelled for an already-cancelled token...OK
+34/54 parallel.test.parallelFold cancels from a callback...OK
+35/54 parallel.test.parallelFoldInfallible honors cancellation...OK
+36/54 parallel.test.serial fold honors cancellation...OK
+37/54 parallel.test.parallelFor2D covers every cell exactly once...OK
+38/54 parallel.test.parallelFor2D handles empty dimensions and overflow...OK
+39/54 parallel.test.parallelFor cancellation from another thread...SKIP
+40/54 cancel.test.cancel token transitions...OK
+41/54 sync.test.spsc queue: single-threaded order and bounds...OK
+42/54 sync.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+43/54 sync.test.mpsc queue: single-threaded order and bounds...OK
+44/54 sync.test.mpsc queue: singleton concurrent producers preserve every value and producer order...SKIP
+45/54 sync.test.treiber stack: single-threaded order...OK
+46/54 sync.test.spsc queue: threaded producer and consumer...SKIP
+47/54 sync.test.mpsc queue: threaded producers and consumer...SKIP
+48/54 sync.test.treiber stack: threaded producers and consumer...SKIP
+49/54 sync.test.semaphore wakes a waiter...SKIP
+50/54 sync.test.wait group waits for all members...SKIP
+51/54 sync.test.blocking queue: single-threaded order and bounds...OK
+52/54 sync.test.blocking queue: threaded producers and consumers...SKIP
+53/54 sync.test.sharded mpsc queue: single-threaded round robin...OK
+54/54 sync.test.sharded mpsc queue: threaded producers and consumer...SKIP
+44 passed; 10 skipped; 0 failed.
+1/54 root.test_0...OK
+2/54 job.test.job list: push, shift, and remove preserve order...OK
+3/54 job.test.job list: shared list supports single-element pop...OK
+4/54 job.test.job list: remove middle node repairs tail...OK
+5/54 core.test.pool: per-worker context init and deinit...OK
+6/54 core.test.pool: start and stop without workers...OK
+7/54 core.test.future: fork/join tree sum with caller fallback...OK
+8/54 core.test.pool pins workers when requested...OK
+9/54 core.test.affinity: first allowed siblings survive restricted CPU sets...OK
+10/54 core.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+11/54 core.test.affinity: context initialization failure releases selected CPU storage...OK
+12/54 core.test.pool applies a preferred numa node...OK
+13/54 core.test.pool applies automatic numa policy...OK
+14/54 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+15/54 core.test.Future shares input and output storage...OK
+16/54 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+17/54 parallel.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+18/54 parallel.test.parallelForRange accepts usize limits and saturates lane planning...OK
+19/54 parallel.test.balanced folds preserve sequence order across worker counts...OK
+20/54 parallel.test.parallelForRange enforces worker caps including the caller...OK
+21/54 parallel.test.capped folds preserve ordered results and errors across worker counts...OK
+22/54 parallel.test.capped allocation failures release caller slots before invoking callbacks...OK
+23/54 parallel.test.capped nested calls and cancellation drain their lane futures...OK
+24/54 parallel.test.parallelFor covers every index exactly once...OK
+25/54 parallel.test.parallelFold is deterministic and ordered...OK
+26/54 parallel.test.serial fallback destroys the mutated worker context...OK
+27/54 parallel.test.parallelFor serial fallback with no background workers...OK
+28/54 parallel.test.nested parallelFor...OK
+29/54 parallel.test.parallelFor returns the first error by index...OK
+30/54 parallel.test.parallelFold covers stack and heap dispatch storage...OK
+31/54 parallel.test.parallelFold is deterministic across worker counts...OK
+32/54 parallel.test.parallelFoldInfallible matches the fallible fold...OK
+33/54 parallel.test.parallelFor returns Cancelled for an already-cancelled token...OK
+34/54 parallel.test.parallelFold cancels from a callback...OK
+35/54 parallel.test.parallelFoldInfallible honors cancellation...OK
+36/54 parallel.test.serial fold honors cancellation...OK
+37/54 parallel.test.parallelFor2D covers every cell exactly once...OK
+38/54 parallel.test.parallelFor2D handles empty dimensions and overflow...OK
+39/54 parallel.test.parallelFor cancellation from another thread...OK
+40/54 cancel.test.cancel token transitions...OK
+41/54 sync.test.spsc queue: single-threaded order and bounds...OK
+42/54 sync.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+43/54 sync.test.mpsc queue: single-threaded order and bounds...OK
+44/54 sync.test.mpsc queue: singleton concurrent producers preserve every value and producer order...OK
+45/54 sync.test.treiber stack: single-threaded order...OK
+46/54 sync.test.spsc queue: threaded producer and consumer...OK
+47/54 sync.test.mpsc queue: threaded producers and consumer...OK
+48/54 sync.test.treiber stack: threaded producers and consumer...OK
+49/54 sync.test.semaphore wakes a waiter...OK
+50/54 sync.test.wait group waits for all members...OK
+51/54 sync.test.blocking queue: single-threaded order and bounds...OK
+52/54 sync.test.blocking queue: threaded producers and consumers...OK
+53/54 sync.test.sharded mpsc queue: single-threaded round robin...OK
+54/54 sync.test.sharded mpsc queue: threaded producers and consumer...OK
+All 54 tests passed.
+spsc count=1000000 ns=4373385 ops_per_sec=228655835
+mpsc count=1000000 ns=151023854 ops_per_sec=6621471
+mpsc-1p count=1000000 ns=52657979 ops_per_sec=18990474
+mpsc-sharded count=1000000 ns=43027273 ops_per_sec=23241073
+mpsc-mutex count=1000000 ns=304692519 ops_per_sec=3281997
+treiber count=1000000 ns=70459502 ops_per_sec=14192550
+blocking count=1000000 ns=143860998 ops_per_sec=6951154
+parallel_for_2d rows=4096 cols=4096 workers=31 serial_ns=42134232 parallel_ns=2210128 speedup=19.06
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed checksum=10537150549972823889
+sample=0 serial_ns=273591 parallel_ns=273786 speedup=0.999
+sample=1 serial_ns=255041 parallel_ns=274311 speedup=0.930
+sample=2 serial_ns=198397 parallel_ns=199712 speedup=0.993
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed serial_ns=255041 parallel_ns=273786 speedup=0.932 statistic=median

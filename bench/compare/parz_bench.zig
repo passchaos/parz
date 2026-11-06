@@ -326,6 +326,8 @@ pub fn main(init: std.process.Init) !void {
     else
         10 * std.time.ns_per_us;
 
+    const call_cap = if (argv.items.len > 8) try std.fmt.parseInt(usize, argv.items[8], 10) else 0;
+
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = if (lanes == 0) 1 else lanes - 1,
         .max_workers = if (lanes == 0) 0 else 64,
@@ -363,6 +365,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = task.call(i64, parallelSumFlatCut, FlatCutInput{ .ctx = &ctx, .index = 0, .depth = 0 });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -400,6 +403,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = task.call(i64, parallelSumFlat, FlatInput{ .ctx = &ctx, .index = 0 });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -435,6 +439,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = task.call(i64, parallelSumCut, CutInput{ .node = &nodes[0], .depth = 0 });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -471,6 +476,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = task.call(i64, parallelSumCtx, IdxCtxInput{ .tree = &ctx, .index = 0 });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -506,6 +512,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = task.call(i64, parallelSumIdx, IdxInput{ .nodes = nodes, .index = 0 });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -545,6 +552,7 @@ pub fn main(init: std.process.Init) !void {
                 task.call(i64, parallelSum, &nodes[0]);
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -580,12 +588,13 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 data,
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
                 0,
                 FlatMap.map,
                 add,
             );
             const t_parallel = elapsed(start, io);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -621,12 +630,13 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 {},
                 count,
-                .{ .min_chunk = 1024, .chunks_per_worker = 16 },
+                .{ .min_chunk = 1024, .chunks_per_worker = 16, .max_workers = call_cap },
                 0,
                 ComputeInfMap.map,
                 add,
             );
             const t_parallel = elapsed(start, io);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -658,12 +668,13 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 {},
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
                 0,
                 ComputeMap.map,
                 add,
             );
             const t_parallel = elapsed(start, io);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {
@@ -695,11 +706,12 @@ pub fn main(init: std.process.Init) !void {
                 &pool,
                 &total,
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
                 ChunkSum.run,
             );
             parallel_result = total.load(.monotonic);
             const t_parallel = elapsed(start, io);
+            if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
         }
         if (serial_result != parallel_result) {

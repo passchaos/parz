@@ -1,0 +1,5 @@
+1/2 root.test_0...OK
+2/2 parallel.test.parallelForRange enforces worker caps including the caller...FAIL (TestUnexpectedResult)
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/62a81ab5b33fc9b283a95caf45e4d556/test --seed=0x44625b70

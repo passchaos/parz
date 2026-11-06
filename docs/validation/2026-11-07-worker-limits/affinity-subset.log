@@ -1,0 +1,5 @@
+1/4 root.test_0...OK
+2/4 core.test.affinity: first allowed siblings survive restricted CPU sets...OK
+3/4 core.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+4/4 core.test.affinity: context initialization failure releases selected CPU storage...OK
+All 4 tests passed.

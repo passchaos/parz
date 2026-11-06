@@ -69,3 +69,14 @@ skipped with a warning.
 
 [spice]: https://github.com/judofyr/spice
 [Rayon]: https://github.com/rayon-rs/rayon
+
+The parz executable accepts a per-call lane cap after its tuning arguments.
+The cap includes the caller; 0 keeps all pool lanes available:
+
+```sh
+taskset -c 0,2,4,6,8,10,12,14 zig-out/bin/compare-parz \
+    compute 1000000 8 1024 16 heartbeat 10000 2
+```
+
+Every measured parz checksum is validated, including samples that are not
+selected as the best time.

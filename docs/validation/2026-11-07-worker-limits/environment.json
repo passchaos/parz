@@ -1,0 +1,22 @@
+{
+  "baseline_commit": "7eb693c463f47cb5e2d1c8dfc3cac874d04a8dd6",
+  "cpu_set": "0,2,4,6,8,10,12,14",
+  "pool_lanes": 8,
+  "zig_version": "0.16.0",
+  "source_sha256": {
+    "src/job.zig": "00396202e51062bd5d810bf4a131dfef692f627481f0c8d6b2260fc414eaa7d3",
+    "src/root.zig": "c996a4fb8e6b09c0ec6c89d197473a432982eac3b81f1f53879cd220e723d55f",
+    "src/parallel.zig": "569a2abb1a818f4e5517a508347461b581f39a35e4e3314c23e04ab8130fe45b",
+    "src/core.zig": "750dd067b1ea707f15e987555866cbba5083240c69c3b49ca11c3050da4f9aff",
+    "src/sync.zig": "dbaeb043ada6f7a90826c6ebd63887da184689b11801d92904cb61b107de9df9",
+    "src/cancel.zig": "2fa6c29cc1e80cea99c9cfdf92bfdad7d37abee4cb03ef3cbd4d4422d164b1f4"
+  },
+  "binary_sha256": {
+    "before": "c1b3d9f787c0a79dff10268c25397bb8efb505b0908b600bcacb72b499e63705",
+    "after": "7babac24a22db097b43509621fc45fc510ac7678ff85df01148660046f5b7aaf"
+  },
+  "loadavg": "11.22 5.03 4.34 8/2119 2692490\n",
+  "validation_exit_code": 0,
+  "strict_parity_exit_code": 1,
+  "implementation_commit": "571ca6bde4cc8aa9be34adf0029115d15092105c"
+}

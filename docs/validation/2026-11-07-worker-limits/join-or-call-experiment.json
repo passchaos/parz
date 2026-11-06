@@ -1,0 +1,142 @@
+[
+  {
+    "variant": "before",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1434,
+    "parallel_ns": 3282
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1447,
+    "parallel_ns": 3464
+  },
+  {
+    "variant": "before",
+    "count": 1000000,
+    "round": 0,
+    "serial_ns": 1491886,
+    "parallel_ns": 767612
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000000,
+    "round": 0,
+    "serial_ns": 1523096,
+    "parallel_ns": 733780
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1511,
+    "parallel_ns": 3687
+  },
+  {
+    "variant": "before",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1451,
+    "parallel_ns": 3553
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000000,
+    "round": 1,
+    "serial_ns": 1545113,
+    "parallel_ns": 721080
+  },
+  {
+    "variant": "before",
+    "count": 1000000,
+    "round": 1,
+    "serial_ns": 1493763,
+    "parallel_ns": 705067
+  },
+  {
+    "variant": "before",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 1388,
+    "parallel_ns": 3421
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 1424,
+    "parallel_ns": 3364
+  },
+  {
+    "variant": "before",
+    "count": 1000000,
+    "round": 2,
+    "serial_ns": 1489024,
+    "parallel_ns": 780745
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000000,
+    "round": 2,
+    "serial_ns": 1525900,
+    "parallel_ns": 839213
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1434,
+    "parallel_ns": 3492
+  },
+  {
+    "variant": "before",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1425,
+    "parallel_ns": 3544
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000000,
+    "round": 3,
+    "serial_ns": 1521515,
+    "parallel_ns": 802294
+  },
+  {
+    "variant": "before",
+    "count": 1000000,
+    "round": 3,
+    "serial_ns": 1512171,
+    "parallel_ns": 719386
+  },
+  {
+    "variant": "before",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 1438,
+    "parallel_ns": 3432
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 1443,
+    "parallel_ns": 3422
+  },
+  {
+    "variant": "before",
+    "count": 1000000,
+    "round": 4,
+    "serial_ns": 1504126,
+    "parallel_ns": 779844
+  },
+  {
+    "variant": "join_or_call",
+    "count": 1000000,
+    "round": 4,
+    "serial_ns": 1536451,
+    "parallel_ns": 828758
+  }
+]

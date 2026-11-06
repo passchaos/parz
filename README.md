@@ -51,11 +51,16 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - The heartbeat only sets a flag; the owning worker checks it at the next
   `Task.call`, so the call hot path stays a single atomic load.
 - Tiny workloads finish before any sharing, so they stay at serial cost.
-- Flat loops share the whole chunk list up front and fall back to serial below
+- Flat loops share one job per lane up front and fall back to serial below
   `serial_threshold` items (default 4096) or when there are fewer chunks than
   lanes. This keeps small loops at serial cost and lets large loops pull work
-  dynamically.
+  dynamically. The caller executes its lane immediately, before waiting for
+  background lanes. Dispatch storage uses a 4 KiB stack fallback buffer.
 - A worker never executes user code while the pool mutex is held.
+- `ParallelOptions.max_workers` caps simultaneous lanes for that call,
+  including the caller. A value of 1 keeps the chunk callbacks on the caller;
+  each lane claims chunks dynamically. Chunk results and errors retain
+  chunk-index ordering.
 - `join` returns `null` when the job is still local or was reclaimed; the
   caller then executes it. This is the same fallback that makes zero-worker
   and spawn-failure configurations safe.
@@ -300,6 +305,11 @@ or the blocking queue. These are indicative throughput numbers, not
 competitive gates.
 
 ## Known limits / next steps
+
+Linux worker pinning captures the allowed CPU set during `Pool.init` and
+selects one allowed sibling per physical core. Automatic worker count reserves
+one selected CPU for the caller; explicit counts are capped by the selected
+CPU list. The caller keeps its existing affinity.
 
 - No built-in NUMA-aware allocator. `Options.numa_node` and
   `Options.auto_numa` set the worker thread's `MPOL_PREFERRED` policy;

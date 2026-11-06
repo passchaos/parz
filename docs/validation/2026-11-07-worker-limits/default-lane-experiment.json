@@ -1,0 +1,242 @@
+[
+  {
+    "variant": "current",
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6592654,
+    "parallel_ns": 1526948
+  },
+  {
+    "variant": "lane",
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6617442,
+    "parallel_ns": 1382371
+  },
+  {
+    "variant": "current",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62090530,
+    "parallel_ns": 9829205
+  },
+  {
+    "variant": "lane",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62122680,
+    "parallel_ns": 8332773
+  },
+  {
+    "variant": "current",
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62170927,
+    "parallel_ns": 9867400
+  },
+  {
+    "variant": "lane",
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62139172,
+    "parallel_ns": 8293965
+  },
+  {
+    "variant": "lane",
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6616695,
+    "parallel_ns": 1578280
+  },
+  {
+    "variant": "current",
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6621060,
+    "parallel_ns": 1617643
+  },
+  {
+    "variant": "lane",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62072226,
+    "parallel_ns": 9296148
+  },
+  {
+    "variant": "current",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62054504,
+    "parallel_ns": 11151959
+  },
+  {
+    "variant": "lane",
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62022124,
+    "parallel_ns": 9326673
+  },
+  {
+    "variant": "current",
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61993522,
+    "parallel_ns": 9697397
+  },
+  {
+    "variant": "current",
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6678971,
+    "parallel_ns": 1542369
+  },
+  {
+    "variant": "lane",
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6578751,
+    "parallel_ns": 1449436
+  },
+  {
+    "variant": "current",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62132672,
+    "parallel_ns": 9676725
+  },
+  {
+    "variant": "lane",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61830096,
+    "parallel_ns": 9178992
+  },
+  {
+    "variant": "current",
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62015770,
+    "parallel_ns": 9932579
+  },
+  {
+    "variant": "lane",
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62264980,
+    "parallel_ns": 9408793
+  },
+  {
+    "variant": "lane",
+    "round": 3,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6666636,
+    "parallel_ns": 1506703
+  },
+  {
+    "variant": "current",
+    "round": 3,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6456812,
+    "parallel_ns": 1492140
+  },
+  {
+    "variant": "lane",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62170561,
+    "parallel_ns": 8237289
+  },
+  {
+    "variant": "current",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62250554,
+    "parallel_ns": 9713255
+  },
+  {
+    "variant": "lane",
+    "round": 3,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62255899,
+    "parallel_ns": 9215920
+  },
+  {
+    "variant": "current",
+    "round": 3,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61930532,
+    "parallel_ns": 11031682
+  },
+  {
+    "variant": "current",
+    "round": 4,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6617038,
+    "parallel_ns": 1684247
+  },
+  {
+    "variant": "lane",
+    "round": 4,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6565239,
+    "parallel_ns": 1578982
+  },
+  {
+    "variant": "current",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62044684,
+    "parallel_ns": 9970401
+  },
+  {
+    "variant": "lane",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62050857,
+    "parallel_ns": 9376123
+  },
+  {
+    "variant": "current",
+    "round": 4,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61769099,
+    "parallel_ns": 9794748
+  },
+  {
+    "variant": "lane",
+    "round": 4,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62117205,
+    "parallel_ns": 9425862
+  }
+]
