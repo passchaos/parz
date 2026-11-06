@@ -98,6 +98,16 @@ pub fn MpscQueue(comptime T: type) type {
         }
 
         pub fn tryPush(self: *Self, value: T) bool {
+            // A one-slot ring needs distinct empty/reserved/ready states:
+            // the usual sequence numbers coincide for "published at pos"
+            // and "free for pos + 1" when capacity is one.
+            if (self.mask == 0) {
+                const slot = &self.buffer[0];
+                if (slot.sequence.cmpxchgStrong(0, 1, .acquire, .monotonic) != null) return false;
+                slot.value = value;
+                slot.sequence.store(2, .release);
+                return true;
+            }
             var pos = self.enqueue_pos.load(.monotonic);
             while (true) {
                 const slot = &self.buffer[pos & self.mask];
@@ -125,6 +135,13 @@ pub fn MpscQueue(comptime T: type) type {
         /// Single consumer only. The consumer position is a plain field, so
         /// it does not share a cache line with the producers' enqueue position.
         pub fn tryPop(self: *Self) ?T {
+            if (self.mask == 0) {
+                const slot = &self.buffer[0];
+                if (slot.sequence.load(.acquire) != 2) return null;
+                const value = slot.value;
+                slot.sequence.store(0, .release);
+                return value;
+            }
             var pos = self.dequeue_pos;
             while (true) {
                 const slot = &self.buffer[pos & self.mask];
@@ -426,6 +443,21 @@ test "spsc queue: single-threaded order and bounds" {
     try std.testing.expect(queue.tryPop() == null);
 }
 
+test "mpsc queue: singleton rejects pushes until the value is consumed" {
+    for ([_]usize{ 0, 1 }) |requested| {
+        var queue = try MpscQueue(u32).init(std.testing.allocator, requested);
+        defer queue.deinit();
+        try std.testing.expectEqual(@as(usize, 1), queue.capacity());
+        for (0..10) |index| {
+            try std.testing.expect(queue.tryPop() == null);
+            try std.testing.expect(queue.tryPush(@intCast(index)));
+            try std.testing.expect(!queue.tryPush(99));
+            try std.testing.expectEqual(@as(u32, @intCast(index)), queue.tryPop().?);
+            try std.testing.expect(queue.tryPop() == null);
+        }
+    }
+}
+
 test "mpsc queue: single-threaded order and bounds" {
     var queue = try MpscQueue(u32).init(std.testing.allocator, 4);
     defer queue.deinit();
@@ -435,6 +467,50 @@ test "mpsc queue: single-threaded order and bounds" {
     try std.testing.expect(!queue.tryPush(99));
     for (0..4) |index| try std.testing.expectEqual(@as(u32, @intCast(index)), queue.tryPop().?);
     try std.testing.expect(queue.tryPop() == null);
+}
+
+test "mpsc queue: singleton concurrent producers preserve every value and producer order" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const producers = 4;
+    const count = 1000;
+    const Producer = struct {
+        fn run(q: *MpscQueue(u32), producer: u32) void {
+            for (0..count) |index| {
+                const value = producer * count + @as(u32, @intCast(index));
+                while (!q.tryPush(value)) std.atomic.spinLoopHint();
+            }
+        }
+    };
+    for (0..3) |_| {
+        var queue = try MpscQueue(u32).init(std.testing.allocator, 1);
+        defer queue.deinit();
+        var threads: [producers]std.Thread = undefined;
+        for (&threads, 0..) |*thread, producer| {
+            thread.* = try std.Thread.spawn(.{}, Producer.run, .{ &queue, @as(u32, @intCast(producer)) });
+        }
+        // Drain and join before assertions so failures cannot leave producers
+        // using queue storage after the test returns.
+        var received: [producers * count]u32 = undefined;
+        for (&received) |*value| {
+            while (true) {
+                if (queue.tryPop()) |item| {
+                    value.* = item;
+                    break;
+                }
+                std.atomic.spinLoopHint();
+            }
+        }
+        for (threads) |thread| thread.join();
+        var next = [_]u32{0} ** producers;
+        for (received) |value| {
+            try std.testing.expect(value < producers * count);
+            const producer = value / count;
+            try std.testing.expectEqual(next[producer], value % count);
+            next[producer] += 1;
+        }
+        for (next) |total| try std.testing.expectEqual(@as(u32, count), total);
+        try std.testing.expect(queue.tryPop() == null);
+    }
 }
 
 test "treiber stack: single-threaded order" {

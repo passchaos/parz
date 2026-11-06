@@ -25,7 +25,7 @@ pub const Chunk = struct {
 };
 
 pub const Options = struct {
-    /// Minimum number of logical items per chunk.
+    /// Minimum number of logical items per chunk, unless the whole input is smaller.
     min_chunk: usize = 1,
     /// Hard upper bound on chunks for one call.
     max_chunks: usize = 4096,
@@ -64,7 +64,7 @@ pub fn parallelFor(
             var i = chunk.start;
             while (i < chunk.end) {
                 try checkCancel(self.cancel);
-                const block_end = @min(i + cancel_block, chunk.end);
+                const block_end = @min(i +| cancel_block, chunk.end);
                 while (i < block_end) : (i += 1) {
                     // Call the comptime callback directly so the per-item call
                     // is inlined instead of going through a function pointer.
@@ -118,7 +118,7 @@ pub fn parallelFor2D(
             var col = i % self.cols;
             while (i < chunk.end) {
                 try checkCancel(self.cancel);
-                const block_end = @min(i + cancel_block, chunk.end);
+                const block_end = @min(i +| cancel_block, chunk.end);
                 while (i < block_end) : (i += 1) {
                     try run(w, self.shared.*, row, col);
                     col += 1;
@@ -191,14 +191,12 @@ pub fn parallelForRange(
         try pool.allocator.alloc(Fut, chunk_count);
     defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
 
-    const chunk_size = (count + chunk_count - 1) / chunk_count;
-    for (futures, 0..) |*fut, index| {
+    var chunks = ChunkCursor.init(count, chunk_count);
+    for (futures) |*fut| {
         fut.* = .{};
-        const start = index * chunk_size;
-        const end = @min(start + chunk_size, count);
         fut.fork(&task, Exec.exec, .{
             .runner = &runner,
-            .chunk = .{ .start = start, .end = end },
+            .chunk = chunks.next(),
         });
     }
     pool.kickstart(caller, chunk_count);
@@ -261,7 +259,7 @@ pub fn parallelFold(
             var i = input.chunk.start;
             while (i < input.chunk.end) {
                 try checkCancel(runner.cancel);
-                const block_end = @min(i + cancel_block, input.chunk.end);
+                const block_end = @min(i +| cancel_block, input.chunk.end);
                 while (i < block_end) : (i += 1) {
                     acc = combine(acc, try map(t.worker, runner.shared.*, i));
                 }
@@ -293,14 +291,12 @@ pub fn parallelFold(
         try pool.allocator.alloc(Fut, chunk_count);
     defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
 
-    const chunk_size = (count + chunk_count - 1) / chunk_count;
-    for (futures, 0..) |*fut, index| {
+    var chunks = ChunkCursor.init(count, chunk_count);
+    for (futures) |*fut| {
         fut.* = .{};
-        const start = index * chunk_size;
-        const end = @min(start + chunk_size, count);
         fut.fork(&task, Exec.exec, .{
             .runner = &runner,
-            .chunk = .{ .start = start, .end = end },
+            .chunk = chunks.next(),
         });
     }
     pool.kickstart(caller, chunk_count);
@@ -367,7 +363,7 @@ pub fn parallelFoldInfallible(
             var i = input.chunk.start;
             while (i < input.chunk.end) {
                 try checkCancel(runner.cancel);
-                const block_end = @min(i + cancel_block, input.chunk.end);
+                const block_end = @min(i +| cancel_block, input.chunk.end);
                 while (i < block_end) : (i += 1) {
                     acc = combine(acc, map(t.worker, runner.shared.*, i));
                 }
@@ -399,14 +395,12 @@ pub fn parallelFoldInfallible(
         try pool.allocator.alloc(Fut, chunk_count);
     defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
 
-    const chunk_size = (count + chunk_count - 1) / chunk_count;
-    for (futures, 0..) |*fut, index| {
+    var chunks = ChunkCursor.init(count, chunk_count);
+    for (futures) |*fut| {
         fut.* = .{};
-        const start = index * chunk_size;
-        const end = @min(start + chunk_size, count);
         fut.fork(&task, Exec.exec, .{
             .runner = &runner,
-            .chunk = .{ .start = start, .end = end },
+            .chunk = chunks.next(),
         });
     }
     pool.kickstart(caller, chunk_count);
@@ -463,6 +457,29 @@ pub fn parallelReduceInfallible(
     return parallelFoldInfallible(pool, T, shared, count, options, identity, map, combine);
 }
 
+/// Balanced contiguous partitions. The first `extra` chunks get one more
+/// item; every chunk is nonempty and lengths differ by at most one. Advancing
+/// a cursor avoids both per-chunk division and overflowing `index * size` or
+/// ceil-division intermediates for ranges reaching usize's limit.
+const ChunkCursor = struct {
+    size: usize,
+    extra: usize,
+    start: usize = 0,
+
+    fn init(count: usize, chunks: usize) ChunkCursor {
+        std.debug.assert(chunks > 0 and chunks <= count);
+        return .{ .size = count / chunks, .extra = count % chunks };
+    }
+
+    fn next(self: *ChunkCursor) Chunk {
+        const end = self.start + self.size + @intFromBool(self.extra > 0);
+        const chunk = Chunk{ .start = self.start, .end = end };
+        self.start = end;
+        self.extra -|= 1;
+        return chunk;
+    }
+};
+
 fn plannedLaneCount(options: Options, worker_count: usize) usize {
     const requested_lanes = if (options.max_workers == 0)
         worker_count
@@ -474,9 +491,9 @@ fn plannedLaneCount(options: Options, worker_count: usize) usize {
 fn plannedChunkCount(count: usize, options: Options, worker_count: usize) usize {
     if (count == 0) return 0;
     const min_chunk = @max(options.min_chunk, 1);
-    const by_chunk = (count + min_chunk - 1) / min_chunk;
+    const by_chunk = @max(count / min_chunk, 1);
     const lanes = plannedLaneCount(options, worker_count);
-    const by_lanes = lanes * @max(options.chunks_per_worker, 1);
+    const by_lanes = lanes *| @max(options.chunks_per_worker, 1);
     const cap = @max(options.max_chunks, 1);
     return @max(1, @min(@min(by_chunk, by_lanes), cap));
 }
@@ -500,9 +517,8 @@ fn serialRange(
 ) anyerror!void {
     const P = @TypeOf(pool.*);
     const W = P.WorkerType;
-    var ctx = try pool.createTempContext();
-    defer pool.destroyTempContext(&ctx);
-    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
+    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = try pool.createTempContext() };
+    defer pool.destroyTempContext(&temp.ctx);
     try checkCancel(cancel);
     try run(&temp, shared, .{ .start = 0, .end = count });
 }
@@ -519,14 +535,13 @@ fn serialFold(
 ) anyerror!T {
     const P = @TypeOf(pool.*);
     const W = P.WorkerType;
-    var ctx = try pool.createTempContext();
-    defer pool.destroyTempContext(&ctx);
-    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
+    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = try pool.createTempContext() };
+    defer pool.destroyTempContext(&temp.ctx);
     var total = identity;
     var i: usize = 0;
     while (i < count) {
         try checkCancel(cancel);
-        const block_end = @min(i + cancel_block, count);
+        const block_end = @min(i +| cancel_block, count);
         while (i < block_end) : (i += 1) {
             total = combine(total, try map(&temp, shared, i));
         }
@@ -546,19 +561,190 @@ fn serialFoldInfallible(
 ) anyerror!T {
     const P = @TypeOf(pool.*);
     const W = P.WorkerType;
-    var ctx = try pool.createTempContext();
-    defer pool.destroyTempContext(&ctx);
-    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = ctx };
+    var temp = W{ .pool = pool, .index = 0, .active = false, .ctx = try pool.createTempContext() };
+    defer pool.destroyTempContext(&temp.ctx);
     var total = identity;
     var i: usize = 0;
     while (i < count) {
         try checkCancel(cancel);
-        const block_end = @min(i + cancel_block, count);
+        const block_end = @min(i +| cancel_block, count);
         while (i < block_end) : (i += 1) {
             total = combine(total, map(&temp, shared, i));
         }
     }
     return total;
+}
+
+test "parallelForRange partitions uneven counts into nonempty ordered ranges" {
+    const Case = struct { count: usize, min_chunk: usize, chunks: usize };
+    const Run = struct {
+        fn run(_: *core.Worker(void), ranges: *[16]?Chunk, chunk: Chunk) anyerror!void {
+            try std.testing.expect(chunk.start < chunk.end);
+            try std.testing.expect(chunk.end <= ranges.len);
+            ranges[chunk.start] = chunk;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+
+        for ([_]Case{
+            .{ .count = 10, .min_chunk = 1, .chunks = 6 },
+            .{ .count = 13, .min_chunk = 3, .chunks = 4 },
+            .{ .count = 3, .min_chunk = 8, .chunks = 1 },
+        }) |case| {
+            var expected: ?[16]?Chunk = null;
+            for (0..5) |_| {
+                var ranges = [_]?Chunk{null} ** 16;
+                try parallelForRange(&pool, &ranges, case.count, .{
+                    .min_chunk = case.min_chunk,
+                    .max_chunks = 6,
+                    .chunks_per_worker = 6,
+                    .serial_threshold = 0,
+                }, Run.run);
+                var next: usize = 0;
+                var chunks: usize = 0;
+                var shortest: usize = case.count;
+                var longest: usize = 0;
+                for (ranges) |range| {
+                    if (range) |chunk| {
+                        try std.testing.expectEqual(next, chunk.start);
+                        const len = chunk.end - chunk.start;
+                        try std.testing.expect(len >= @min(case.count, case.min_chunk));
+                        shortest = @min(shortest, len);
+                        longest = @max(longest, len);
+                        next = chunk.end;
+                        chunks += 1;
+                    }
+                }
+                try std.testing.expectEqual(case.count, next);
+                try std.testing.expectEqual(case.chunks, chunks);
+                try std.testing.expect(longest - shortest <= 1);
+                if (expected) |previous| {
+                    try std.testing.expectEqualDeep(previous, ranges);
+                } else {
+                    expected = ranges;
+                }
+            }
+        }
+    }
+}
+
+test "parallelForRange accepts usize limits and saturates lane planning" {
+    const Record = struct {
+        calls: std.atomic.Value(usize) = .init(0),
+        chunks: [7]Chunk = undefined,
+
+        fn run(_: *core.Worker(void), self: *@This(), chunk: Chunk) anyerror!void {
+            try std.testing.expect(chunk.start < chunk.end);
+            const slot = self.calls.fetchAdd(1, .monotonic);
+            try std.testing.expect(slot < self.chunks.len);
+            self.chunks[slot] = chunk;
+        }
+
+        fn lessThan(_: void, a: Chunk, b: Chunk) bool {
+            return a.start < b.start;
+        }
+    };
+    const limit = std.math.maxInt(usize);
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for ([_]usize{ 1, limit / 3, limit }) |min_chunk| {
+            var previous: ?[7]Chunk = null;
+            for (0..5) |_| {
+                var record = Record{};
+                try parallelForRange(&pool, &record, limit, .{
+                    .min_chunk = min_chunk,
+                    .chunks_per_worker = limit,
+                    .max_chunks = 7,
+                    .serial_threshold = 0,
+                }, Record.run);
+                const calls = record.calls.load(.monotonic);
+                try std.testing.expectEqual(@min(limit / min_chunk, 7), calls);
+                std.mem.sort(Chunk, record.chunks[0..calls], {}, Record.lessThan);
+                var end: usize = 0;
+                for (record.chunks[0..calls]) |chunk| {
+                    try std.testing.expectEqual(end, chunk.start);
+                    try std.testing.expect(chunk.end - chunk.start >= min_chunk);
+                    end = chunk.end;
+                }
+                try std.testing.expectEqual(limit, end);
+                if (previous) |chunks| {
+                    try std.testing.expectEqualDeep(chunks[0..calls], record.chunks[0..calls]);
+                }
+                // Only initialized slots are read on the next run.
+                @memset(record.chunks[calls..], .{ .start = 0, .end = 0 });
+                previous = record.chunks;
+            }
+        }
+    }
+}
+
+test "balanced folds preserve sequence order across worker counts" {
+    const Sequence = struct {
+        hash: u64 = 0,
+        factor: u64 = 1,
+
+        fn map(_: *core.Worker(void), _: void, index: usize) @This() {
+            return .{ .hash = index + 1, .factor = 31 };
+        }
+
+        fn fallible(w: *core.Worker(void), shared: void, index: usize) anyerror!@This() {
+            return map(w, shared, index);
+        }
+
+        // Associative concatenation; swapping chunks changes the hash.
+        fn combine(a: @This(), b: @This()) @This() {
+            return .{ .hash = a.hash *% b.factor +% b.hash, .factor = a.factor *% b.factor };
+        }
+    };
+    const options = Options{ .max_chunks = 6, .chunks_per_worker = 6, .serial_threshold = 0 };
+    var expected = Sequence{};
+    for (0..13) |index| {
+        expected = Sequence.combine(expected, .{ .hash = index + 1, .factor = 31 });
+    }
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for (0..5) |_| {
+            try std.testing.expectEqualDeep(expected, try parallelFold(
+                &pool,
+                Sequence,
+                {},
+                13,
+                options,
+                .{},
+                Sequence.fallible,
+                Sequence.combine,
+            ));
+            try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
+                &pool,
+                Sequence,
+                {},
+                13,
+                options,
+                .{},
+                Sequence.map,
+                Sequence.combine,
+            ));
+        }
+    }
 }
 
 test "parallelFor covers every index exactly once" {
@@ -615,6 +801,79 @@ test "parallelFold is deterministic and ordered" {
     const total = try parallelFold(&pool, u64, {}, n, .{ .min_chunk = 1, .serial_threshold = 0 }, 0, Map.map, Combine.combine);
     const expected = @as(u64, n - 1) * @as(u64, n) / 2;
     try std.testing.expectEqual(expected, total);
+}
+
+test "serial fallback destroys the mutated worker context" {
+    const Context = struct {
+        allocator: std.mem.Allocator,
+        scratch: std.ArrayList(u8) = .empty,
+
+        fn init(allocator: std.mem.Allocator, _: usize) !@This() {
+            return .{ .allocator = allocator };
+        }
+
+        fn deinit(_: std.mem.Allocator, self: *@This()) void {
+            self.scratch.deinit(self.allocator);
+        }
+    };
+    const Run = struct {
+        fn run(w: *core.Worker(Context), _: void, index: usize) anyerror!void {
+            const ctx = w.context();
+            try ctx.scratch.append(ctx.allocator, @intCast(index));
+            try std.testing.expectEqual(index + 1, ctx.scratch.items.len);
+        }
+
+        fn map(w: *core.Worker(Context), shared: void, index: usize) anyerror!u64 {
+            try run(w, shared, index);
+            return index;
+        }
+
+        fn infallible(w: *core.Worker(Context), shared: void, index: usize) u64 {
+            run(w, shared, index) catch @panic("scratch allocation or contents failed");
+            return index;
+        }
+
+        fn combine(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    var pool = try core.Pool(Context).init(std.testing.allocator, std.testing.io, .{
+        .max_workers = 0,
+        .max_callers = 1,
+        .context_init = Context.init,
+        .context_deinit = Context.deinit,
+    });
+    defer pool.deinit();
+    try pool.start();
+    // Exercise both the small-input fallback and caller-slot exhaustion.
+    for ([_]bool{ false, true }) |exhausted| {
+        const caller = if (exhausted) pool.claimCaller().? else null;
+        defer if (caller) |lane| pool.releaseCaller(lane);
+        const options = Options{ .serial_threshold = if (exhausted) 0 else 4096 };
+        try parallelFor(&pool, {}, 8, options, Run.run);
+        try std.testing.expectEqual(@as(u64, 28), try parallelFold(
+            &pool,
+            u64,
+            {},
+            8,
+            options,
+            0,
+            Run.map,
+            Run.combine,
+        ));
+        try std.testing.expectEqual(@as(u64, 28), try parallelFoldInfallible(
+            &pool,
+            u64,
+            {},
+            8,
+            options,
+            0,
+            Run.infallible,
+            Run.combine,
+        ));
+    }
+    // std.testing.allocator verifies that each callback's resized scratch is
+    // freed by the destructor of the context that the callback actually used.
 }
 
 test "parallelFor serial fallback with no background workers" {
@@ -832,7 +1091,6 @@ test "parallelFoldInfallible matches the fallible fold" {
     );
     try std.testing.expectEqual(expected, total);
 }
-
 
 test "parallelFor returns Cancelled for an already-cancelled token" {
     const io = std.testing.io;

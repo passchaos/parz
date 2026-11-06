@@ -7,11 +7,9 @@
 //! - `join` returns null when nobody picked the job up, and the caller runs it;
 //! - user code is never executed while the pool mutex is held.
 //!
-//! This first slice uses eager tick-driven sharing instead of a dedicated
-//! heartbeat thread. A busy worker calls `tick` at every `Task.call` and at
-//! every flat-parallel chunk boundary, which is enough to fill idle workers
-//! without a timer thread. A dedicated heartbeat mode can be added later
-//! without changing the public API.
+//! A dedicated heartbeat thread marks active lanes periodically. `tick`
+//! checks the flag at each `Task.call`; only a flagged owner shares local
+//! work. Flat calls use explicit `kickstart` to offer their chunks immediately.
 
 const std = @import("std");
 const builtin = @import("builtin");
@@ -604,8 +602,15 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
 
         const payload_size = @max(@sizeOf(Input), @sizeOf(Output));
         const payload_align = @max(@alignOf(Input), @alignOf(Output));
+        const skip_handler = @typeInfo(Output) == .error_union and @sizeOf(Input) <= @sizeOf(usize);
 
-        job: Job = Job.pending(),
+        // Only the fast join path reads the previous pointer of a pending
+        // future. Other types keep the original initialization stores.
+        job: Job = if (skip_handler) .{
+            .handler = null,
+            .prev_or_null = null,
+            .next_or_null = undefined,
+        } else Job.pending(),
         /// Input and output never live at the same time: the input is consumed
         /// before a background handler writes the output, and local execution
         /// overwrites the input only after copying it.
@@ -662,9 +667,11 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
         /// is expensive for large or error-union payloads.
         pub inline fn tryJoin(self: *Self, task: *Task(Ctx)) bool {
             // Fast path for a local job: the previous pointer is untagged.
-            // Shared jobs tag it, and pending jobs have a null handler, so
-            // both fall through to the full state decode.
-            if (self.job.handler != null) {
+            // A fast-path pending future has a null previous pointer, so error-union
+            // outputs with register-sized inputs can skip the handler check.
+            // Retain the measured plain-value and flat-loop paths: their
+            // different call frames did not benefit from removing the guard.
+            if (skip_handler or self.job.handler != null) {
                 const prev = @atomicLoad(?*anyopaque, &self.job.prev_or_null, .acquire);
                 if (prev) |raw| {
                     if (@intFromPtr(raw) & 1 == 0) {
@@ -933,7 +940,7 @@ test "pool pins workers when requested" {
     });
     defer pool.deinit();
     try pool.start();
-    try std.testing.expectEqual(@as(usize, 2), pool.spawned_background);
+    try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else 2), pool.spawned_background);
     try std.testing.expect(pool.pinned_cpus.len > 0);
 }
 
@@ -949,7 +956,7 @@ test "pool applies a preferred numa node" {
     });
     defer pool.deinit();
     try pool.start();
-    try std.testing.expectEqual(@as(usize, 1), pool.spawned_background);
+    try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else 1), pool.spawned_background);
 }
 
 test "pool applies automatic numa policy" {
@@ -965,7 +972,52 @@ test "pool applies automatic numa policy" {
     });
     defer pool.deinit();
     try pool.start();
-    try std.testing.expectEqual(@as(usize, 1), pool.spawned_background);
+    try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else 1), pool.spawned_background);
+}
+
+test "future: pending and error-union joins preserve caller fallback across lanes" {
+    const F = Future(void, u64, anyerror!u64);
+    const Exec = struct {
+        fn run(_: *Task(void), index: u64) anyerror!u64 {
+            if (index == 3) return error.ExpectedFailure;
+            return index * 7 + 1;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+            .max_execute_states = 32,
+        });
+        defer pool.deinit();
+        try pool.start();
+        const caller = pool.claimCaller().?;
+        defer pool.releaseCaller(caller);
+        for (0..10) |_| {
+            var task = caller.begin();
+            var pending = F{};
+            try std.testing.expect(!pending.tryJoin(&task));
+            try std.testing.expect(pending.join(&task) == null);
+            var plain_pending = Future(void, u64, u64){};
+            try std.testing.expect(!plain_pending.tryJoin(&task));
+
+            var futures: [8]F = undefined;
+            for (&futures, 0..) |*future, index| {
+                future.* = .{};
+                future.fork(&task, Exec.run, @intCast(index));
+            }
+            pool.kickstart(caller, futures.len);
+            for (&futures, 0..) |*future, index| {
+                const result = future.joinOrCall(&task, Exec.run);
+                if (index == 3) {
+                    try std.testing.expectError(error.ExpectedFailure, result);
+                } else {
+                    try std.testing.expectEqual(@as(u64, index * 7 + 1), try result);
+                }
+            }
+        }
+    }
 }
 
 test "Future shares input and output storage" {

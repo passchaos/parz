@@ -36,7 +36,7 @@ pub const ExecuteState = struct {
 pub const Job = struct {
     handler: ?Handler,
     /// Queued: previous job, low bit set when the job is in a shared list.
-    /// Executing: null. Pending: undefined.
+    /// Executing: the shared link is retained. Pending: undefined.
     prev_or_null: ?*anyopaque,
     /// Queued: next job. Executing: *ExecuteState with the low bit set.
     /// Pending: undefined.
