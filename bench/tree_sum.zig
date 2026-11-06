@@ -1,6 +1,7 @@
 const std = @import("std");
 const parz = @import("parz");
 const timing = @import("timing.zig");
+const affinity = @import("affinity.zig");
 
 const Node = struct {
     value: i64,
@@ -86,6 +87,7 @@ pub fn main(init: std.process.Init) !void {
     else
         true;
     const gate = argv.items.len > 3 and std.mem.eql(u8, argv.items[3], "gate");
+    const caller_cpu = if (argv.items.len > 4) try std.fmt.parseInt(usize, argv.items[4], 10) else null;
 
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = 0,
@@ -94,14 +96,17 @@ pub fn main(init: std.process.Init) !void {
         .max_execute_states = 4096,
         .worker_stack_size = 2 * 1024 * 1024,
         .enable_heartbeat = heartbeat,
+        .pin_workers = caller_cpu != null,
     });
     defer pool.deinit();
     try pool.start();
+    if (caller_cpu) |cpu| try affinity.pinCaller(&pool, cpu);
 
     const caller = pool.claimCaller() orelse return error.NoCallerSlot;
     defer pool.releaseCaller(caller);
     var run = Run{ .root = &nodes[0], .caller = caller };
     std.debug.print("tree_sum nodes={d} workers={d} checksum={d}\n", .{ node_count, pool.spawned_background, node_count });
+    if (caller_cpu) |cpu| std.debug.print("placement caller_cpu={d} worker_cpus={any}\n", .{ cpu, pool.pinned_cpus[0..pool.spawned_background] });
     const times = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.parallel);
     std.debug.print(
         "tree_sum nodes={d} workers={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n",

@@ -119,9 +119,16 @@ pub const Job = struct {
     /// current tail. The job is left unlinked but not reset: `Future` is
     /// single-use and is reinitialized before it is forked again.
     pub fn pop(self: *Job, tail: **Job) void {
+        const prev: *Job = @ptrFromInt(@intFromPtr(self.prev_or_null.?) & ~tag_bit);
+        self.popWithPrev(tail, prev);
+    }
+
+    /// Unlink a local tail using the previous pointer supplied by the caller.
+    /// Local links cannot change on another lane.
+    pub inline fn popWithPrev(self: *Job, tail: **Job, prev: *Job) void {
         std.debug.assert(self.state() == .queued_local);
         std.debug.assert(tail.* == self);
-        const prev: *Job = @ptrFromInt(@intFromPtr(self.prev_or_null.?) & ~tag_bit);
+        std.debug.assert(self.prev_or_null == @as(?*anyopaque, @ptrCast(prev)));
         prev.next_or_null = null;
         tail.* = prev;
     }
@@ -186,9 +193,9 @@ pub const Job = struct {
         return job;
     }
 
-    /// Detach the head job from a local list. The tail is retained because the
-    /// sentinel cannot repair the caller's tail pointer. The returned job is
-    /// still `queued_local` and must be moved with `pushShared`.
+    /// Detach the head job from a local list while retaining the owner's tail
+    /// job to execute locally. The returned job is still `queued_local` and
+    /// must be moved with `pushShared`.
     pub fn shift(self: *Job) ?*Job {
         const raw = self.next_or_null orelse return null;
         const job: *Job = @ptrCast(@alignCast(raw));

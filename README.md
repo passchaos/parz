@@ -238,6 +238,10 @@ zig build bench-micro -- 1000 8       # paired callback-shape overhead
 zig build bench-irregular -- 200000 8 9 mixed
 taskset -c 0,2,4,6,8,10,12,14 zig build bench-irregular \
     -Doptimize=ReleaseFast -- 200000 8 9 skewed
+# Fix the caller and each background worker on distinct allowed CPUs (Linux).
+taskset -c 24-31 zig build bench-tree-sum -Doptimize=ReleaseFast \
+    -- 1000 heartbeat gate 31
+taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 8 31
 zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput
 zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
@@ -345,6 +349,17 @@ publishing their node; it is exact after operations have finished.
 `bench-micro` accepts `[nodes] [lanes]`, disables heartbeat sharing, verifies
 every plain/error-union result, alternates each path with serial traversal,
 and reports paired medians. Lanes 1 exercises zero-background-worker fallback.
+
+An optional third `bench-micro` argument fixes the caller CPU; `bench-tree-sum`
+accepts the caller CPU after its heartbeat and gate arguments. These modes pin
+background workers before pinning the caller, and reject a caller CPU outside
+the allowed set or already assigned to a worker.
+
+Nested `Task` values use their worker's current local tail. Reclaiming a shared
+parent future therefore preserves access to newly forked descendant jobs.
+The retained local tail also permits a local join without atomic state checks.
+The regression, worker-count checks, and paired measurements are recorded in
+[the owner-tail validation report](docs/validation/2026-11-07-owner-tail/README.md).
 
 Optional NUMA-backed allocation:
 

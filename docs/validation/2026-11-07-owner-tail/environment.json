@@ -1,0 +1,35 @@
+{
+  "baseline_commit": "2a3537adbd21ad5ce9ae882ba522c9648464aafb",
+  "zig_version": "0.16.0",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+  "allowed_cpu_set": "24-31",
+  "caller_cpu": 31,
+  "background_cpus": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "loadavg": "10.96 9.78 9.12 12/2185 3120946",
+  "sha256": {
+    "src/core.zig": "2955c9379b565585a8460d16c7b2950074b3b1a7490f1dffbd6e872226e530e7",
+    "src/job.zig": "da81f161deb375c05271deb4f2338f2ed34648b01a8480532eda95b34e0ec1cd",
+    "bench/tree_sum.zig": "696dc50bafc44262c3910c495dcd6d52c772f36d5b211fcdca8446e41eea39f2",
+    "bench/micro.zig": "44120e5cce600a0d100429cc2019f4de7c907917771b110231d168870fe22926",
+    "bench/affinity.zig": "10b947baeab989e54c7fc6c5df9af250f544497a99e19b41869c3f2f15972fa6",
+    "test/integration.zig": "c21059cfeeeda1c5fbb5c7b6d9077c94fae0e4ad429925f333ed8de1020a15fe"
+  },
+  "baseline_sha256": {
+    "core.zig": "e0ba4fbc2208aad95cd9e0d403745c24b90713c2f4d9b9453fbf96c109475056",
+    "job.zig": "00396202e51062bd5d810bf4a131dfef692f627481f0c8d6b2260fc414eaa7d3"
+  },
+  "binary_sha256": {
+    "pinned-baseline-tree": "29eeed25d78ed7f5aa4f59c0d968ed20661c5a155a6683be893e56cb451d2141",
+    "pinned-candidate-tree": "e3a40b7f9e49485b35584b1bed5a4bff7b08de537538ee6c79a9aa294870ab46",
+    "pinned-baseline-micro": "84194e79894b6ca2c08959c8d60a1fbedffab70915250daaa17b6170f1283c9f",
+    "pinned-candidate-micro": "3912c92b77059026dc4cb335fb36fa6162ac1f13e880f93a1b4e5d677b7b3048"
+  }
+}

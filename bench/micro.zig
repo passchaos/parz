@@ -6,6 +6,7 @@
 const std = @import("std");
 const parz = @import("parz");
 const timing = @import("timing.zig");
+const affinity = @import("affinity.zig");
 
 const Node = struct {
     value: i64,
@@ -98,6 +99,7 @@ pub fn main(init: std.process.Init) !void {
     _ = args.next();
     const node_count = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 100_000;
     const lanes = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 0;
+    const caller_cpu = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else null;
     if (node_count == 0) return;
     const nodes = try buildTree(allocator, node_count);
     defer allocator.free(nodes);
@@ -109,9 +111,12 @@ pub fn main(init: std.process.Init) !void {
         .max_execute_states = 4096,
         .worker_stack_size = 2 * 1024 * 1024,
         .enable_heartbeat = false,
+        .pin_workers = caller_cpu != null,
     });
     defer pool.deinit();
     try pool.start();
+    if (caller_cpu) |cpu| try affinity.pinCaller(&pool, cpu);
+    if (caller_cpu) |cpu| std.debug.print("placement caller_cpu={d} worker_cpus={any}\n", .{ cpu, pool.pinned_cpus[0..pool.spawned_background] });
 
     const caller = pool.claimCaller() orelse return error.NoCallerSlot;
     defer pool.releaseCaller(caller);

@@ -197,12 +197,13 @@ test "integration: fork/join deterministic across worker counts" {
     const nodes = try std.testing.allocator.alloc(Node, 1023);
     defer std.testing.allocator.free(nodes);
     for (nodes, 0..) |*node, index| {
-        node.value = 1;
+        node.value = @intCast(index + 1);
         node.left = if (2 * index + 1 < nodes.len) &nodes[2 * index + 1] else null;
         node.right = if (2 * index + 2 < nodes.len) &nodes[2 * index + 2] else null;
     }
 
-    for ([_]usize{ 0, 1, 2, 4 }) |workers| {
+    const expected = @as(u64, nodes.len) * (nodes.len + 1) / 2;
+    for (0..5) |workers| {
         var pool = try parz.Pool(void).init(std.testing.allocator, io, .{
             .workers = workers,
             .max_workers = workers,
@@ -218,7 +219,7 @@ test "integration: fork/join deterministic across worker counts" {
             var task = caller.begin();
             const sum = try task.call(anyerror!u64, treeSumVoid, &nodes[0]);
             pool.releaseCaller(caller);
-            try std.testing.expectEqual(@as(u64, nodes.len), sum);
+            try std.testing.expectEqual(expected, sum);
         }
     }
 }

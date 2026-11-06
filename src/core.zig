@@ -202,6 +202,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.index = i;
                 w.active = true;
                 w.job_head = Job.head();
+                w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
                 w.shared_tail = &w.shared_head;
             }
@@ -211,6 +212,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.active = false;
                 w.caller_slot = i;
                 w.job_head = Job.head();
+                w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
                 w.shared_tail = &w.shared_head;
             }
@@ -299,6 +301,7 @@ pub fn Pool(comptime Ctx: type) type {
                     self.caller_busy[i] = true;
                     w.active = true;
                     w.job_head = Job.head();
+                    w.local_tail = &w.job_head;
                     w.shared_head = Job.head();
                     w.shared_tail = &w.shared_head;
                     w.heartbeat.store(false, .monotonic);
@@ -315,6 +318,7 @@ pub fn Pool(comptime Ctx: type) type {
             w.active = false;
             w.heartbeat.store(false, .monotonic);
             w.job_head = Job.head();
+            w.local_tail = &w.job_head;
             w.shared_head = Job.head();
             w.shared_tail = &w.shared_head;
         }
@@ -523,6 +527,8 @@ pub fn Worker(comptime Ctx: type) type {
         caller_slot: ?usize = null,
         ctx: Ctx = undefined,
         job_head: Job = Job.head(),
+        /// Owner-only tail, shared by every nested task on this lane.
+        local_tail: *Job = undefined,
         shared_head: Job = Job.head(),
         shared_tail: *Job = undefined,
         heartbeat: std.atomic.Value(bool) = .init(false),
@@ -532,7 +538,8 @@ pub fn Worker(comptime Ctx: type) type {
         }
 
         pub fn begin(self: *Self) Task(Ctx) {
-            return .{ .worker = self, .job_tail = &self.job_head };
+            if (self.job_head.isTail()) self.local_tail = &self.job_head;
+            return .{ .worker = self };
         }
 
         /// Cheap hot-path check. Only a heartbeat or an explicit kickstart
@@ -566,7 +573,6 @@ pub fn Task(comptime Ctx: type) type {
         const Self = @This();
 
         worker: *Worker(Ctx),
-        job_tail: *Job,
 
         pub inline fn tick(self: *Self) void {
             self.worker.tick();
@@ -578,7 +584,7 @@ pub fn Task(comptime Ctx: type) type {
             comptime func: anytype,
             arg: anytype,
         ) R {
-            return callWithContext(Ctx, self.worker, self.job_tail, R, func, arg);
+            return callWithContext(Ctx, self.worker, R, func, arg);
         }
     };
 }
@@ -586,12 +592,11 @@ pub fn Task(comptime Ctx: type) type {
 fn callWithContext(
     comptime Ctx: type,
     worker: *Worker(Ctx),
-    job_tail: *Job,
     comptime R: type,
     comptime func: anytype,
     arg: anytype,
 ) R {
-    var task = Task(Ctx){ .worker = worker, .job_tail = job_tail };
+    var task = Task(Ctx){ .worker = worker };
     task.tick();
     // Error-union returns are passed indirectly by LLVM when forced inline,
     // which costs more than the register-passing win. Let the optimizer decide
@@ -661,7 +666,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
                     state.done.set(state.io);
                 }
             };
-            self.job.push(&task.job_tail, Handler.run);
+            self.job.push(&task.worker.local_tail, Handler.run);
         }
 
         /// Wait for a forked job. Returns null when nobody picked the job up,
@@ -675,19 +680,27 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
         /// and `result()` is valid. This avoids materializing `?Output`, which
         /// is expensive for large or error-union payloads.
         pub inline fn tryJoin(self: *Self, task: *Task(Ctx)) bool {
-            // Fast path for a local job: the previous pointer is untagged.
-            // A fast-path pending future has a null previous pointer, so error-union
-            // outputs with register-sized inputs can skip the handler check.
-            // Retain the measured plain-value and flat-loop paths: their
-            // different call frames did not benefit from removing the guard.
+            // Sharing retains the owner's current local tail. Every nested
+            // task uses that same tail, so matching it proves the job is local.
+            // No other lane can read or mutate this job's links yet.
+            if (task.worker.local_tail == &self.job) {
+                self.job.popWithPrev(
+                    &task.worker.local_tail,
+                    @ptrCast(@alignCast(self.job.prev_or_null.?)),
+                );
+                return false;
+            }
+            // Non-tail jobs may already be shared. Pending error-union futures
+            // with small inputs have a null previous pointer; other types
+            // check the handler before examining an uninitialized pending link.
             if (skip_handler or self.job.handler != null) {
                 const prev = @atomicLoad(?*anyopaque, &self.job.prev_or_null, .acquire);
                 if (prev) |raw| {
                     if (@intFromPtr(raw) & 1 == 0) {
-                        if (task.job_tail == &self.job) {
-                            self.job.pop(&task.job_tail);
+                        if (task.worker.local_tail == &self.job) {
+                            self.job.pop(&task.worker.local_tail);
                         } else {
-                            self.job.remove(&task.job_tail);
+                            self.job.remove(&task.worker.local_tail);
                         }
                         return false;
                     }
@@ -699,10 +712,10 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
                     // The forked job is normally the local tail: deeper jobs
                     // have already been joined. Keep the common case off the
                     // doubly-linked remove path.
-                    if (task.job_tail == &self.job) {
-                        self.job.pop(&task.job_tail);
+                    if (task.worker.local_tail == &self.job) {
+                        self.job.pop(&task.worker.local_tail);
                     } else {
-                        self.job.remove(&task.job_tail);
+                        self.job.remove(&task.worker.local_tail);
                     }
                     return false;
                 },
@@ -1082,6 +1095,60 @@ test "future: pending and error-union joins preserve caller fallback across lane
 test "Future shares input and output storage" {
     const F = Future(void, usize, usize);
     try std.testing.expect(@sizeOf(F) <= @sizeOf(Job) + @sizeOf(usize));
+}
+
+test "future: reclaimed parent fallback publishes descendant forks" {
+    const Descendants = struct {
+        fn leaf(_: *Task(void), _: void) anyerror!bool {
+            return true;
+        }
+        fn run(task: *Task(void), _: void) anyerror!bool {
+            var first = Future(void, void, anyerror!bool){};
+            var second = Future(void, void, anyerror!bool){};
+            first.fork(task, leaf, {});
+            second.fork(task, leaf, {});
+            task.worker.pool.kickstart(task.worker, 1);
+            const offered = first.job.state() != .queued_local;
+            _ = try first.joinOrCall(task, leaf);
+            _ = try second.joinOrCall(task, leaf);
+            return offered;
+        }
+    };
+    const Nested = struct {
+        fn leaf(_: *Task(void), _: void) void {}
+        fn run(task: *Task(void), _: void) void {
+            var retained = Future(void, void, void){};
+            retained.fork(task, leaf, {});
+            task.worker.pool.kickstart(task.worker, 1);
+            retained.joinOrCall(task, leaf);
+        }
+    };
+    for (0..5) |workers| {
+        for ([_]usize{ 0, 16 }) |states| {
+            var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+                .workers = workers,
+                .max_workers = workers,
+                .max_callers = 1,
+                .max_execute_states = states,
+                .enable_heartbeat = false,
+            });
+            defer pool.deinit();
+            try pool.start();
+            const caller = pool.claimCaller().?;
+            defer pool.releaseCaller(caller);
+            for (0..10) |_| {
+                var task = caller.begin();
+                var parent = Future(void, void, anyerror!bool){};
+                parent.fork(&task, Descendants.run, {});
+                task.call(void, Nested.run, {});
+                if (workers == 0 or states == 0 or builtin.single_threaded)
+                    try std.testing.expectEqual(job_mod.JobState.queued_shared, parent.job.state());
+                try std.testing.expect(try parent.joinOrCall(&task, Descendants.run));
+                try std.testing.expect(caller.job_head.isTail());
+                try std.testing.expectEqual(&caller.job_head, caller.local_tail);
+            }
+        }
+    }
 }
 
 test "future: tryJoin/result and joinOrCall with a large payload" {
