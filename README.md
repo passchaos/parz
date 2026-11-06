@@ -232,9 +232,11 @@ competitive gates.
 
 ## Known limits / next steps
 
-- No NUMA-aware allocator integration. `Options.numa_node` and
-  `Options.auto_numa` only set the worker thread's `MPOL_PREFERRED` policy;
-  the caller thread is not affected.
+- No built-in NUMA-aware allocator. `Options.numa_node` and
+  `Options.auto_numa` set the worker thread's `MPOL_PREFERRED` policy;
+  pool metadata uses the allocator passed to `Pool.init`, so pass a
+  NUMA-aware allocator if metadata placement matters. The caller thread is
+  not affected.
 - No work stealing: idle workers consume shared jobs; they do not steal from
   another worker's local list. This is intentional and matches Spice.
 - `deinit` requires all caller slots to be released and no flat-parallel call

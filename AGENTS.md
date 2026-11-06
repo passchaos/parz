@@ -61,5 +61,6 @@ cancellation tokens, the infallible fold fast path, the `sync` module
 semaphore, wait group),
 `parallelFor2D`, and optional Linux CPU affinity pinning.
 
-Not implemented yet: NUMA-aware allocator integration. Work stealing is
-intentionally out of scope to match Spice's design.
+Not implemented yet: a built-in NUMA-aware allocator (pass one to
+`Pool.init`). Work stealing is intentionally out of scope to match Spice's
+design.

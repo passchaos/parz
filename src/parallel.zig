@@ -993,3 +993,29 @@ test "parallelFor2D covers every cell exactly once" {
         try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
     }
 }
+
+test "parallelFor2D handles empty dimensions and overflow" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 1,
+        .max_workers = 1,
+        .max_callers = 1,
+        .max_execute_states = 16,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    const Ctx = struct {
+        fn run(_: *core.Worker(void), _: void, _: usize, _: usize) anyerror!void {
+            unreachable;
+        }
+    };
+
+    try parallelFor2D(&pool, {}, 0, 10, .{ .serial_threshold = 0 }, Ctx.run);
+    try parallelFor2D(&pool, {}, 10, 0, .{ .serial_threshold = 0 }, Ctx.run);
+    try std.testing.expectError(
+        error.Overflow,
+        parallelFor2D(&pool, {}, std.math.maxInt(usize), 2, .{ .serial_threshold = 0 }, Ctx.run),
+    );
+}
