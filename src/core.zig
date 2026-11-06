@@ -610,9 +610,34 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
     return struct {
         const Self = @This();
 
+        const payload_size = @max(@sizeOf(Input), @sizeOf(Output));
+        const payload_align = @max(@alignOf(Input), @alignOf(Output));
+
         job: Job = Job.pending(),
-        input: Input = undefined,
-        output: Output = undefined,
+        /// Input and output never live at the same time: the input is consumed
+        /// before a background handler writes the output, and local execution
+        /// overwrites the input only after copying it.
+        payload: [payload_size]u8 align(payload_align) = undefined,
+
+        pub inline fn getInput(self: *const Self) Input {
+            var input: Input = undefined;
+            @memcpy(std.mem.asBytes(&input), self.payload[0..@sizeOf(Input)]);
+            return input;
+        }
+
+        pub inline fn setInput(self: *Self, input: Input) void {
+            @memcpy(self.payload[0..@sizeOf(Input)], std.mem.asBytes(&input));
+        }
+
+        pub inline fn getOutput(self: *const Self) Output {
+            var output: Output = undefined;
+            @memcpy(std.mem.asBytes(&output), self.payload[0..@sizeOf(Output)]);
+            return output;
+        }
+
+        pub inline fn setOutput(self: *Self, output: Output) void {
+            @memcpy(self.payload[0..@sizeOf(Output)], std.mem.asBytes(&output));
+        }
 
         pub inline fn fork(
             self: *Self,
@@ -620,12 +645,12 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             comptime func: anytype,
             input: Input,
         ) void {
-            self.input = input;
+            self.setInput(input);
             const Handler = struct {
                 fn run(raw_task: *anyopaque, job: *Job) void {
                     const t: *Task(Ctx) = @ptrCast(@alignCast(raw_task));
                     const fut: *Self = @alignCast(@fieldParentPtr("job", job));
-                    fut.output = t.call(Output, func, fut.input);
+                    fut.setOutput(t.call(Output, func, fut.getInput()));
                     const state = job.getExecuteState();
                     state.done.set(state.io);
                 }
@@ -636,7 +661,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
         /// Wait for a forked job. Returns null when nobody picked the job up,
         /// which means the caller must execute it.
         pub inline fn join(self: *Self, task: *Task(Ctx)) ?Output {
-            if (self.tryJoin(task)) return self.output;
+            if (self.tryJoin(task)) return self.getOutput();
             return null;
         }
 
@@ -684,7 +709,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
         }
 
         pub inline fn result(self: *const Self) Output {
-            return self.output;
+            return self.getOutput();
         }
 
         fn joinExecuting(self: *Self, task: *Task(Ctx)) bool {
@@ -705,7 +730,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             comptime func: anytype,
         ) Output {
             const maybe = self.join(task) orelse
-                return task.call(Output, func, self.input);
+                return task.call(Output, func, self.getInput());
             return maybe;
         }
     };
@@ -889,4 +914,9 @@ test "pool applies automatic numa policy" {
     defer pool.deinit();
     try pool.start();
     try std.testing.expectEqual(@as(usize, 1), pool.spawned_background);
+}
+
+test "Future shares input and output storage" {
+    const F = Future(void, usize, usize);
+    try std.testing.expect(@sizeOf(F) <= @sizeOf(Job) + @sizeOf(usize));
 }

@@ -198,20 +198,20 @@ pub fn parallelForRange(
             .pending => {},
             .queued_local => {
                 _ = fut.join(&task);
-                fut.output = task.call(anyerror!void, Exec.exec, fut.input);
+                fut.setOutput(task.call(anyerror!void, Exec.exec, fut.getInput()));
             },
             .queued_shared, .executing => {
                 if (fut.join(&task)) |value| {
-                    fut.output = value;
+                    fut.setOutput(value);
                 } else {
-                    fut.output = task.call(anyerror!void, Exec.exec, fut.input);
+                    fut.setOutput(task.call(anyerror!void, Exec.exec, fut.getInput()));
                 }
             },
         }
     }
 
     for (futures) |*fut| {
-        if (fut.output) |_| {} else |err| return err;
+        if (fut.getOutput()) |_| {} else |err| return err;
     }
 }
 
@@ -300,13 +300,13 @@ pub fn parallelFold(
             .pending => {},
             .queued_local => {
                 _ = fut.join(&task);
-                fut.output = task.call(anyerror!T, Exec.exec, fut.input);
+                fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
             },
             .queued_shared, .executing => {
                 if (fut.join(&task)) |value| {
-                    fut.output = value;
+                    fut.setOutput(value);
                 } else {
-                    fut.output = task.call(anyerror!T, Exec.exec, fut.input);
+                    fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
                 }
             },
         }
@@ -314,7 +314,7 @@ pub fn parallelFold(
 
     var total = identity;
     for (futures) |*fut| {
-        if (fut.output) |value| {
+        if (fut.getOutput()) |value| {
             total = combine(total, value);
         } else |err| return err;
     }
@@ -406,13 +406,13 @@ pub fn parallelFoldInfallible(
             .pending => {},
             .queued_local => {
                 _ = fut.join(&task);
-                fut.output = task.call(anyerror!T, Exec.exec, fut.input);
+                fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
             },
             .queued_shared, .executing => {
                 if (fut.join(&task)) |value| {
-                    fut.output = value;
+                    fut.setOutput(value);
                 } else {
-                    fut.output = task.call(anyerror!T, Exec.exec, fut.input);
+                    fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
                 }
             },
         }
@@ -420,7 +420,7 @@ pub fn parallelFoldInfallible(
 
     var total = identity;
     for (futures) |*fut| {
-        if (fut.output) |value| {
+        if (fut.getOutput()) |value| {
             total = combine(total, value);
         } else |err| return err;
     }
