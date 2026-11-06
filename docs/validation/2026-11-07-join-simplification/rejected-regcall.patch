@@ -1,0 +1,45 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -586,0 +587,3 @@
++            if (comptime useRegisterErrorReturn(R, @TypeOf(arg))) {
++                return callRegisterError(Ctx, self.worker, R, func, arg);
++            }
+@@ -589,0 +593,38 @@
++}
++
++fn useRegisterErrorReturn(comptime R: type, comptime Arg: type) bool {
++    if (builtin.cpu.arch != .x86_64 or @typeInfo(R) != .error_union) return false;
++    if (@sizeOf(@typeInfo(R).error_union.payload) > @sizeOf(usize)) return false;
++    return switch (@typeInfo(Arg)) {
++        .pointer => |pointer| pointer.size != .slice,
++        .int => |integer| integer.bits == 8 or integer.bits == 16 or integer.bits == 32 or integer.bits == 64,
++        else => false,
++    };
++}
++
++inline fn callRegisterError(
++    comptime Ctx: type,
++    worker: *Worker(Ctx),
++    comptime R: type,
++    comptime func: anytype,
++    arg: anytype,
++) R {
++    const Payload = @typeInfo(R).error_union.payload;
++    const Packed = extern struct { bits: usize, error_code: u16 };
++    const Adapter = struct {
++        fn run(w: *Worker(Ctx), input: @TypeOf(arg)) callconv(.{ .x86_64_regcall_v3_sysv = .{} }) Packed {
++            var task = Task(Ctx){ .worker = w };
++            task.tick();
++            const result: R = @call(.always_inline, func, .{ &task, input });
++            if (result) |value| {
++                var bits: usize = 0;
++                @memcpy(std.mem.asBytes(&bits)[0..@sizeOf(Payload)], std.mem.asBytes(&value));
++                return .{ .bits = bits, .error_code = 0 };
++            } else |err| return .{ .bits = 0, .error_code = @intFromError(err) };
++        }
++    };
++    const result = @call(.never_inline, Adapter.run, .{ worker, arg });
++    if (result.error_code != 0) return @errorFromInt(result.error_code);
++    var value: Payload = undefined;
++    @memcpy(std.mem.asBytes(&value), std.mem.asBytes(&result.bits)[0..@sizeOf(Payload)]);
++    return value;

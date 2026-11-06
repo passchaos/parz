@@ -1,0 +1,52 @@
+{
+  "captured_at_utc": "2026-11-06T21:50:05.130189+00:00",
+  "baseline_commit": "4837ba25cccbbd3ea9ff91cbd87a9dd514f6cef8",
+  "zig_version": "0.16.0",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900K",
+  "allowed_cpu_set": "24-31",
+  "caller_cpu": 31,
+  "background_cpus": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "loadavg": "5.40 5.85 7.01 10/2011 3174829",
+  "sha256": {
+    "src/core.zig": "dd9c77af026aeb7ec9a1ee62e5cc1bdce6a4a85075aa780fe13254db3a13dca9",
+    "bench/tree_sum.zig": "1cbefd57a01bda204747f85ebb9d280a51e14c61c42d33b192e71bbadf0a072e",
+    "bench/micro.zig": "26acf978b5715929e80c6ba7cfb0082725f4585ed30284df40de3d2de0b82600"
+  },
+  "baseline_core_sha256": "2955c9379b565585a8460d16c7b2950074b3b1a7490f1dffbd6e872226e530e7",
+  "binary_sha256": {
+    "aligned-baseline-tree": "72ea845d92e365d6ffce39e6ed3b41e719e05e1185d751ae275e70ac56047db4",
+    "aligned-baseline-micro": "f15551737a659b4d7629a0e4f963b4ee0cefb8ebbfd0b82b9fdfb1ee24b15acb",
+    "aligned-simplified-tree": "ae96db903fd256d4ccbfe05b42d9d68b2d553036aa428dc4f7751d243c34f7fc",
+    "aligned-simplified-micro": "3c94fef601d523f0c059c7fd1254a6b14f4f51dfc77ddfea83347fc0d7159861"
+  },
+  "serial_reference": {
+    "aligned-baseline-tree": {
+      "address": "00000000010836c0",
+      "alignment": 0,
+      "machine_code_sha256": "0591c06c5928a5fb5b17e6cb81367c4d050142039c09c0856135fb7d1689f251"
+    },
+    "aligned-baseline-micro": {
+      "address": "0000000001083d00",
+      "alignment": 0,
+      "machine_code_sha256": "0591c06c5928a5fb5b17e6cb81367c4d050142039c09c0856135fb7d1689f251"
+    },
+    "aligned-simplified-tree": {
+      "address": "00000000010836c0",
+      "alignment": 0,
+      "machine_code_sha256": "0591c06c5928a5fb5b17e6cb81367c4d050142039c09c0856135fb7d1689f251"
+    },
+    "aligned-simplified-micro": {
+      "address": "0000000001083d00",
+      "alignment": 0,
+      "machine_code_sha256": "0591c06c5928a5fb5b17e6cb81367c4d050142039c09c0856135fb7d1689f251"
+    }
+  }
+}

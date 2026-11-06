@@ -14,7 +14,7 @@ const Node = struct {
     right: ?*const Node = null,
 };
 
-fn serialSum(node: *const Node) i64 {
+fn serialSum(node: *const Node) align(64) i64 {
     var result = node.value;
     if (node.left) |left| result += serialSum(left);
     if (node.right) |right| result += serialSum(right);

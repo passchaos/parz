@@ -616,15 +616,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
 
         const payload_size = @max(@sizeOf(Input), @sizeOf(Output));
         const payload_align = @max(@alignOf(Input), @alignOf(Output));
-        const skip_handler = @typeInfo(Output) == .error_union and @sizeOf(Input) <= @sizeOf(usize);
-
-        // Only the fast join path reads the previous pointer of a pending
-        // future. Other types keep the original initialization stores.
-        job: Job = if (skip_handler) .{
-            .handler = null,
-            .prev_or_null = null,
-            .next_or_null = undefined,
-        } else Job.pending(),
+        job: Job = Job.pending(),
         /// Input and output never live at the same time: the input is consumed
         /// before a background handler writes the output, and local execution
         /// overwrites the input only after copying it.
@@ -690,18 +682,13 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
                 );
                 return false;
             }
-            // Non-tail jobs may already be shared. Pending error-union futures
-            // with small inputs have a null previous pointer; other types
-            // check the handler before examining an uninitialized pending link.
-            if (skip_handler or self.job.handler != null) {
+            // Non-tail jobs may already be shared. Check the handler before
+            // examining an uninitialized pending link.
+            if (self.job.handler != null) {
                 const prev = @atomicLoad(?*anyopaque, &self.job.prev_or_null, .acquire);
                 if (prev) |raw| {
                     if (@intFromPtr(raw) & 1 == 0) {
-                        if (task.worker.local_tail == &self.job) {
-                            self.job.pop(&task.worker.local_tail);
-                        } else {
-                            self.job.remove(&task.worker.local_tail);
-                        }
+                        self.job.remove(&task.worker.local_tail);
                         return false;
                     }
                 }
@@ -709,14 +696,9 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             switch (self.job.state()) {
                 .pending => return false,
                 .queued_local => {
-                    // The forked job is normally the local tail: deeper jobs
-                    // have already been joined. Keep the common case off the
-                    // doubly-linked remove path.
-                    if (task.worker.local_tail == &self.job) {
-                        self.job.pop(&task.worker.local_tail);
-                    } else {
-                        self.job.remove(&task.worker.local_tail);
-                    }
+                    // The tail was handled above. Only this owner changes
+                    // local_tail, so no callback or wait can change it here.
+                    self.job.remove(&task.worker.local_tail);
                     return false;
                 },
                 .queued_shared => {

@@ -349,6 +349,8 @@ publishing their node; it is exact after operations have finished.
 `bench-micro` accepts `[nodes] [lanes]`, disables heartbeat sharing, verifies
 every plain/error-union result, alternates each path with serial traversal,
 and reports paired medians. Lanes 1 exercises zero-background-worker fallback.
+The tree and micro serial reference functions use 64-byte code alignment to
+keep their instruction layout stable when scheduler code changes.
 
 An optional third `bench-micro` argument fixes the caller CPU; `bench-tree-sum`
 accepts the caller CPU after its heartbeat and gate arguments. These modes pin
@@ -360,6 +362,9 @@ parent future therefore preserves access to newly forked descendant jobs.
 The retained local tail also permits a local join without atomic state checks.
 The regression, worker-count checks, and paired measurements are recorded in
 [the owner-tail validation report](docs/validation/2026-11-07-owner-tail/README.md).
+The obsolete pending-future specialization and repeated local-tail checks
+have since been removed; [the join simplification report](docs/validation/2026-11-07-join-simplification/README.md)
+records the aligned controls and rejected register-return experiments.
 
 Optional NUMA-backed allocation:
 
