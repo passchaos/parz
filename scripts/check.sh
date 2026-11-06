@@ -20,6 +20,7 @@ done
 zig build bench-sync -Doptimize=ReleaseFast
 zig build bench-2d -Doptimize=ReleaseFast
 zig build bench-irregular -Doptimize=ReleaseFast -- 1000 1 3 skewed
+zig build check-numa -Doptimize=ReleaseSafe -- local
 
 if [ "${1:-}" = "--compare" ]; then
     SPICE_DIR="${SPICE_DIR:-/tmp/spice}" \

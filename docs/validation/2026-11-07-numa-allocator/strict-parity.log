@@ -1,0 +1,24 @@
+tree_sum nodes=1000 workers=7 checksum=1000
+sample=0 serial_ns=1890 parallel_ns=4179 speedup=0.452
+sample=1 serial_ns=2304 parallel_ns=4443 speedup=0.519
+sample=2 serial_ns=2280 parallel_ns=4413 speedup=0.517
+sample=3 serial_ns=2106 parallel_ns=4284 speedup=0.492
+sample=4 serial_ns=2112 parallel_ns=4402 speedup=0.480
+sample=5 serial_ns=2109 parallel_ns=4406 speedup=0.479
+sample=6 serial_ns=2091 parallel_ns=4370 speedup=0.478
+sample=7 serial_ns=2242 parallel_ns=4202 speedup=0.534
+sample=8 serial_ns=2163 parallel_ns=11172 speedup=0.194
+tree_sum nodes=1000 workers=7 serial_ns=2112 parallel_ns=4402 speedup=0.480 statistic=median
+small-input parity gate failed: speedup=0.480 < 0.9
+error: ParityRegression
+bench-tree-sum
++- run exe parz-tree-sum failure
+error: process exited with error code 1
+failed command: ./.zig-cache/o/baf8eb156ce7e6b407876c6ad19a59f8/parz-tree-sum 1000 heartbeat gate
+
+Build Summary: 1/3 steps succeeded (1 failed)
+bench-tree-sum transitive failure
++- run exe parz-tree-sum failure
+
+error: the following build command failed with exit code 1:
+.zig-cache/o/6d9afa13fa4fa9942926ac9052481ce0/build /home/passchaos/Temp/zig-x86_64-linux-0.16.0/zig /home/passchaos/Temp/zig-x86_64-linux-0.16.0/lib /home/passchaos/project-z/parz .zig-cache /home/passchaos/.cache/zig --seed 0xc93ae897 -Z23f8f784db370c7f bench-tree-sum -Doptimize=ReleaseFast -- 1000 heartbeat gate

@@ -1,0 +1,1 @@
+numa policy=preferred node=0 native=true applied=1 fallback=0 failures=0 errno=0 live=0 checksum=499999500000

@@ -26,6 +26,17 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&run_lib_tests.step);
     test_step.dependOn(&run_integration_tests.step);
 
+    const numa_mod = b.createModule(.{
+        .root_source_file = b.path("bench/numa.zig"),
+        .target = target,
+        .optimize = optimize,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const numa_check = b.addExecutable(.{ .name = "parz-numa-check", .root_module = numa_mod });
+    const run_numa = b.addRunArtifact(numa_check);
+    if (b.args) |args| run_numa.addArgs(args);
+    b.step("check-numa", "Check NUMA policy, fallback and allocator lifetime").dependOn(&run_numa.step);
+
     const tree_sum_mod = b.createModule(.{
         .root_source_file = b.path("bench/tree_sum.zig"),
         .target = target,

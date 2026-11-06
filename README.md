@@ -37,6 +37,8 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
+- Optional `NumaAllocator` with local/preferred/bind/interleave Linux VMA
+  policies, policy diagnostics, and portable allocator fallback.
 - Balanced contiguous flat chunks: every chunk is nonempty, chunk lengths
   differ by at most one item, and `min_chunk` is respected unless the entire
   input is smaller. Range planning supports counts up to `maxInt(usize)`.
@@ -312,11 +314,9 @@ selects one allowed sibling per physical core. Automatic worker count reserves
 one selected CPU for the caller; explicit counts are capped by the selected
 CPU list. The caller keeps its existing affinity.
 
-- No built-in NUMA-aware allocator. `Options.numa_node` and
-  `Options.auto_numa` set the worker thread's `MPOL_PREFERRED` policy;
-  pool metadata uses the allocator passed to `Pool.init`, so pass a
-  NUMA-aware allocator if metadata placement matters. The caller thread is
-  not affected.
+- `Options.numa_node` and `Options.auto_numa` set worker thread policy.
+  `NumaAllocator` sets policy on each Linux allocation before first-touch;
+  pass its allocator to `Pool.init` to cover metadata and per-worker arenas.
 - No work stealing: idle workers consume shared jobs; they do not steal from
   another worker's local list. This is intentional and matches Spice.
 - `deinit` requires all caller slots to be released and no flat-parallel call
@@ -335,3 +335,34 @@ publishing their node; it is exact after operations have finished.
 `bench-micro` accepts `[nodes] [lanes]`, disables heartbeat sharing, verifies
 every plain/error-union result, alternates each path with serial traversal,
 and reports paired medians. Lanes 1 exercises zero-background-worker fallback.
+
+Optional NUMA-backed allocation:
+
+```zig
+var numa = try parz.NumaAllocator.init(allocator, .{
+    .policy = .preferred,
+    .nodes = &.{0},
+    .require_policy = false,
+});
+defer numa.deinit();
+var pool = try parz.Pool(void).init(numa.allocator(), io, .{});
+defer pool.deinit();
+try pool.start();
+```
+
+`local` requires an empty node list, `preferred` one node, and `bind` or
+`interleave` a nonempty set. Node masks are copied during initialization and
+support all `u16` IDs. The allocator instance must remain at the same address
+and outlive its allocations. It uses separate anonymous page mappings on
+Linux; an arena can amortize page and syscall overhead for small objects.
+Other targets use the supplied fallback allocator. `require_policy = true`
+rejects unsupported platforms during initialization and failed Linux policy
+requests as allocation failure. `stats()` reports accepted requests, fallback
+allocations, failed policy requests, and the last Linux errno. Policy acceptance
+describes VMA configuration; physical placement also depends on first-touch
+and the nodes permitted by the host.
+
+```sh
+zig build check-numa -- preferred 0
+zig build check-numa -- preferred 65535 require
+```
