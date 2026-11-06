@@ -95,6 +95,7 @@ pub fn Pool(comptime Ctx: type) type {
         spawned_background: usize = 0,
         caller_count: usize = 0,
         caller_busy: []bool,
+        pinned_cpus: []u32 = &.{},
 
         execute_states: []ExecuteState,
         execute_free: ?usize = null,
@@ -214,6 +215,9 @@ pub fn Pool(comptime Ctx: type) type {
                 n += 1;
             }
             self.worker_count = n;
+            if (self.options.pin_workers) {
+                self.pinned_cpus = try buildPinnedCpuList(self.allocator, self.io);
+            }
 
             var spawned: usize = 0;
             if (!builtin.single_threaded) {
@@ -267,6 +271,7 @@ pub fn Pool(comptime Ctx: type) type {
             if (self.background_threads.len != 0) self.allocator.free(self.background_threads);
             if (self.workers.len != 0) self.allocator.free(self.workers);
             if (self.caller_busy.len != 0) self.allocator.free(self.caller_busy);
+            if (self.pinned_cpus.len != 0) self.allocator.free(self.pinned_cpus);
             if (self.execute_states.len != 0) self.allocator.free(self.execute_states);
             self.* = undefined;
         }
@@ -436,27 +441,14 @@ pub fn Pool(comptime Ctx: type) type {
         fn pinWorker(self: *Self, index: usize) void {
             if (!self.options.pin_workers) return;
             if (comptime builtin.os.tag != .linux) return;
+            if (self.pinned_cpus.len == 0) return;
 
-            const affinity = std.posix.sched_getaffinity(0) catch return;
-            const count: usize = std.posix.CPU_COUNT(affinity);
-            if (count == 0) return;
-            const target = index % count;
-
-            var seen: usize = 0;
-            for (affinity, 0..) |word, word_index| {
-                var bits = word;
-                while (bits != 0) {
-                    const bit = @ctz(bits);
-                    if (seen == target) {
-                        var set = std.mem.zeroes(std.os.linux.cpu_set_t);
-                        set[word_index] = @as(usize, 1) << @intCast(bit);
-                        std.os.linux.sched_setaffinity(0, &set) catch {};
-                        return;
-                    }
-                    seen += 1;
-                    bits &= bits - 1;
-                }
-            }
+            const cpu = self.pinned_cpus[index % self.pinned_cpus.len];
+            const word = cpu / @bitSizeOf(usize);
+            const bit = cpu % @bitSizeOf(usize);
+            var set = std.mem.zeroes(std.os.linux.cpu_set_t);
+            set[word] = @as(usize, 1) << @intCast(bit);
+            std.os.linux.sched_setaffinity(0, &set) catch {};
         }
 
         /// Periodically mark every active worker as ready to share one batch
@@ -749,6 +741,65 @@ fn deinitContext(ctx: anytype, allocator: std.mem.Allocator, options: anytype) v
     if (options.context_deinit) |deinit| deinit(allocator, ctx);
 }
 
+/// Build a CPU list with one logical CPU per physical core (best effort).
+/// On Linux, read the SMT sibling list from sysfs; fall back to the allowed
+/// affinity set when sysfs is unavailable.
+fn buildPinnedCpuList(allocator: std.mem.Allocator, io: std.Io) ![]u32 {
+    if (comptime builtin.os.tag != .linux) return &.{};
+
+    const affinity = std.posix.sched_getaffinity(0) catch return &.{};
+    var allowed = std.ArrayList(u32).empty;
+    defer allowed.deinit(allocator);
+    for (affinity, 0..) |word, word_index| {
+        var bits = word;
+        while (bits != 0) {
+            const bit = @ctz(bits);
+            const cpu: u32 = @intCast(word_index * @bitSizeOf(usize) + bit);
+            try allowed.append(allocator, cpu);
+            bits &= bits - 1;
+        }
+    }
+    if (allowed.items.len == 0) return &.{};
+
+    var selected = std.ArrayList(u32).empty;
+    defer selected.deinit(allocator);
+    var path_buf: [128]u8 = undefined;
+    for (allowed.items) |cpu| {
+        const path = std.fmt.bufPrint(
+            &path_buf,
+            "/sys/devices/system/cpu/cpu{d}/topology/thread_siblings_list",
+            .{cpu},
+        ) catch {
+            try selected.append(allocator, cpu);
+            continue;
+        };
+        const content = std.Io.Dir.cwd().readFileAlloc(
+            io,
+            path,
+            allocator,
+            .limited(64),
+        ) catch {
+            try selected.append(allocator, cpu);
+            continue;
+        };
+        defer allocator.free(content);
+
+        var tokens = std.mem.tokenizeAny(u8, content, "-,\n ");
+        const first = tokens.next() orelse {
+            try selected.append(allocator, cpu);
+            continue;
+        };
+        const first_cpu = std.fmt.parseInt(u32, first, 10) catch {
+            try selected.append(allocator, cpu);
+            continue;
+        };
+        if (first_cpu == cpu) try selected.append(allocator, cpu);
+    }
+
+    if (selected.items.len == 0) return try allowed.toOwnedSlice(allocator);
+    return try selected.toOwnedSlice(allocator);
+}
+
 fn effectiveCpuCount() usize {
     if (builtin.single_threaded) return 1;
     if (builtin.os.tag == .linux) {
@@ -883,6 +934,7 @@ test "pool pins workers when requested" {
     defer pool.deinit();
     try pool.start();
     try std.testing.expectEqual(@as(usize, 2), pool.spawned_background);
+    try std.testing.expect(pool.pinned_cpus.len > 0);
 }
 
 test "pool applies a preferred numa node" {

@@ -30,9 +30,10 @@ adding parallelism to a small workload must not make it meaningfully slower.
   per-producer FIFO shards, a bounded blocking MPMC queue, a
   multi-producer/single-consumer Treiber stack, a counting semaphore, and a
   wait group.
-- `parallelFor2D` for row-major grids, optional Linux CPU affinity via
-  `Options.pin_workers`, and optional `MPOL_PREFERRED` NUMA binding via
-  `Options.numa_node` or `Options.auto_numa`.
+- `parallelFor2D` for row-major grids, optional SMT-aware Linux CPU
+  affinity via `Options.pin_workers` (one logical CPU per physical core),
+  and optional `MPOL_PREFERRED` NUMA binding via `Options.numa_node` or
+  `Options.auto_numa`.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
@@ -66,7 +67,7 @@ var pool = try parz.Pool(void).init(allocator, io, .{
     .max_workers = 64,
     .max_callers = 4,
     .max_execute_states = 1024,
-    .pin_workers = false,      // Linux CPU affinity for background workers
+    .pin_workers = false,      // SMT-aware Linux CPU affinity for workers
     .numa_node = null,         // Linux MPOL_PREFERRED node for background workers
     .auto_numa = false,        // use the pinned CPU's node when numa_node is null
 });
