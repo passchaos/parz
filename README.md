@@ -151,6 +151,34 @@ Correctness rules:
   pointers into it after the callback returns.
 - `deinit` requires all caller slots released and no active flat call.
 
+## Sync primitives
+
+`parz.sync` is independent of the scheduler:
+
+- `SpscQueue(T)` — bounded single-producer/single-consumer.
+- `MpscQueue(T)` — bounded multi-producer/single-consumer FIFO.
+- `ShardedMpscQueue(T, shards)` — per-producer FIFO shards; no global order.
+- `BlockingQueue(T)` — bounded blocking MPMC queue using `std.Io`.
+- `TreiberStack(T)` — multi-producer/single-consumer stack; nodes are caller-owned.
+- `Semaphore` and `WaitGroup`.
+
+```zig
+var queue = try parz.sync.BlockingQueue(Message).init(allocator, 1024);
+defer queue.deinit();
+
+try queue.put(io, message);       // waits while full
+const next = try queue.get(io);   // waits while empty
+
+var group = parz.sync.WaitGroup{};
+group.add(io, workers);
+// each worker:
+group.done(io);
+group.wait(io);
+```
+
+`MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
+`BlockingQueue` is the multi-consumer blocking option.
+
 ## Per-worker context
 
 ```zig
