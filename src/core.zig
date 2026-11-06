@@ -737,9 +737,8 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             task: *Task(Ctx),
             comptime func: anytype,
         ) Output {
-            const maybe = self.join(task) orelse
-                return task.call(Output, func, self.getInput());
-            return maybe;
+            if (self.tryJoin(task)) return self.getOutput();
+            return task.call(Output, func, self.getInput());
         }
     };
 }

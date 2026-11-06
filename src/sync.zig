@@ -34,8 +34,13 @@ pub fn SpscQueue(comptime T: type) type {
             return self.buffer.len;
         }
 
+        /// Approximate during concurrent updates, always bounded by capacity.
+        /// Exact when quiescent. Reading the released head first also observes
+        /// the tail publication that allowed the consumer to reach that head.
         pub fn len(self: *const Self) usize {
-            return self.tail.load(.monotonic) -% self.head.load(.acquire);
+            const head = self.head.load(.acquire);
+            const tail = self.tail.load(.acquire);
+            return @min(tail -% head, self.buffer.len);
         }
 
         pub fn tryPush(self: *Self, value: T) bool {
@@ -335,6 +340,10 @@ pub fn TreiberStack(comptime T: type) type {
         count: std.atomic.Value(usize) = .init(0),
 
         pub fn push(self: *Self, node: *Node) void {
+            // Reserve the count before publishing the node. A consumer can
+            // pop immediately after the head CAS, so accounting afterwards
+            // would allow its decrement to wrap through zero.
+            _ = self.count.fetchAdd(1, .monotonic);
             var old = self.head.load(.monotonic);
             while (true) {
                 node.next = if (old == 0) null else @as(*Node, @ptrFromInt(old));
@@ -344,7 +353,6 @@ pub fn TreiberStack(comptime T: type) type {
                     .release,
                     .monotonic,
                 ) == null) {
-                    _ = self.count.fetchAdd(1, .monotonic);
                     return;
                 }
                 old = self.head.load(.monotonic);
@@ -366,6 +374,7 @@ pub fn TreiberStack(comptime T: type) type {
             return null;
         }
 
+        /// Includes pushes being published; exact when quiescent.
         pub fn len(self: *const Self) usize {
             return self.count.load(.monotonic);
         }
@@ -529,6 +538,47 @@ test "treiber stack: single-threaded order" {
     try std.testing.expect(stack.isEmpty());
 }
 
+test "spsc queue: concurrent observer length stays within capacity" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const State = struct {
+        queue: SpscQueue(u32),
+        done: std.atomic.Value(bool) = .init(false),
+        bad_value: std.atomic.Value(bool) = .init(false),
+
+        fn produce(self: *@This()) void {
+            for (0..100_000) |index| {
+                while (!self.queue.tryPush(@intCast(index))) std.atomic.spinLoopHint();
+            }
+        }
+        fn consume(self: *@This()) void {
+            var received: u32 = 0;
+            while (received < 100_000) {
+                if (self.queue.tryPop()) |value| {
+                    if (value != received) self.bad_value.store(true, .monotonic);
+                    received += 1;
+                } else std.atomic.spinLoopHint();
+            }
+            self.done.store(true, .release);
+        }
+    };
+    for ([_]usize{ 1, 16 }) |capacity| {
+        var state = State{ .queue = try SpscQueue(u32).init(std.testing.allocator, capacity) };
+        defer state.queue.deinit();
+        const producer = try std.Thread.spawn(.{}, State.produce, .{&state});
+        const consumer = try std.Thread.spawn(.{}, State.consume, .{&state});
+        var exceeded = false;
+        while (!state.done.load(.acquire)) {
+            if (state.queue.len() > state.queue.capacity()) exceeded = true;
+            std.atomic.spinLoopHint();
+        }
+        producer.join();
+        consumer.join();
+        try std.testing.expect(!exceeded);
+        try std.testing.expect(!state.bad_value.load(.monotonic));
+        try std.testing.expectEqual(@as(usize, 0), state.queue.len());
+    }
+}
+
 test "spsc queue: threaded producer and consumer" {
     if (builtin.single_threaded) return error.SkipZigTest;
 
@@ -601,6 +651,53 @@ test "mpsc queue: threaded producers and consumer" {
         }
     }
     for (threads) |thread| thread.join();
+}
+
+test "treiber stack: concurrent length does not underflow" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const total = 20_000;
+    const Stack = TreiberStack(u32);
+    const State = struct {
+        stack: Stack = .{},
+        nodes: []Stack.Node,
+        done: std.atomic.Value(bool) = .init(false),
+        sum: u64 = 0,
+
+        fn produce(self: *@This()) void {
+            for (self.nodes, 0..) |*node, index| {
+                node.* = .{ .value = @intCast(index) };
+                self.stack.push(node);
+                if (index % 8 == 0) std.atomic.spinLoopHint();
+            }
+        }
+        fn consume(self: *@This()) void {
+            var received: usize = 0;
+            while (received < total) {
+                if (self.stack.pop()) |node| {
+                    self.sum += node.value;
+                    received += 1;
+                } else std.atomic.spinLoopHint();
+            }
+            self.done.store(true, .release);
+        }
+    };
+    const nodes = try std.testing.allocator.alloc(Stack.Node, total);
+    defer std.testing.allocator.free(nodes);
+    for (0..5) |_| {
+        var state = State{ .nodes = nodes };
+        const producer = try std.Thread.spawn(.{}, State.produce, .{&state});
+        const consumer = try std.Thread.spawn(.{}, State.consume, .{&state});
+        var underflow = false;
+        while (!state.done.load(.acquire)) {
+            if (state.stack.len() > total) underflow = true;
+            std.atomic.spinLoopHint();
+        }
+        producer.join();
+        consumer.join();
+        try std.testing.expect(!underflow);
+        try std.testing.expectEqual(@as(usize, 0), state.stack.len());
+        try std.testing.expectEqual(@as(u64, total) * (total - 1) / 2, state.sum);
+    }
 }
 
 test "treiber stack: threaded producers and consumer" {
