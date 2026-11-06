@@ -45,7 +45,7 @@ pub fn main(init: std.process.Init) !void {
     const serial_ns = serial_start.untilNow(io).raw.toNanoseconds();
 
     const Map = struct {
-        fn map(_: *parz.Worker(void), shared: []const u64, index: usize) anyerror!u64 {
+        fn map(_: *parz.Worker(void), shared: []const u64, index: usize) u64 {
             return shared[index];
         }
     };
@@ -60,7 +60,7 @@ pub fn main(init: std.process.Init) !void {
     const repeats = 5;
     for (0..repeats) |_| {
         const start = now(io);
-        parallel_result = try parz.parallelFold(
+        parallel_result = try parz.parallelFoldInfallible(
             &pool,
             u64,
             data,

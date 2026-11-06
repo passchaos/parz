@@ -25,7 +25,9 @@ pub const parallelFor = parallel.parallelFor;
 pub const parallelForEach = parallel.parallelForEach;
 pub const parallelForRange = parallel.parallelForRange;
 pub const parallelFold = parallel.parallelFold;
+pub const parallelFoldInfallible = parallel.parallelFoldInfallible;
 pub const parallelReduce = parallel.parallelReduce;
+pub const parallelReduceInfallible = parallel.parallelReduceInfallible;
 
 test {
     _ = job;

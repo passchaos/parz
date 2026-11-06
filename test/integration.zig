@@ -122,3 +122,53 @@ test "integration: scratch, flat loops, and fork/join share one pool" {
     const sum = try task.call(anyerror!u64, treeSum, &nodes[0]);
     try std.testing.expectEqual(@as(u64, nodes.len), sum);
 }
+
+fn treeSumVoid(task: *parz.Task(void), node: *const Node) anyerror!u64 {
+    var result = node.value;
+    if (node.left) |left| {
+        if (node.right) |right| {
+            var future = parz.Future(void, *const Node, anyerror!u64){};
+            future.fork(task, treeSumVoid, right);
+            result += try task.call(anyerror!u64, treeSumVoid, left);
+            result += if (future.join(task)) |value|
+                try value
+            else
+                try task.call(anyerror!u64, treeSumVoid, right);
+            return result;
+        }
+        result += try task.call(anyerror!u64, treeSumVoid, left);
+    }
+    if (node.right) |right| result += try task.call(anyerror!u64, treeSumVoid, right);
+    return result;
+}
+
+test "integration: fork/join deterministic across worker counts" {
+    const io = std.testing.io;
+    const nodes = try std.testing.allocator.alloc(Node, 1023);
+    defer std.testing.allocator.free(nodes);
+    for (nodes, 0..) |*node, index| {
+        node.value = 1;
+        node.left = if (2 * index + 1 < nodes.len) &nodes[2 * index + 1] else null;
+        node.right = if (2 * index + 2 < nodes.len) &nodes[2 * index + 2] else null;
+    }
+
+    for ([_]usize{ 0, 1, 2, 4 }) |workers| {
+        var pool = try parz.Pool(void).init(std.testing.allocator, io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+            .max_execute_states = 128,
+            .worker_stack_size = 1 * 1024 * 1024,
+        });
+        defer pool.deinit();
+        try pool.start();
+
+        for (0..10) |_| {
+            const caller = pool.claimCaller() orelse return error.NoCallerSlot;
+            var task = caller.begin();
+            const sum = try task.call(anyerror!u64, treeSumVoid, &nodes[0]);
+            pool.releaseCaller(caller);
+            try std.testing.expectEqual(@as(u64, nodes.len), sum);
+        }
+    }
+}

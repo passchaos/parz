@@ -39,6 +39,10 @@ pub fn Options(comptime Ctx: type) type {
         /// 10us is short enough to fill lanes on medium trees while still
         /// leaving microsecond-scale trees untouched.
         heartbeat_interval_ns: i96 = 10 * std.time.ns_per_us,
+        /// Heartbeat period while every background worker is idle. This keeps
+        /// an idle pool from waking 100k times per second; the first work
+        /// arriving through a caller slot sets its heartbeat flag immediately.
+        idle_heartbeat_interval_ns: i96 = 20 * std.time.ns_per_us,
         /// Start a dedicated heartbeat thread. Without it, `tick` never
         /// shares work and only eager `kickstart` paths (flat loops) run in
         /// parallel.
@@ -275,6 +279,7 @@ pub fn Pool(comptime Ctx: type) type {
                     w.job_head = Job.head();
                     w.shared_head = Job.head();
                     w.shared_tail = &w.shared_head;
+                    w.heartbeat.store(false, .monotonic);
                     return w;
                 }
             }
@@ -286,6 +291,7 @@ pub fn Pool(comptime Ctx: type) type {
             defer self.mutex.unlock(self.io);
             if (w.caller_slot) |slot| self.caller_busy[slot] = false;
             w.active = false;
+            w.heartbeat.store(false, .monotonic);
             w.job_head = Job.head();
             w.shared_head = Job.head();
             w.shared_tail = &w.shared_head;
@@ -391,9 +397,10 @@ pub fn Pool(comptime Ctx: type) type {
         /// of local work. Small fork/join trees finish before the first
         /// heartbeat, so they never pay thread-wakeup cost.
         fn heartbeatWorker(self: *Self) void {
+            var interval = self.options.heartbeat_interval_ns;
             while (true) {
                 self.io.sleep(
-                    std.Io.Duration.fromNanoseconds(self.options.heartbeat_interval_ns),
+                    std.Io.Duration.fromNanoseconds(@max(interval, 1)),
                     .awake,
                 ) catch |err| switch (err) {
                     error.Canceled => return,
@@ -408,6 +415,11 @@ pub fn Pool(comptime Ctx: type) type {
                     if (!w.active) continue;
                     w.heartbeat.store(true, .monotonic);
                 }
+                const idle = self.idle_workers.load(.monotonic);
+                interval = if (self.background_count > 0 and idle >= self.background_count)
+                    self.options.idle_heartbeat_interval_ns
+                else
+                    self.options.heartbeat_interval_ns;
                 self.mutex.unlock(self.io);
             }
         }
