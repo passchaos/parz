@@ -194,6 +194,10 @@ zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics \
 
 # ThreadSanitizer validation for scheduler/sync changes.
 zig test src/root.zig -fsanitize-thread -OReleaseSafe
+
+# Run all core gates (add --compare for the cross-library gate).
+scripts/check.sh
+scripts/check.sh --compare
 ```
 
 See `bench/compare/README.md` for the comparison methodology and fairness
