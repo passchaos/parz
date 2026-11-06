@@ -6,6 +6,7 @@
 //! worker ran which chunk.
 
 const std = @import("std");
+const builtin = @import("builtin");
 const core = @import("core.zig");
 const Job = @import("job.zig").Job;
 const CancelToken = @import("cancel.zig").CancelToken;
@@ -1027,4 +1028,45 @@ test "parallelFor2D handles empty dimensions and overflow" {
         error.Overflow,
         parallelFor2D(&pool, {}, std.math.maxInt(usize), 2, .{ .serial_threshold = 0 }, Ctx.run),
     );
+}
+
+test "parallelFor cancellation from another thread" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 4,
+        .max_workers = 4,
+        .max_callers = 1,
+        .max_execute_states = 256,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    var token = CancelToken{};
+    const Canceller = struct {
+        fn run(t: *CancelToken, thread_io: std.Io) void {
+            thread_io.sleep(
+                std.Io.Duration.fromNanoseconds(100 * std.time.ns_per_us),
+                .awake,
+            ) catch {};
+            t.cancel();
+        }
+    };
+    const thread = try std.Thread.spawn(.{}, Canceller.run, .{ &token, io });
+
+    const Ctx = struct {
+        fn run(_: *core.Worker(void), _: void, _: usize) anyerror!void {
+            std.atomic.spinLoopHint();
+        }
+    };
+    if (parallelFor(&pool, {}, 1_000_000, .{
+        .min_chunk = 1,
+        .serial_threshold = 0,
+        .cancel = &token,
+    }, Ctx.run)) |_| {} else |err| {
+        try std.testing.expectEqual(error.Cancelled, err);
+    }
+    thread.join();
 }
