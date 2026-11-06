@@ -1,0 +1,16 @@
+.{
+    .name = .parz,
+    .version = "0.0.1",
+    .fingerprint = 0xaeb75dc10e3057c2,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "bench",
+        "test",
+        "README.md",
+        "AGENTS.md",
+    },
+}
