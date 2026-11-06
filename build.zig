@@ -86,7 +86,6 @@ pub fn build(b: *std.Build) void {
     const bench_compute_step = b.step("bench-compute", "Run the CPU-bound parallel fold benchmark");
     bench_compute_step.dependOn(&run_compute.step);
 
-
     const micro_mod = b.createModule(.{
         .root_source_file = b.path("bench/micro.zig"),
         .target = target,
@@ -97,6 +96,18 @@ pub fn build(b: *std.Build) void {
     const run_micro = b.addRunArtifact(micro);
     const bench_micro_step = b.step("bench-micro", "Run the fork/join micro benchmark");
     bench_micro_step.dependOn(&run_micro.step);
+
+    const irregular_mod = b.createModule(.{
+        .root_source_file = b.path("bench/irregular.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const irregular = b.addExecutable(.{ .name = "parz-irregular", .root_module = irregular_mod });
+    const run_irregular = b.addRunArtifact(irregular);
+    if (b.args) |args| run_irregular.addArgs(args);
+    const bench_irregular_step = b.step("bench-irregular", "Run the skewed fork/join benchmark");
+    bench_irregular_step.dependOn(&run_irregular.step);
 
     const sync_mod = b.createModule(.{
         .root_source_file = b.path("bench/sync.zig"),
@@ -115,6 +126,7 @@ pub fn build(b: *std.Build) void {
     bench_step.dependOn(bench_for_2d_step);
     bench_step.dependOn(bench_compute_step);
     bench_step.dependOn(bench_micro_step);
+    bench_step.dependOn(bench_irregular_step);
     bench_step.dependOn(bench_sync_step);
 
     const compare_parz_mod = b.createModule(.{

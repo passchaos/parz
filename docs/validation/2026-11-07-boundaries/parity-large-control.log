@@ -1,0 +1,11 @@
+tree_sum nodes=1000000 workers=7 checksum=1000000
+sample=0 serial_ns=1690753 parallel_ns=799765 speedup=2.114
+sample=1 serial_ns=1652657 parallel_ns=787743 speedup=2.098
+sample=2 serial_ns=1666069 parallel_ns=801701 speedup=2.078
+sample=3 serial_ns=1680802 parallel_ns=775094 speedup=2.169
+sample=4 serial_ns=1573759 parallel_ns=766497 speedup=2.053
+sample=5 serial_ns=1652829 parallel_ns=719921 speedup=2.296
+sample=6 serial_ns=1691964 parallel_ns=1837259 speedup=0.921
+sample=7 serial_ns=1650930 parallel_ns=738460 speedup=2.236
+sample=8 serial_ns=1522530 parallel_ns=725351 speedup=2.099
+tree_sum nodes=1000000 workers=7 serial_ns=1652829 parallel_ns=775094 speedup=2.132 statistic=median

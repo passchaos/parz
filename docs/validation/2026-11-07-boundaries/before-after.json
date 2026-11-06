@@ -1,0 +1,542 @@
+[
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1302,
+    "parallel_ns": 2367,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1302 parallel_ns=2367 speedup=0.55"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1425,
+    "parallel_ns": 2498,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1425 parallel_ns=2498 speedup=0.57"
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1383,
+    "parallel_ns": 3911,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1383 parallel_ns=3911 speedup=0.35"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1426,
+    "parallel_ns": 3494,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1426 parallel_ns=3494 speedup=0.41"
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1464423,
+    "parallel_ns": 854368,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1464423 parallel_ns=854368 speedup=1.71"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1506588,
+    "parallel_ns": 886742,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1506588 parallel_ns=886742 speedup=1.70"
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6440517,
+    "parallel_ns": 1743988,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6440517 parallel_ns=1743988 speedup=3.69"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6490890,
+    "parallel_ns": 1727282,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6490890 parallel_ns=1727282 speedup=3.76"
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62093769,
+    "parallel_ns": 11093262,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62093769 parallel_ns=11093262 speedup=5.60"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62156327,
+    "parallel_ns": 10168075,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62156327 parallel_ns=10168075 speedup=6.11"
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61946956,
+    "parallel_ns": 9947436,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61946956 parallel_ns=9947436 speedup=6.23"
+  },
+  {
+    "variant": "after",
+    "round": 0,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61882570,
+    "parallel_ns": 9952642,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61882570 parallel_ns=9952642 speedup=6.22"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1399,
+    "parallel_ns": 2395,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1399 parallel_ns=2395 speedup=0.58"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1322,
+    "parallel_ns": 2282,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1322 parallel_ns=2282 speedup=0.58"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1420,
+    "parallel_ns": 3431,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1420 parallel_ns=3431 speedup=0.41"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1421,
+    "parallel_ns": 3790,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1421 parallel_ns=3790 speedup=0.37"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1558376,
+    "parallel_ns": 764922,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1558376 parallel_ns=764922 speedup=2.04"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1480506,
+    "parallel_ns": 839027,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1480506 parallel_ns=839027 speedup=1.76"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6365040,
+    "parallel_ns": 1648091,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6365040 parallel_ns=1648091 speedup=3.86"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6535031,
+    "parallel_ns": 1614943,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6535031 parallel_ns=1614943 speedup=4.05"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62343201,
+    "parallel_ns": 10023609,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62343201 parallel_ns=10023609 speedup=6.22"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62341427,
+    "parallel_ns": 9948820,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62341427 parallel_ns=9948820 speedup=6.27"
+  },
+  {
+    "variant": "after",
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62025253,
+    "parallel_ns": 9954622,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=62025253 parallel_ns=9954622 speedup=6.23"
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61759227,
+    "parallel_ns": 9978710,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61759227 parallel_ns=9978710 speedup=6.19"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1345,
+    "parallel_ns": 2334,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1345 parallel_ns=2334 speedup=0.58"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1428,
+    "parallel_ns": 2565,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1428 parallel_ns=2565 speedup=0.56"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 2032,
+    "parallel_ns": 5149,
+    "output": "parz tree n=1000 lanes=8 serial_ns=2032 parallel_ns=5149 speedup=0.39"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1462,
+    "parallel_ns": 3379,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1462 parallel_ns=3379 speedup=0.43"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1465279,
+    "parallel_ns": 925841,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1465279 parallel_ns=925841 speedup=1.58"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1493814,
+    "parallel_ns": 777080,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1493814 parallel_ns=777080 speedup=1.92"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6561858,
+    "parallel_ns": 1624715,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6561858 parallel_ns=1624715 speedup=4.04"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6632457,
+    "parallel_ns": 1621774,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6632457 parallel_ns=1621774 speedup=4.09"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62185941,
+    "parallel_ns": 9968231,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62185941 parallel_ns=9968231 speedup=6.24"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62179566,
+    "parallel_ns": 10150384,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62179566 parallel_ns=10150384 speedup=6.13"
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61886410,
+    "parallel_ns": 10390233,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61886410 parallel_ns=10390233 speedup=5.96"
+  },
+  {
+    "variant": "after",
+    "round": 2,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62220843,
+    "parallel_ns": 10019429,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=62220843 parallel_ns=10019429 speedup=6.21"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1407,
+    "parallel_ns": 2490,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1407 parallel_ns=2490 speedup=0.57"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1691,
+    "parallel_ns": 3779,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1691 parallel_ns=3779 speedup=0.45"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1455,
+    "parallel_ns": 3543,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1455 parallel_ns=3543 speedup=0.41"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1317,
+    "parallel_ns": 3915,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1317 parallel_ns=3915 speedup=0.34"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1469623,
+    "parallel_ns": 798557,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1469623 parallel_ns=798557 speedup=1.84"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1439993,
+    "parallel_ns": 946607,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1439993 parallel_ns=946607 speedup=1.52"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6510013,
+    "parallel_ns": 1874661,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6510013 parallel_ns=1874661 speedup=3.47"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6465145,
+    "parallel_ns": 1870609,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6465145 parallel_ns=1870609 speedup=3.46"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62108286,
+    "parallel_ns": 9936359,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62108286 parallel_ns=9936359 speedup=6.25"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62569200,
+    "parallel_ns": 10611455,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62569200 parallel_ns=10611455 speedup=5.90"
+  },
+  {
+    "variant": "after",
+    "round": 3,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61869512,
+    "parallel_ns": 11444292,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61869512 parallel_ns=11444292 speedup=5.41"
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 62029267,
+    "parallel_ns": 11398596,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=62029267 parallel_ns=11398596 speedup=5.44"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1366,
+    "parallel_ns": 2253,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1366 parallel_ns=2253 speedup=0.61"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1452,
+    "parallel_ns": 2359,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1452 parallel_ns=2359 speedup=0.62"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1379,
+    "parallel_ns": 3958,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1379 parallel_ns=3958 speedup=0.35"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1457,
+    "parallel_ns": 3390,
+    "output": "parz tree n=1000 lanes=8 serial_ns=1457 parallel_ns=3390 speedup=0.43"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1426963,
+    "parallel_ns": 1080456,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1426963 parallel_ns=1080456 speedup=1.32"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1514427,
+    "parallel_ns": 823794,
+    "output": "parz tree n=1000000 lanes=8 serial_ns=1514427 parallel_ns=823794 speedup=1.84"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6448309,
+    "parallel_ns": 1668363,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6448309 parallel_ns=1668363 speedup=3.87"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "flat",
+    "count": 16000003,
+    "serial_ns": 6440057,
+    "parallel_ns": 1738226,
+    "output": "parz flat n=16000003 lanes=8 serial_ns=6440057 parallel_ns=1738226 speedup=3.70"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62301783,
+    "parallel_ns": 11885717,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62301783 parallel_ns=11885717 speedup=5.24"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62090008,
+    "parallel_ns": 11897519,
+    "output": "parz compute n=1000003 lanes=8 serial_ns=62090008 parallel_ns=11897519 speedup=5.22"
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61706164,
+    "parallel_ns": 11463588,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61706164 parallel_ns=11463588 speedup=5.38"
+  },
+  {
+    "variant": "after",
+    "round": 4,
+    "workload": "compute-inf",
+    "count": 1000003,
+    "serial_ns": 61973593,
+    "parallel_ns": 11629757,
+    "output": "parz compute-inf n=1000003 lanes=8 serial_ns=61973593 parallel_ns=11629757 speedup=5.33"
+  }
+]

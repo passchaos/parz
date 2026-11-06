@@ -37,6 +37,9 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
+- Balanced contiguous flat chunks: every chunk is nonempty, chunk lengths
+  differ by at most one item, and `min_chunk` is respected unless the entire
+  input is smaller. Range planning supports counts up to `maxInt(usize)`.
 
 ## Scheduling model
 
@@ -137,6 +140,11 @@ fn sum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
 `Task.call` must be used for recursive calls; direct calls bypass heartbeat
 checks and the caller-fallback protocol.
 
+For folds, `combine` needs an associative operation and a valid identity to
+match serial results across different chunk configurations. Chunk-index
+combination preserves order; floating-point addition can still change with
+chunk boundaries because it is not associative.
+
 Correctness rules:
 
 - A `Future` is single-use. Reinitialize it with `.{}` before forking again;
@@ -212,6 +220,9 @@ zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
 zig build bench-compute -- 1000000 pin   # exercise pin_workers
 zig build bench-micro
+zig build bench-irregular -- 200000 8 9 mixed
+taskset -c 0,2,4,6,8,10,12,14 zig build bench-irregular \
+    -Doptimize=ReleaseFast -- 200000 8 9 skewed
 zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput
 zig build bench                      # all benchmarks
@@ -226,17 +237,40 @@ zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics \
 
 # ThreadSanitizer validation for scheduler/sync changes.
 zig test src/root.zig -fsanitize-thread -OReleaseSafe
+zig test src/root.zig -fsingle-threaded -OReleaseSafe
 
 # Run all core gates (add --compare for the cross-library gate).
 scripts/check.sh
 scripts/check.sh --compare
 ```
 
+The core gate compiles the unit-test instances for WASM, Windows, macOS,
+and musl Linux, and executes the native single-threaded fallback tests.
+
 See `bench/compare/README.md` for the comparison methodology and fairness
 notes.
 
 Benchmarks print `serial_ns`, `parallel_ns`, and `speedup`; they verify the
 checksum before reporting.
+
+`bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
+alternate which path runs first, print raw paired samples, and report the
+median. The irregular benchmark accepts `[nodes] [lanes] [rounds] [profile]`;
+lanes 0 selects the automatic worker count and lanes 1 exercises caller
+fallback. `mixed` uses fixed pseudo-random work per node; `skewed` makes the
+entire left subtree 32 times more expensive per node than the right subtree.
+Use a fixed CPU set with `taskset` for comparisons.
+
+The explicit parity gate rejects a slowdown greater than about 11% after
+checksum validation and paired measurement:
+
+```sh
+taskset -c 0,2,4,6,8,10,12,14 zig build bench-tree-sum \
+    -Doptimize=ReleaseFast -- 1000 heartbeat gate
+```
+
+This strict performance gate is currently failing and is tracked separately
+from `scripts/check.sh`, which verifies correctness and target compatibility.
 
 Indicative snapshot from a 32-thread x86-64 Linux host (31 background workers,
 ReleaseFast, best of several runs, machine otherwise loaded):
@@ -250,9 +284,12 @@ ReleaseFast, best of several runs, machine otherwise loaded):
 | CPU-bound fold, 1M items | ~64 ms | ~3.7–4.0 ms | 15–19x |
 | 2D grid fill, 4096×4096 | ~40 ms | ~2.4 ms | ~17x |
 
-Small trees stay close to serial cost; medium trees break even or improve;
-flat scans saturate memory bandwidth; CPU-bound work scales near linearly.
-Treat these as indicative, not as a fixed gate.
+These older best-run measurements are indicative and use a different timing
+method from the paired medians. Current fixed-CPU evidence is recorded in
+[the boundary validation report](docs/validation/2026-11-07-boundaries/README.md).
+The small-tree parity target remains open: direct serial recursion is faster
+than the current fork/join path for the 1000-node case, especially with an
+error-union result.
 
 Sync primitives have a separate throughput smoke benchmark
 (`zig build bench-sync`). On the same loaded 32-thread host, 1M operations

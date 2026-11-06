@@ -1,0 +1,34 @@
+{
+  "cpu_set": "0,2,4,6,8,10,12,14",
+  "lanes": 8,
+  "zig version": "0.16.0\n",
+  "git rev-parse HEAD": "a6f1514a8781de2241235f6453f41bc802710e6d\n",
+  "lscpu -e=CPU,CORE,SOCKET,NODE,ONLINE": "CPU CORE SOCKET NODE ONLINE\n  0    0      0    0    yes\n  1    0      0    0    yes\n  2    1      0    0    yes\n  3    1      0    0    yes\n  4    2      0    0    yes\n  5    2      0    0    yes\n  6    3      0    0    yes\n  7    3      0    0    yes\n  8    4      0    0    yes\n  9    4      0    0    yes\n 10    5      0    0    yes\n 11    5      0    0    yes\n 12    6      0    0    yes\n 13    6      0    0    yes\n 14    7      0    0    yes\n 15    7      0    0    yes\n 16    8      0    0    yes\n 17    9      0    0    yes\n 18   10      0    0    yes\n 19   11      0    0    yes\n 20   12      0    0    yes\n 21   13      0    0    yes\n 22   14      0    0    yes\n 23   15      0    0    yes\n 24   16      0    0    yes\n 25   17      0    0    yes\n 26   18      0    0    yes\n 27   19      0    0    yes\n 28   20      0    0    yes\n 29   21      0    0    yes\n 30   22      0    0    yes\n 31   23      0    0    yes\n",
+  "loadavg_before_final_benchmark": "3.56 4.80 6.25 4/1976 2478016\n",
+  "validated_sources_sha256": {
+    "src/cancel.zig": "2fa6c29cc1e80cea99c9cfdf92bfdad7d37abee4cb03ef3cbd4d4422d164b1f4",
+    "src/core.zig": "663777eb2cca2686765178343eb2556b7d8137350ef7bce57128b02b06df85dc",
+    "src/job.zig": "00396202e51062bd5d810bf4a131dfef692f627481f0c8d6b2260fc414eaa7d3",
+    "src/parallel.zig": "a78b0bb08313af7019186357bc2d009ba8eced1d64e285478c1196af27082ad4",
+    "src/root.zig": "c996a4fb8e6b09c0ec6c89d197473a432982eac3b81f1f53879cd220e723d55f",
+    "src/sync.zig": "dbaeb043ada6f7a90826c6ebd63887da184689b11801d92904cb61b107de9df9"
+  },
+  "benchmark_binaries_sha256": {
+    "before": "46df540fc67a9c36fda4082a19d5beb7e9644ea67ef0859f21e2fa6ff2bf2c7e",
+    "after": "68ff95d97d4cd23c47afc33f738a340bf52dd70596205ee9dfa0e349b51eee4e"
+  },
+  "validation_command": "scripts/check.sh",
+  "validation_exit_code": 0,
+  "lscpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  32\nOn-line CPU(s) list:                     0-31\nVendor ID:                               GenuineIntel\nModel name:                              13th Gen Intel(R) Core(TM) i9-13900K\nCPU family:                              6\nModel:                                   183\nThread(s) per core:                      2\nCore(s) per socket:                      24\nSocket(s):                               1\nStepping:                                1\nCPU(s) scaling MHz:                      47%\nCPU max MHz:                             5800.0000\nCPU min MHz:                             800.0000\nBogoMIPS:                                5990.40\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb intel_pt sha_ni xsaveopt xsavec xgetbv1 xsaves split_lock_detect user_shstk avx_vnni dtherm ida arat pln pts hwp hwp_notify hwp_act_window hwp_epp hwp_pkg_req hfi vnmi umip pku ospke waitpkg gfni vaes vpclmulqdq tme rdpid movdiri movdir64b fsrm md_clear serialize pconfig arch_lbr ibt flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               896 KiB (24 instances)\nL1i cache:                               1.3 MiB (24 instances)\nL2 cache:                                32 MiB (12 instances)\nL3 cache:                                36 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0-31\nVulnerability Gather data sampling:      Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Reg file data sampling:    Mitigation; Clear Register File\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+  "loadavg_after_final_benchmark": "4.39 8.77 7.46 4/2009 2563628\n",
+  "benchmark_sources_sha256": {
+    "bench/tree_sum.zig": "d239c5bf0fef16c98f480640533f3616ff95214339e1f443586b0007744af484",
+    "bench/irregular.zig": "f4f23ed971e2fb18c035e2fcb4aaa4575289fcb3d0f630397c183eb8e8654622",
+    "bench/timing.zig": "18b06e7578ea09ee63ddce0a104ba19a7f43cd8ed5f068fe70338b34df12acd9",
+    "bench/compare/parz_bench.zig": "4d79ada093553a625cb56b99a30aa899b9405885011d54086479f6ee67bf78bb"
+  },
+  "small_parity_gate_exit_code": 1,
+  "large_parity_control_exit_code": 0,
+  "baseline_commit": "a6f1514a8781de2241235f6453f41bc802710e6d",
+  "implementation_commit": "7ec35c2a158398b9eea56bfe39ee63d731361ce2"
+}

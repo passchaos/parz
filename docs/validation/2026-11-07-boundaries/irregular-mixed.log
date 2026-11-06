@@ -1,0 +1,11 @@
+irregular_tree nodes=200000 workers=7 rounds=9 profile=mixed checksum=4030657676642128017
+sample=0 serial_ns=35530903 parallel_ns=7495928 speedup=4.740
+sample=1 serial_ns=35253856 parallel_ns=8273010 speedup=4.261
+sample=2 serial_ns=35388173 parallel_ns=7107848 speedup=4.979
+sample=3 serial_ns=35141777 parallel_ns=8135005 speedup=4.320
+sample=4 serial_ns=35167565 parallel_ns=8211477 speedup=4.283
+sample=5 serial_ns=35179508 parallel_ns=9086242 speedup=3.872
+sample=6 serial_ns=36034433 parallel_ns=7141799 speedup=5.046
+sample=7 serial_ns=35217882 parallel_ns=7611604 speedup=4.627
+sample=8 serial_ns=35233625 parallel_ns=7243210 speedup=4.864
+irregular_tree nodes=200000 workers=7 rounds=9 profile=mixed serial_ns=35233625 parallel_ns=7611604 speedup=4.629 statistic=median

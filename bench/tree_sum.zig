@@ -1,5 +1,6 @@
 const std = @import("std");
 const parz = @import("parz");
+const timing = @import("timing.zig");
 
 const Node = struct {
     value: i64,
@@ -47,9 +48,19 @@ fn buildTree(allocator: std.mem.Allocator, node_count: usize) ![]Node {
     return nodes;
 }
 
-fn now(io: std.Io) std.Io.Clock.Timestamp {
-    return std.Io.Clock.Timestamp.now(io, .awake);
-}
+const Run = struct {
+    root: *const Node,
+    caller: *parz.Worker(void),
+
+    fn serial(self: *@This()) !i64 {
+        return serialSum(self.root);
+    }
+
+    fn parallel(self: *@This()) !i64 {
+        var task = self.caller.begin();
+        return task.call(anyerror!i64, parallelSum, self.root);
+    }
+};
 
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
@@ -74,6 +85,7 @@ pub fn main(init: std.process.Init) !void {
         !std.mem.eql(u8, argv.items[2], "no-heartbeat")
     else
         true;
+    const gate = argv.items.len > 3 and std.mem.eql(u8, argv.items[3], "gate");
 
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = 0,
@@ -86,42 +98,17 @@ pub fn main(init: std.process.Init) !void {
     defer pool.deinit();
     try pool.start();
 
-    const serial_start = now(io);
-    const serial_result = serialSum(&nodes[0]);
-    const serial_ns = serial_start.untilNow(io).raw.toNanoseconds();
-
-    var parallel_result: i64 = 0;
-    var parallel_ns: i96 = std.math.maxInt(i96);
-    const repeats = 9;
     const caller = pool.claimCaller() orelse return error.NoCallerSlot;
     defer pool.releaseCaller(caller);
-    for (0..repeats) |_| {
-        const start = now(io);
-        var task = caller.begin();
-        parallel_result = try task.call(anyerror!i64, parallelSum, &nodes[0]);
-        const elapsed = start.untilNow(io).raw.toNanoseconds();
-        if (elapsed < parallel_ns) parallel_ns = elapsed;
-    }
-
-    if (serial_result != parallel_result) {
-        std.debug.print("mismatch: serial={d} parallel={d}\n", .{ serial_result, parallel_result });
-        return error.ChecksumMismatch;
-    }
-
-    const serial_per_node = @as(f64, @floatFromInt(serial_ns)) / @as(f64, @floatFromInt(node_count));
-    const parallel_per_node = @as(f64, @floatFromInt(parallel_ns)) / @as(f64, @floatFromInt(node_count));
-    const speedup = @as(f64, @floatFromInt(serial_ns)) / @as(f64, @floatFromInt(parallel_ns));
-
+    var run = Run{ .root = &nodes[0], .caller = caller };
+    std.debug.print("tree_sum nodes={d} workers={d} checksum={d}\n", .{ node_count, pool.spawned_background, node_count });
+    const times = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.parallel);
     std.debug.print(
-        "tree_sum nodes={d} workers={d} serial_ns={d} parallel_ns={d} speedup={d:.2} serial_ns_per_node={d:.4} parallel_ns_per_node={d:.4}\n",
-        .{
-            node_count,
-            pool.spawned_background,
-            serial_ns,
-            parallel_ns,
-            speedup,
-            serial_per_node,
-            parallel_per_node,
-        },
+        "tree_sum nodes={d} workers={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n",
+        .{ node_count, pool.spawned_background, times.serial_ns, times.parallel_ns, times.speedup() },
     );
+    if (gate and times.speedup() < 0.9) {
+        std.debug.print("small-input parity gate failed: speedup={d:.3} < 0.9\n", .{times.speedup()});
+        return error.ParityRegression;
+    }
 }

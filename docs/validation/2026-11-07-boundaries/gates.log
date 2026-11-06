@@ -1,0 +1,109 @@
+1/47 root.test_0...OK
+2/47 job.test.job list: push, shift, and remove preserve order...OK
+3/47 job.test.job list: shared list supports single-element pop...OK
+4/47 job.test.job list: remove middle node repairs tail...OK
+5/47 core.test.pool: per-worker context init and deinit...OK
+6/47 core.test.pool: start and stop without workers...OK
+7/47 core.test.future: fork/join tree sum with caller fallback...OK
+8/47 core.test.pool pins workers when requested...OK
+9/47 core.test.pool applies a preferred numa node...OK
+10/47 core.test.pool applies automatic numa policy...OK
+11/47 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+12/47 core.test.Future shares input and output storage...OK
+13/47 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+14/47 parallel.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+15/47 parallel.test.parallelForRange accepts usize limits and saturates lane planning...OK
+16/47 parallel.test.balanced folds preserve sequence order across worker counts...OK
+17/47 parallel.test.parallelFor covers every index exactly once...OK
+18/47 parallel.test.parallelFold is deterministic and ordered...OK
+19/47 parallel.test.serial fallback destroys the mutated worker context...OK
+20/47 parallel.test.parallelFor serial fallback with no background workers...OK
+21/47 parallel.test.nested parallelFor...OK
+22/47 parallel.test.parallelFor returns the first error by index...OK
+23/47 parallel.test.parallelFold covers stack and heap future paths...OK
+24/47 parallel.test.parallelFold is deterministic across worker counts...OK
+25/47 parallel.test.parallelFoldInfallible matches the fallible fold...OK
+26/47 parallel.test.parallelFor returns Cancelled for an already-cancelled token...OK
+27/47 parallel.test.parallelFold cancels from a callback...OK
+28/47 parallel.test.parallelFoldInfallible honors cancellation...OK
+29/47 parallel.test.serial fold honors cancellation...OK
+30/47 parallel.test.parallelFor2D covers every cell exactly once...OK
+31/47 parallel.test.parallelFor2D handles empty dimensions and overflow...OK
+32/47 parallel.test.parallelFor cancellation from another thread...SKIP
+33/47 cancel.test.cancel token transitions...OK
+34/47 sync.test.spsc queue: single-threaded order and bounds...OK
+35/47 sync.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+36/47 sync.test.mpsc queue: single-threaded order and bounds...OK
+37/47 sync.test.mpsc queue: singleton concurrent producers preserve every value and producer order...SKIP
+38/47 sync.test.treiber stack: single-threaded order...OK
+39/47 sync.test.spsc queue: threaded producer and consumer...SKIP
+40/47 sync.test.mpsc queue: threaded producers and consumer...SKIP
+41/47 sync.test.treiber stack: threaded producers and consumer...SKIP
+42/47 sync.test.semaphore wakes a waiter...SKIP
+43/47 sync.test.wait group waits for all members...SKIP
+44/47 sync.test.blocking queue: single-threaded order and bounds...OK
+45/47 sync.test.blocking queue: threaded producers and consumers...SKIP
+46/47 sync.test.sharded mpsc queue: single-threaded round robin...OK
+47/47 sync.test.sharded mpsc queue: threaded producers and consumer...SKIP
+38 passed; 9 skipped; 0 failed.
+1/47 root.test_0...OK
+2/47 job.test.job list: push, shift, and remove preserve order...OK
+3/47 job.test.job list: shared list supports single-element pop...OK
+4/47 job.test.job list: remove middle node repairs tail...OK
+5/47 core.test.pool: per-worker context init and deinit...OK
+6/47 core.test.pool: start and stop without workers...OK
+7/47 core.test.future: fork/join tree sum with caller fallback...OK
+8/47 core.test.pool pins workers when requested...OK
+9/47 core.test.pool applies a preferred numa node...OK
+10/47 core.test.pool applies automatic numa policy...OK
+11/47 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+12/47 core.test.Future shares input and output storage...OK
+13/47 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+14/47 parallel.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+15/47 parallel.test.parallelForRange accepts usize limits and saturates lane planning...OK
+16/47 parallel.test.balanced folds preserve sequence order across worker counts...OK
+17/47 parallel.test.parallelFor covers every index exactly once...OK
+18/47 parallel.test.parallelFold is deterministic and ordered...OK
+19/47 parallel.test.serial fallback destroys the mutated worker context...OK
+20/47 parallel.test.parallelFor serial fallback with no background workers...OK
+21/47 parallel.test.nested parallelFor...OK
+22/47 parallel.test.parallelFor returns the first error by index...OK
+23/47 parallel.test.parallelFold covers stack and heap future paths...OK
+24/47 parallel.test.parallelFold is deterministic across worker counts...OK
+25/47 parallel.test.parallelFoldInfallible matches the fallible fold...OK
+26/47 parallel.test.parallelFor returns Cancelled for an already-cancelled token...OK
+27/47 parallel.test.parallelFold cancels from a callback...OK
+28/47 parallel.test.parallelFoldInfallible honors cancellation...OK
+29/47 parallel.test.serial fold honors cancellation...OK
+30/47 parallel.test.parallelFor2D covers every cell exactly once...OK
+31/47 parallel.test.parallelFor2D handles empty dimensions and overflow...OK
+32/47 parallel.test.parallelFor cancellation from another thread...OK
+33/47 cancel.test.cancel token transitions...OK
+34/47 sync.test.spsc queue: single-threaded order and bounds...OK
+35/47 sync.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+36/47 sync.test.mpsc queue: single-threaded order and bounds...OK
+37/47 sync.test.mpsc queue: singleton concurrent producers preserve every value and producer order...OK
+38/47 sync.test.treiber stack: single-threaded order...OK
+39/47 sync.test.spsc queue: threaded producer and consumer...OK
+40/47 sync.test.mpsc queue: threaded producers and consumer...OK
+41/47 sync.test.treiber stack: threaded producers and consumer...OK
+42/47 sync.test.semaphore wakes a waiter...OK
+43/47 sync.test.wait group waits for all members...OK
+44/47 sync.test.blocking queue: single-threaded order and bounds...OK
+45/47 sync.test.blocking queue: threaded producers and consumers...OK
+46/47 sync.test.sharded mpsc queue: single-threaded round robin...OK
+47/47 sync.test.sharded mpsc queue: threaded producers and consumer...OK
+All 47 tests passed.
+spsc count=1000000 ns=3585483 ops_per_sec=278902452
+mpsc count=1000000 ns=150550946 ops_per_sec=6642270
+mpsc-1p count=1000000 ns=31899892 ops_per_sec=31348069
+mpsc-sharded count=1000000 ns=42255952 ops_per_sec=23665305
+mpsc-mutex count=1000000 ns=307027896 ops_per_sec=3257033
+treiber count=1000000 ns=57496337 ops_per_sec=17392412
+blocking count=1000000 ns=148883833 ops_per_sec=6716646
+parallel_for_2d rows=4096 cols=4096 workers=31 serial_ns=45766500 parallel_ns=2240059 speedup=20.43
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed checksum=10537150549972823889
+sample=0 serial_ns=286353 parallel_ns=194838 speedup=1.470
+sample=1 serial_ns=187763 parallel_ns=191339 speedup=0.981
+sample=2 serial_ns=190711 parallel_ns=190718 speedup=1.000
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed serial_ns=190711 parallel_ns=191339 speedup=0.997 statistic=median
