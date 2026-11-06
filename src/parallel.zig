@@ -8,7 +8,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const core = @import("core.zig");
-const Job = @import("job.zig").Job;
 const CancelToken = @import("cancel.zig").CancelToken;
 
 const cancel_block = 4096;
@@ -30,10 +29,10 @@ pub const Options = struct {
     /// Hard upper bound on chunks for one call.
     max_chunks: usize = 4096,
     /// Target chunks per available lane. More chunks improve load balance on
-    /// heterogeneous CPUs; the flat APIs share the whole chunk list up front,
-    /// so this is no longer a wake-up batching knob.
+    /// heterogeneous CPUs. Lanes claim chunks dynamically from an index;
+    /// this controls granularity rather than the number of jobs to wake.
     chunks_per_worker: usize = 16,
-    /// Per-call worker cap. 0 uses all available lanes.
+    /// Per-call lane cap, including the caller. 0 uses all available lanes.
     max_workers: usize = 0,
     /// Run serially below this item count. A flat call with fewer items than
     /// this is almost always dominated by caller-slot setup, future
@@ -150,7 +149,6 @@ pub fn parallelForRange(
     if (count == 0) return;
 
     const P = @TypeOf(pool.*);
-    const Ctx = P.Context;
     const T = P.TaskType;
     const Shared = @TypeOf(shared);
 
@@ -162,7 +160,6 @@ pub fn parallelForRange(
         runner: *Runner,
         chunk: Chunk,
     };
-    const Fut = core.Future(Ctx, Input, anyerror!void);
     const Exec = struct {
         fn exec(t: *T, input: Input) anyerror!void {
             try checkCancel(input.runner.cancel);
@@ -180,47 +177,9 @@ pub fn parallelForRange(
     defer pool.releaseCaller(caller);
     var task = caller.begin();
 
-    const chunk_count = plannedChunkCount(count, options, pool.parallelWorkerCount());
-    // Keep small flat calls allocation-free. The stack buffer is capped at
-    // ~4 KiB; larger calls use the pool allocator.
-    const stack_future_count = @min(64, @max(1, 4096 / @sizeOf(Fut)));
-    var stack_futures: [stack_future_count]Fut = undefined;
-    const futures = if (chunk_count <= stack_future_count)
-        stack_futures[0..chunk_count]
-    else
-        try pool.allocator.alloc(Fut, chunk_count);
-    defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
-
-    var chunks = ChunkCursor.init(count, chunk_count);
-    for (futures) |*fut| {
-        fut.* = .{};
-        fut.fork(&task, Exec.exec, .{
-            .runner = &runner,
-            .chunk = chunks.next(),
-        });
-    }
-    pool.kickstart(caller, chunk_count);
-
-    for (futures) |*fut| {
-        switch (fut.job.state()) {
-            .pending => {},
-            .queued_local => {
-                _ = fut.join(&task);
-                fut.setOutput(task.call(anyerror!void, Exec.exec, fut.getInput()));
-            },
-            .queued_shared, .executing => {
-                if (fut.join(&task)) |value| {
-                    fut.setOutput(value);
-                } else {
-                    fut.setOutput(task.call(anyerror!void, Exec.exec, fut.getInput()));
-                }
-            },
-        }
-    }
-
-    for (futures) |*fut| {
-        if (fut.getOutput()) |_| {} else |err| return err;
-    }
+    const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    return dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, Exec.exec);
 }
 
 /// Deterministic ordered fold. Each chunk accumulates with `combine`; the
@@ -238,7 +197,6 @@ pub fn parallelFold(
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
-    const Ctx = P.Context;
     const Tm = P.TaskType;
     const Shared = @TypeOf(shared);
 
@@ -251,7 +209,6 @@ pub fn parallelFold(
         runner: *Runner,
         chunk: Chunk,
     };
-    const Fut = core.Future(Ctx, Input, anyerror!T);
     const Exec = struct {
         fn exec(t: *Tm, input: Input) anyerror!T {
             const runner = input.runner;
@@ -282,49 +239,9 @@ pub fn parallelFold(
     defer pool.releaseCaller(caller);
     var task = caller.begin();
 
-    const chunk_count = plannedChunkCount(count, options, pool.parallelWorkerCount());
-    const stack_future_count = @min(64, @max(1, 4096 / @sizeOf(Fut)));
-    var stack_futures: [stack_future_count]Fut = undefined;
-    const futures = if (chunk_count <= stack_future_count)
-        stack_futures[0..chunk_count]
-    else
-        try pool.allocator.alloc(Fut, chunk_count);
-    defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
-
-    var chunks = ChunkCursor.init(count, chunk_count);
-    for (futures) |*fut| {
-        fut.* = .{};
-        fut.fork(&task, Exec.exec, .{
-            .runner = &runner,
-            .chunk = chunks.next(),
-        });
-    }
-    pool.kickstart(caller, chunk_count);
-
-    for (futures) |*fut| {
-        switch (fut.job.state()) {
-            .pending => {},
-            .queued_local => {
-                _ = fut.join(&task);
-                fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
-            },
-            .queued_shared, .executing => {
-                if (fut.join(&task)) |value| {
-                    fut.setOutput(value);
-                } else {
-                    fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
-                }
-            },
-        }
-    }
-
-    var total = identity;
-    for (futures) |*fut| {
-        if (fut.getOutput()) |value| {
-            total = combine(total, value);
-        } else |err| return err;
-    }
-    return total;
+    const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    return dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
 }
 
 /// Deterministic ordered fold for an infallible `map`. The chunk loop has no
@@ -342,7 +259,6 @@ pub fn parallelFoldInfallible(
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
-    const Ctx = P.Context;
     const Tm = P.TaskType;
     const Shared = @TypeOf(shared);
 
@@ -355,7 +271,6 @@ pub fn parallelFoldInfallible(
         runner: *Runner,
         chunk: Chunk,
     };
-    const Fut = core.Future(Ctx, Input, anyerror!T);
     const Exec = struct {
         fn exec(t: *Tm, input: Input) anyerror!T {
             const runner = input.runner;
@@ -386,49 +301,9 @@ pub fn parallelFoldInfallible(
     defer pool.releaseCaller(caller);
     var task = caller.begin();
 
-    const chunk_count = plannedChunkCount(count, options, pool.parallelWorkerCount());
-    const stack_future_count = @min(64, @max(1, 4096 / @sizeOf(Fut)));
-    var stack_futures: [stack_future_count]Fut = undefined;
-    const futures = if (chunk_count <= stack_future_count)
-        stack_futures[0..chunk_count]
-    else
-        try pool.allocator.alloc(Fut, chunk_count);
-    defer if (chunk_count > stack_future_count) pool.allocator.free(futures);
-
-    var chunks = ChunkCursor.init(count, chunk_count);
-    for (futures) |*fut| {
-        fut.* = .{};
-        fut.fork(&task, Exec.exec, .{
-            .runner = &runner,
-            .chunk = chunks.next(),
-        });
-    }
-    pool.kickstart(caller, chunk_count);
-
-    for (futures) |*fut| {
-        switch (fut.job.state()) {
-            .pending => {},
-            .queued_local => {
-                _ = fut.join(&task);
-                fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
-            },
-            .queued_shared, .executing => {
-                if (fut.join(&task)) |value| {
-                    fut.setOutput(value);
-                } else {
-                    fut.setOutput(task.call(anyerror!T, Exec.exec, fut.getInput()));
-                }
-            },
-        }
-    }
-
-    var total = identity;
-    for (futures) |*fut| {
-        if (fut.getOutput()) |value| {
-            total = combine(total, value);
-        } else |err| return err;
-    }
-    return total;
+    const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    return dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
 }
 
 pub fn parallelReduce(
@@ -455,6 +330,105 @@ pub fn parallelReduceInfallible(
     comptime combine: anytype,
 ) anyerror!T {
     return parallelFoldInfallible(pool, T, shared, count, options, identity, map, combine);
+}
+
+// Keep dispatch storage in one bounded buffer, outside the serial fallback frame.
+noinline fn dispatchRange(
+    pool: anytype,
+    task: anytype,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    chunks: usize,
+    lanes: usize,
+    comptime exec: anytype,
+) anyerror!void {
+    var fallback = std.heap.stackFallback(4096, pool.allocator);
+    const allocator = fallback.get();
+    const results = try allocator.alloc(anyerror!void, chunks);
+    defer allocator.free(results);
+    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    for (results) |result| try result;
+}
+
+noinline fn dispatchFold(
+    pool: anytype,
+    task: anytype,
+    comptime T: type,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    chunks: usize,
+    lanes: usize,
+    identity: T,
+    comptime exec: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    var fallback = std.heap.stackFallback(4096, pool.allocator);
+    const allocator = fallback.get();
+    const results = try allocator.alloc(anyerror!T, chunks);
+    defer allocator.free(results);
+    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    var total = identity;
+    for (results) |result| total = combine(total, try result);
+    return total;
+}
+
+/// One future per lane bounds the number of simultaneous chunk callbacks.
+/// Lanes claim disjoint result slots; all are joined before ordered reduction.
+/// The caller's future is the retained local tail and runs before any waits.
+fn runLanes(
+    pool: anytype,
+    task: anytype,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    requested_lanes: usize,
+    results: anytype,
+    allocator: std.mem.Allocator,
+    comptime exec: anytype,
+) anyerror!void {
+    const P = @TypeOf(pool.*);
+    const Task = P.TaskType;
+    const Runner = @TypeOf(runner);
+    const Result = @typeInfo(@TypeOf(results)).pointer.child;
+    const lanes = @min(requested_lanes, results.len);
+    if (lanes == 1) {
+        var cursor = ChunkCursor.init(count, results.len);
+        for (results) |*result| result.* = task.call(Result, exec, Input{ .runner = runner, .chunk = cursor.next() });
+        return;
+    }
+
+    const State = struct {
+        runner: Runner,
+        results: []Result,
+        size: usize,
+        extra: usize,
+        next: std.atomic.Value(usize) = .init(0),
+
+        fn run(t: *Task, self: *@This()) void {
+            while (true) {
+                const index = self.next.fetchAdd(1, .monotonic);
+                if (index >= self.results.len) return;
+                // floor-sized chunks plus a prefix of one-item remainders.
+                // For index < chunks, both intermediates remain <= count.
+                const start = index * self.size + @min(index, self.extra);
+                const chunk = Chunk{ .start = start, .end = start + self.size + @intFromBool(index < self.extra) };
+                self.results[index] = t.call(Result, exec, Input{ .runner = self.runner, .chunk = chunk });
+            }
+        }
+    };
+    var state = State{ .runner = runner, .results = results, .size = count / results.len, .extra = count % results.len };
+    const Fut = core.Future(P.Context, *State, void);
+    const futures = try allocator.alloc(Fut, lanes);
+    defer allocator.free(futures);
+    for (futures) |*future| {
+        future.* = .{};
+        future.fork(task, State.run, &state);
+    }
+    pool.kickstart(task.worker, lanes);
+    futures[lanes - 1].joinOrCall(task, State.run);
+    for (futures[0 .. lanes - 1]) |*future| future.joinOrCall(task, State.run);
 }
 
 /// Balanced contiguous partitions. The first `extra` chunks get one more
@@ -666,6 +640,7 @@ test "parallelForRange accepts usize limits and saturates lane planning" {
                 var record = Record{};
                 try parallelForRange(&pool, &record, limit, .{
                     .min_chunk = min_chunk,
+                    .max_workers = @min(workers + 1, 2),
                     .chunks_per_worker = limit,
                     .max_chunks = 7,
                     .serial_threshold = 0,
@@ -744,6 +719,219 @@ test "balanced folds preserve sequence order across worker counts" {
                 Sequence.combine,
             ));
         }
+    }
+}
+
+test "parallelForRange enforces worker caps including the caller" {
+    const n = 128;
+    const State = struct {
+        limit: usize,
+        caller_index: usize,
+        active: std.atomic.Value(usize) = .init(0),
+        exceeded: std.atomic.Value(bool) = .init(false),
+        caller_ran: std.atomic.Value(bool) = .init(false),
+        counts: [n]std.atomic.Value(u32) = [_]std.atomic.Value(u32){.init(0)} ** n,
+
+        fn run(w: *core.Worker(void), self: *@This(), chunk: Chunk) anyerror!void {
+            if (self.active.fetchAdd(1, .monotonic) >= self.limit) self.exceeded.store(true, .monotonic);
+            defer _ = self.active.fetchSub(1, .monotonic);
+            if (w.index == self.caller_index) self.caller_ran.store(true, .monotonic);
+            // Keep callbacks overlapping long enough to check admission,
+            // without relying on which particular background lane wins.
+            try w.pool.io.sleep(std.Io.Duration.fromMilliseconds(1), .awake);
+            for (chunk.start..chunk.end) |index| _ = self.counts[index].fetchAdd(1, .monotonic);
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for (1..6) |cap| {
+            for (0..3) |_| {
+                var state = State{ .limit = cap, .caller_index = pool.caller_storage[0].index };
+                try parallelForRange(&pool, &state, n, .{
+                    .max_workers = cap,
+                    .max_chunks = 8,
+                    .serial_threshold = 0,
+                }, State.run);
+                try std.testing.expect(!state.exceeded.load(.monotonic));
+                try std.testing.expect(state.caller_ran.load(.monotonic));
+                try std.testing.expectEqual(@as(usize, 0), state.active.load(.monotonic));
+                for (state.counts) |count| try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
+            }
+        }
+    }
+}
+
+test "capped folds preserve ordered results and errors across worker counts" {
+    const Sequence = struct {
+        hash: u64 = 0,
+        factor: u64 = 1,
+
+        fn map(_: *core.Worker(void), _: void, index: usize) @This() {
+            return .{ .hash = index + 1, .factor = 31 };
+        }
+        fn fallible(w: *core.Worker(void), shared: void, index: usize) anyerror!@This() {
+            return map(w, shared, index);
+        }
+        fn failing(w: *core.Worker(void), shared: void, index: usize) anyerror!@This() {
+            if (index == 3) return error.FirstFailure;
+            if (index == 9) return error.SecondFailure;
+            return map(w, shared, index);
+        }
+        fn combine(a: @This(), b: @This()) @This() {
+            return .{ .hash = a.hash *% b.factor +% b.hash, .factor = a.factor *% b.factor };
+        }
+    };
+    var expected = Sequence{};
+    for (0..13) |index| expected = Sequence.combine(expected, .{ .hash = index + 1, .factor = 31 });
+    for (0..5) |workers| {
+        for ([_]usize{ 0, 32 }) |states| {
+            var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+                .workers = workers,
+                .max_workers = workers,
+                .max_callers = 1,
+                .max_execute_states = states,
+            });
+            defer pool.deinit();
+            try pool.start();
+            for (1..6) |cap| {
+                const options = Options{ .max_workers = cap, .max_chunks = 6, .serial_threshold = 0 };
+                for (0..3) |_| {
+                    try std.testing.expectEqualDeep(expected, try parallelFold(
+                        &pool,
+                        Sequence,
+                        {},
+                        13,
+                        options,
+                        .{},
+                        Sequence.fallible,
+                        Sequence.combine,
+                    ));
+                    try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
+                        &pool,
+                        Sequence,
+                        {},
+                        13,
+                        options,
+                        .{},
+                        Sequence.map,
+                        Sequence.combine,
+                    ));
+                    try std.testing.expectError(error.FirstFailure, parallelFold(
+                        &pool,
+                        Sequence,
+                        {},
+                        13,
+                        options,
+                        .{},
+                        Sequence.failing,
+                        Sequence.combine,
+                    ));
+                }
+            }
+        }
+    }
+}
+
+test "capped allocation failures release caller slots before invoking callbacks" {
+    const Run = struct {
+        fn range(_: *core.Worker(void), calls: *usize, _: Chunk) anyerror!void {
+            calls.* += 1;
+        }
+        fn map(_: *core.Worker(void), _: void, index: usize) anyerror!u64 {
+            return index;
+        }
+        fn combine(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    var failing = std.testing.FailingAllocator.init(std.testing.allocator, .{});
+    var pool = try core.Pool(void).init(failing.allocator(), std.testing.io, .{
+        .workers = 3,
+        .max_workers = 3,
+        .max_callers = 1,
+    });
+    defer pool.deinit();
+    try pool.start();
+    if (pool.parallelWorkerCount() <= 2) return error.SkipZigTest;
+    failing.fail_index = failing.alloc_index;
+    var calls: usize = 0;
+    // The range results fill the 4 KiB buffer, so lane-future allocation
+    // fails. No jobs have been forked at the point either allocation fails.
+    try std.testing.expectError(error.OutOfMemory, parallelForRange(&pool, &calls, 4096, .{
+        .max_workers = 2,
+        .chunks_per_worker = 1024,
+        .serial_threshold = 0,
+    }, Run.range));
+    try std.testing.expectEqual(@as(usize, 0), calls);
+    const caller = pool.claimCaller().?;
+    pool.releaseCaller(caller);
+    // The larger fold result array requires the fallback allocator itself.
+    try std.testing.expectError(error.OutOfMemory, parallelFold(
+        &pool,
+        u64,
+        {},
+        4096,
+        .{ .max_workers = 2, .chunks_per_worker = 512, .serial_threshold = 0 },
+        0,
+        Run.map,
+        Run.combine,
+    ));
+    const again = pool.claimCaller().?;
+    pool.releaseCaller(again);
+    failing.fail_index = std.math.maxInt(usize);
+    try std.testing.expectEqual(@as(u64, 8386560), try parallelFold(
+        &pool,
+        u64,
+        {},
+        4096,
+        .{ .max_workers = 2, .chunks_per_worker = 512, .serial_threshold = 0 },
+        0,
+        Run.map,
+        Run.combine,
+    ));
+}
+
+test "capped nested calls and cancellation drain their lane futures" {
+    const n = 32;
+    const State = struct {
+        counts: [n]std.atomic.Value(u32) = [_]std.atomic.Value(u32){.init(0)} ** n,
+        token: CancelToken = .{},
+
+        fn inner(_: *core.Worker(void), self: *@This(), index: usize) anyerror!void {
+            _ = self.counts[index].fetchAdd(1, .monotonic);
+        }
+        fn outer(w: *core.Worker(void), self: *@This(), _: usize) anyerror!void {
+            try parallelFor(w.pool, self, n, .{ .max_workers = 2, .serial_threshold = 0 }, inner);
+        }
+        fn cancelling(_: *core.Worker(void), self: *@This(), index: usize) anyerror!void {
+            if (index == 2) self.token.cancel();
+        }
+    };
+    for ([_]usize{ 0, 3 }) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 2,
+        });
+        defer pool.deinit();
+        try pool.start();
+        var state = State{};
+        try parallelFor(&pool, &state, n, .{ .max_workers = 2, .serial_threshold = 0 }, State.outer);
+        for (state.counts) |count| try std.testing.expectEqual(@as(u32, n), count.load(.monotonic));
+        try std.testing.expectError(error.Cancelled, parallelFor(&pool, &state, n, .{
+            .max_workers = 2,
+            .max_chunks = 8,
+            .serial_threshold = 0,
+            .cancel = &state.token,
+        }, State.cancelling));
+        const caller = pool.claimCaller().?;
+        pool.releaseCaller(caller);
     }
 }
 
@@ -958,7 +1146,7 @@ test "parallelFor returns the first error by index" {
     );
 }
 
-test "parallelFold covers stack and heap future paths" {
+test "parallelFold covers stack and heap dispatch storage" {
     const io = std.testing.io;
     var pool = try core.Pool(void).init(std.testing.allocator, io, .{
         .workers = 4,
@@ -983,7 +1171,7 @@ test "parallelFold covers stack and heap future paths" {
     };
     const expected = @as(u64, n - 1) * @as(u64, n) / 2;
 
-    // 64 chunks: fits the stack fallback for this Fut size.
+    // The chunk results and lane futures fit in the stack fallback buffer.
     const stack_total = try parallelFold(
         &pool,
         u64,
@@ -996,7 +1184,7 @@ test "parallelFold covers stack and heap future paths" {
     );
     try std.testing.expectEqual(expected, stack_total);
 
-    // 512 chunks: must fall back to the pool allocator.
+    // The larger result array must use the pool allocator fallback.
     const heap_total = try parallelFold(
         &pool,
         u64,

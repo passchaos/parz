@@ -21,7 +21,8 @@ pub fn Options(comptime Ctx: type) type {
     return struct {
         pub const Context = Ctx;
 
-        /// Number of background workers. 0 selects affinity-aware CPU count - 1.
+        /// Number of background workers. 0 selects allowed CPU count - 1;
+        /// pinning uses one allowed logical CPU per physical core.
         workers: usize = 0,
         /// Upper bound on background workers.
         max_workers: usize = 64,
@@ -107,11 +108,21 @@ pub fn Pool(comptime Ctx: type) type {
                 if (options.context_init == null) return error.MissingContextInit;
             }
 
+            const pinned_cpus: []u32 = if (options.pin_workers)
+                try buildPinnedCpuList(allocator, io)
+            else
+                &.{};
+            errdefer allocator.free(pinned_cpus);
+            const cpu_count = if (!builtin.single_threaded and pinned_cpus.len != 0)
+                pinned_cpus.len
+            else
+                effectiveCpuCount();
             const requested = if (options.workers == 0)
-                effectiveCpuCount() -| 1
+                cpu_count -| 1
             else
                 options.workers;
-            const background_count = @min(requested, options.max_workers);
+            const pin_cap = if (pinned_cpus.len != 0) pinned_cpus.len else std.math.maxInt(usize);
+            const background_count = @min(@min(requested, options.max_workers), pin_cap);
             const caller_count = @max(options.max_callers, 1);
 
             const background_storage = try allocator.alloc(Worker(Ctx), background_count);
@@ -175,6 +186,7 @@ pub fn Pool(comptime Ctx: type) type {
                 .background_count = background_count,
                 .caller_count = caller_count,
                 .caller_busy = caller_busy,
+                .pinned_cpus = pinned_cpus,
                 .execute_states = execute_states,
                 .execute_free = if (execute_states.len != 0) 0 else null,
             };
@@ -213,9 +225,6 @@ pub fn Pool(comptime Ctx: type) type {
                 n += 1;
             }
             self.worker_count = n;
-            if (self.options.pin_workers) {
-                self.pinned_cpus = try buildPinnedCpuList(self.allocator, self.io);
-            }
 
             var spawned: usize = 0;
             if (!builtin.single_threaded) {
@@ -441,7 +450,7 @@ pub fn Pool(comptime Ctx: type) type {
             if (comptime builtin.os.tag != .linux) return;
             if (self.pinned_cpus.len == 0) return;
 
-            const cpu = self.pinned_cpus[index % self.pinned_cpus.len];
+            const cpu = self.pinned_cpus[index];
             const word = cpu / @bitSizeOf(usize);
             const bit = cpu % @bitSizeOf(usize);
             var set = std.mem.zeroes(std.os.linux.cpu_set_t);
@@ -472,7 +481,7 @@ pub fn Pool(comptime Ctx: type) type {
                     w.heartbeat.store(true, .monotonic);
                 }
                 const idle = self.idle_workers.load(.monotonic);
-                interval = if (self.background_count > 0 and idle >= self.background_count)
+                interval = if (self.spawned_background > 0 and idle >= self.spawned_background)
                     self.options.idle_heartbeat_interval_ns
                 else
                     self.options.heartbeat_interval_ns;
@@ -791,20 +800,29 @@ fn buildPinnedCpuList(allocator: std.mem.Allocator, io: std.Io) ![]u32 {
         };
         defer allocator.free(content);
 
-        var tokens = std.mem.tokenizeAny(u8, content, "-,\n ");
-        const first = tokens.next() orelse {
-            try selected.append(allocator, cpu);
-            continue;
-        };
-        const first_cpu = std.fmt.parseInt(u32, first, 10) catch {
-            try selected.append(allocator, cpu);
-            continue;
-        };
-        if (first_cpu == cpu) try selected.append(allocator, cpu);
+        if (!hasEarlierAllowedSibling(allowed.items, cpu, content)) try selected.append(allocator, cpu);
     }
 
     if (selected.items.len == 0) return try allowed.toOwnedSlice(allocator);
     return try selected.toOwnedSlice(allocator);
+}
+
+/// Sysfs lists all siblings, including CPUs outside the caller's affinity.
+/// Pick the first allowed sibling, rather than requiring the absolute first.
+fn hasEarlierAllowedSibling(allowed: []const u32, cpu: u32, text: []const u8) bool {
+    var groups = std.mem.splitScalar(u8, text, ',');
+    while (groups.next()) |group| {
+        const range = std.mem.trim(u8, group, " \n\r\t");
+        const dash = std.mem.indexOfScalar(u8, range, '-');
+        const first = std.fmt.parseInt(u32, if (dash) |offset| range[0..offset] else range, 10) catch return false;
+        const last = if (dash) |offset| std.fmt.parseInt(u32, range[offset + 1 ..], 10) catch return false else first;
+        if (last < first) return false;
+        for (allowed) |other| {
+            if (other >= cpu) break;
+            if (other >= first and other <= last) return true;
+        }
+    }
+    return false;
 }
 
 fn effectiveCpuCount() usize {
@@ -940,8 +958,50 @@ test "pool pins workers when requested" {
     });
     defer pool.deinit();
     try pool.start();
-    try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else 2), pool.spawned_background);
+    try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else @min(2, pool.pinned_cpus.len)), pool.spawned_background);
     try std.testing.expect(pool.pinned_cpus.len > 0);
+}
+
+test "affinity: first allowed siblings survive restricted CPU sets" {
+    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 1, 2 }, 1, "0-1\n"));
+    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 1, 2 }, 2, "2-3\n"));
+    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 2, 3 }, 3, "2-3\n"));
+    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 0, 17, 18 }, 17, "1,17\n"));
+    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17 }, 17, "1,17\n"));
+    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17, 18 }, 18, "0-3,16-19\n"));
+}
+
+test "affinity: pinned worker counts fit selected CPUs before startup" {
+    if (comptime builtin.os.tag != .linux) return error.SkipZigTest;
+    var automatic = try Pool(void).init(std.testing.allocator, std.testing.io, .{ .pin_workers = true });
+    defer automatic.deinit();
+    try std.testing.expect(automatic.pinned_cpus.len > 0);
+    try std.testing.expect(automatic.background_count < automatic.pinned_cpus.len);
+    var explicit = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .workers = 128,
+        .max_workers = 128,
+        .pin_workers = true,
+    });
+    defer explicit.deinit();
+    try std.testing.expect(explicit.background_count <= explicit.pinned_cpus.len);
+    for (explicit.pinned_cpus, 0..) |cpu, index| {
+        for (explicit.pinned_cpus[0..index]) |previous| try std.testing.expect(cpu != previous);
+    }
+}
+
+test "affinity: context initialization failure releases selected CPU storage" {
+    const Context = struct {
+        fn init(_: std.mem.Allocator, index: usize) !@This() {
+            if (index == 1) return error.ExpectedFailure;
+            return .{};
+        }
+    };
+    try std.testing.expectError(error.ExpectedFailure, Pool(Context).init(std.testing.allocator, std.testing.io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .pin_workers = true,
+        .context_init = Context.init,
+    }));
 }
 
 test "pool applies a preferred numa node" {
