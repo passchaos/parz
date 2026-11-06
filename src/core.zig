@@ -644,6 +644,22 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
         /// and `result()` is valid. This avoids materializing `?Output`, which
         /// is expensive for large or error-union payloads.
         pub inline fn tryJoin(self: *Self, task: *Task(Ctx)) bool {
+            // Fast path for a local job: the previous pointer is untagged.
+            // Shared jobs tag it, and pending jobs have a null handler, so
+            // both fall through to the full state decode.
+            if (self.job.handler != null) {
+                const prev = @atomicLoad(?*anyopaque, &self.job.prev_or_null, .acquire);
+                if (prev) |raw| {
+                    if (@intFromPtr(raw) & 1 == 0) {
+                        if (task.job_tail == &self.job) {
+                            self.job.pop(&task.job_tail);
+                        } else {
+                            self.job.remove(&task.job_tail);
+                        }
+                        return false;
+                    }
+                }
+            }
             switch (self.job.state()) {
                 .pending => return false,
                 .queued_local => {
