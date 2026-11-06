@@ -180,6 +180,7 @@ zig build bench-tree-sum -- 1000000
 zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
 zig build bench-micro
+zig build bench-sync                 # sync primitive throughput
 zig build bench                      # all benchmarks
 
 # Cross-library comparison (needs a spice checkout, Cargo, and GCC/OpenMP).

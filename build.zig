@@ -83,11 +83,23 @@ pub fn build(b: *std.Build) void {
     const bench_micro_step = b.step("bench-micro", "Run the fork/join micro benchmark");
     bench_micro_step.dependOn(&run_micro.step);
 
+    const sync_mod = b.createModule(.{
+        .root_source_file = b.path("bench/sync.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const sync_bench = b.addExecutable(.{ .name = "parz-sync-bench", .root_module = sync_mod });
+    const run_sync_bench = b.addRunArtifact(sync_bench);
+    const bench_sync_step = b.step("bench-sync", "Run sync primitive throughput benchmarks");
+    bench_sync_step.dependOn(&run_sync_bench.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);
     bench_step.dependOn(bench_compute_step);
     bench_step.dependOn(bench_micro_step);
+    bench_step.dependOn(bench_sync_step);
 
     const compare_parz_mod = b.createModule(.{
         .root_source_file = b.path("bench/compare/parz_bench.zig"),

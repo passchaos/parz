@@ -2,3 +2,4 @@
 zig-out/
 bench/compare/omp_bench
 bench/compare/rayon-bench/target/
+__pycache__/
