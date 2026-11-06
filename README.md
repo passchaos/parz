@@ -181,6 +181,10 @@ zig build bench                      # all benchmarks
 # Cross-library comparison (needs a spice checkout, Cargo, and GCC/OpenMP).
 zig build bench-compare -Doptimize=ReleaseFast
 SPICE_DIR=/tmp/spice python3 bench/compare/run_compare.py --rounds 5 --lanes 32
+
+# WASM compile-only check. The std.Io blocking primitives need atomics.
+zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics \
+    -OReleaseSafe --test-no-exec
 ```
 
 See `bench/compare/README.md` for the comparison methodology and fairness

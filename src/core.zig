@@ -586,7 +586,7 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
             const Handler = struct {
                 fn run(raw_task: *anyopaque, job: *Job) void {
                     const t: *Task(Ctx) = @ptrCast(@alignCast(raw_task));
-                    const fut: *Self = @fieldParentPtr("job", job);
+                    const fut: *Self = @alignCast(@fieldParentPtr("job", job));
                     fut.output = t.call(Output, func, fut.input);
                     const state = job.getExecuteState();
                     state.done.set(state.io);
