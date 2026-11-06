@@ -216,8 +216,9 @@ ReleaseFast, best of several runs, machine otherwise loaded):
 | tree sum, 1K nodes | ~3.9 µs | ~4.0–4.2 µs | 0.9–1.0x |
 | tree sum, 100K nodes | ~170 µs | ~150–180 µs | 0.9–1.4x |
 | tree sum, 10M nodes | ~15.8 ms | ~3.6–3.8 ms | 4.2–4.3x |
-| flat sum, 16M u64 | ~7.1 ms | ~1.5–1.6 ms | 4.4–4.7x |
-| CPU-bound fold, 1M items | ~64 ms | ~3.7–3.8 ms | 16.5–19x |
+| flat sum, 16M u64 | ~7.1 ms | ~1.5–1.8 ms | 4.0–4.7x |
+| CPU-bound fold, 1M items | ~64 ms | ~3.7–4.0 ms | 15–19x |
+| 2D grid fill, 4096×4096 | ~40 ms | ~2.4 ms | ~17x |
 
 Small trees stay close to serial cost; medium trees break even or improve;
 flat scans saturate memory bandwidth; CPU-bound work scales near linearly.

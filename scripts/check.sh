@@ -17,6 +17,7 @@ for target in x86_64-windows-gnu aarch64-macos x86_64-linux-musl; do
         -femit-bin="/tmp/parz-cross-$target.o"
 done
 zig build bench-sync -Doptimize=ReleaseFast
+zig build bench-2d -Doptimize=ReleaseFast
 
 if [ "${1:-}" = "--compare" ]; then
     SPICE_DIR="${SPICE_DIR:-/tmp/spice}" \
