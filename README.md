@@ -182,6 +182,7 @@ zig build test -Doptimize=ReleaseSafe
 zig build bench-tree-sum -- 1000000
 zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
+zig build bench-compute -- 1000000 pin   # exercise pin_workers
 zig build bench-micro
 zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput

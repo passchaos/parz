@@ -36,6 +36,10 @@ pub fn main(init: std.process.Init) !void {
         try std.fmt.parseInt(usize, argv.items[1], 10)
     else
         1_000_000;
+    const pinned = if (argv.items.len > 2)
+        std.mem.eql(u8, argv.items[2], "pin")
+    else
+        false;
 
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = 0,
@@ -43,6 +47,7 @@ pub fn main(init: std.process.Init) !void {
         .max_callers = 1,
         .max_execute_states = 4096,
         .worker_stack_size = 2 * 1024 * 1024,
+        .pin_workers = pinned,
     });
     defer pool.deinit();
     try pool.start();
@@ -88,7 +93,7 @@ pub fn main(init: std.process.Init) !void {
 
     const speedup = @as(f64, @floatFromInt(serial_ns)) / @as(f64, @floatFromInt(parallel_ns));
     std.debug.print(
-        "compute count={d} workers={d} serial_ns={d} parallel_ns={d} speedup={d:.2}\n",
-        .{ count, pool.spawned_background, serial_ns, parallel_ns, speedup },
+        "compute count={d} workers={d} pinned={} serial_ns={d} parallel_ns={d} speedup={d:.2}\n",
+        .{ count, pool.spawned_background, pinned, serial_ns, parallel_ns, speedup },
     );
 }
