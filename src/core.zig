@@ -50,6 +50,9 @@ pub fn Options(comptime Ctx: type) type {
         /// Pin each background worker to a distinct allowed CPU. Linux only;
         /// a no-op elsewhere. The caller thread is not pinned.
         pin_workers: bool = false,
+        /// Prefer allocations on this NUMA node for background workers
+        /// (Linux MPOL_PREFERRED). The caller thread is not affected.
+        numa_node: ?u16 = null,
         /// Optional per-worker context constructor.
         context_init: ?*const fn (allocator: std.mem.Allocator, index: usize) anyerror!Ctx = null,
         /// Optional per-worker context destructor.
@@ -396,6 +399,21 @@ pub fn Pool(comptime Ctx: type) type {
             self.shareMany(owner, max);
         }
 
+        fn applyNumaPolicy(self: *Self) void {
+            const node = self.options.numa_node orelse return;
+            if (comptime builtin.os.tag != .linux) return;
+            if (node >= @bitSizeOf(usize)) return;
+
+            var mask: usize = @as(usize, 1) << @intCast(node);
+            const MPOL_PREFERRED: usize = 1;
+            _ = std.os.linux.syscall3(
+                .set_mempolicy,
+                MPOL_PREFERRED,
+                @intFromPtr(&mask),
+                @as(usize, node) + 1,
+            );
+        }
+
         fn pinWorker(self: *Self, index: usize) void {
             if (!self.options.pin_workers) return;
             if (comptime builtin.os.tag != .linux) return;
@@ -455,6 +473,7 @@ pub fn Pool(comptime Ctx: type) type {
 
         fn backgroundWorker(self: *Self, w: *Worker(Ctx)) void {
             self.pinWorker(w.index);
+            self.applyNumaPolicy();
             self.workers_ready.post(self.io);
             self.mutex.lockUncancelable(self.io);
             defer self.mutex.unlock(self.io);
@@ -804,4 +823,19 @@ test "pool pins workers when requested" {
     defer pool.deinit();
     try pool.start();
     try std.testing.expectEqual(@as(usize, 2), pool.spawned_background);
+}
+
+test "pool applies a preferred numa node" {
+    if (comptime builtin.os.tag != .linux) return error.SkipZigTest;
+    const io = std.testing.io;
+    var pool = try Pool(void).init(std.testing.allocator, io, .{
+        .workers = 1,
+        .max_workers = 1,
+        .max_callers = 1,
+        .max_execute_states = 8,
+        .numa_node = 0,
+    });
+    defer pool.deinit();
+    try pool.start();
+    try std.testing.expectEqual(@as(usize, 1), pool.spawned_background);
 }

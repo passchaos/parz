@@ -59,4 +59,5 @@ cancellation tokens, the infallible fold fast path, the `sync` module
 wait group),
 `parallelFor2D`, and optional Linux CPU affinity pinning.
 
-Not implemented yet: NUMA memory policy.
+Not implemented yet: automatic NUMA topology discovery (explicit
+`Options.numa_node` is implemented).

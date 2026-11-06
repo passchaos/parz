@@ -29,8 +29,9 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - `sync` module: bounded SPSC/MPSC queues, a bounded blocking MPMC queue, a
   multi-producer/single-consumer Treiber stack, a counting semaphore, and a
   wait group.
-- `parallelFor2D` for row-major grids and optional Linux CPU affinity via
-  `Options.pin_workers`.
+- `parallelFor2D` for row-major grids, optional Linux CPU affinity via
+  `Options.pin_workers`, and optional `MPOL_PREFERRED` NUMA binding via
+  `Options.numa_node`.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
@@ -64,6 +65,8 @@ var pool = try parz.Pool(void).init(allocator, io, .{
     .max_workers = 64,
     .max_callers = 4,
     .max_execute_states = 1024,
+    .pin_workers = false,      // Linux CPU affinity for background workers
+    .numa_node = null,         // Linux MPOL_PREFERRED node for background workers
 });
 defer pool.deinit();
 try pool.start();
@@ -211,8 +214,9 @@ Treat these as indicative, not as a fixed gate.
 
 ## Known limits / next steps
 
-- No NUMA memory policy; `Options.pin_workers` pins background workers to
-  CPUs on Linux, but there is no NUMA-aware allocation.
+- No automatic NUMA topology discovery. `Options.numa_node` applies
+  `MPOL_PREFERRED` to background workers on Linux; the caller thread and
+  explicit node selection are left to the application.
 - No work stealing: idle workers consume shared jobs; they do not steal from
   another worker's local list. This is intentional and matches Spice.
 - `deinit` requires all caller slots to be released and no flat-parallel call
