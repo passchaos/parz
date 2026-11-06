@@ -89,6 +89,11 @@ def main():
     parser.add_argument("--cpus", help="taskset CPU list, e.g. 0-15")
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--json", type=Path, help="write raw results as JSON")
+    parser.add_argument(
+        "--gate",
+        action="store_true",
+        help="fail if parz speedups fall below conservative smoke thresholds",
+    )
     args = parser.parse_args()
 
     if not args.no_build:
@@ -144,6 +149,31 @@ def main():
             serial, parallel = min(runs, key=lambda item: item[1])
             line += f" {parallel / 1e6:10.3f}ms/{serial / parallel:5.2f}x"
         print(line)
+
+    if args.gate:
+        # Conservative smoke floors, not competitive targets. They are meant
+        # to catch catastrophic regressions on a loaded development host.
+        gates = {
+            "tree-1000": 0.30,
+            "tree-100000": 0.80,
+            "tree-10000000": 2.50,
+            "flat-16000000": 2.50,
+            "compute-1000000": 10.0,
+        }
+        failures = []
+        for key, minimum in gates.items():
+            runs = data["parz"].get(key, [])
+            if not runs:
+                failures.append(f"{key}: missing")
+                continue
+            serial, parallel = min(runs, key=lambda item: item[1])
+            speedup = serial / parallel
+            if speedup < minimum:
+                failures.append(f"{key}: {speedup:.2f}x < {minimum:.2f}x")
+        if failures:
+            print("gate failed:", "; ".join(failures), file=sys.stderr)
+            raise SystemExit(1)
+        print("gate passed")
 
     if args.json:
         import json

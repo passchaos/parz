@@ -39,6 +39,7 @@ Useful options:
 --cpus 0-15          # pin the whole process with taskset
 --no-build           # reuse the already-built binaries
 --json results.json  # save raw samples
+--gate               # fail on catastrophic parz regressions
 ```
 
 The runner builds:
