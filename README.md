@@ -28,6 +28,8 @@ adding parallelism to a small workload must not make it meaningfully slower.
   every 4096 items inside a chunk.
 - `sync` module: bounded SPSC/MPSC queues, a multi-producer/single-consumer
   Treiber stack, a counting semaphore, and a wait group.
+- `parallelFor2D` for row-major grids and optional Linux CPU affinity via
+  `Options.pin_workers`.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,
   and no available caller slot.
 - Error propagation: the first failing chunk (by chunk index) is returned.
@@ -197,8 +199,8 @@ Treat these as indicative, not as a fixed gate.
 
 ## Known limits / next steps
 
-- No `parallelFor2D`/collapse helper yet.
-- No NUMA/affinity pinning beyond CPU-count discovery.
+- No NUMA memory policy; `Options.pin_workers` pins background workers to
+  CPUs on Linux, but there is no NUMA-aware allocation.
 - No work stealing: idle workers consume shared jobs; they do not steal from
   another worker's local list. This is intentional and matches Spice.
 - `deinit` requires all caller slots to be released and no flat-parallel call

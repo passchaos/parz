@@ -27,6 +27,7 @@ pub const ParallelOptions = parallel.Options;
 pub const parallelFor = parallel.parallelFor;
 pub const parallelForEach = parallel.parallelForEach;
 pub const parallelForRange = parallel.parallelForRange;
+pub const parallelFor2D = parallel.parallelFor2D;
 pub const parallelFold = parallel.parallelFold;
 pub const parallelFoldInfallible = parallel.parallelFoldInfallible;
 pub const parallelReduce = parallel.parallelReduce;

@@ -87,6 +87,48 @@ pub fn parallelForEach(
     return parallelFor(pool, slice, slice.len, options, run);
 }
 
+/// Parallel loop over a row-major `rows x cols` grid. The callback receives
+/// `(row, col)` and every cell is visited exactly once.
+pub fn parallelFor2D(
+    pool: anytype,
+    shared: anytype,
+    rows: usize,
+    cols: usize,
+    options: Options,
+    comptime run: anytype,
+) anyerror!void {
+    if (rows == 0 or cols == 0) return;
+    const total = std.math.mul(usize, rows, cols) catch return error.Overflow;
+
+    const P = @TypeOf(pool.*);
+    const W = P.WorkerType;
+    const Shared = @TypeOf(shared);
+
+    const Runner = struct {
+        shared: *const Shared,
+        cols: usize,
+        cancel: ?*CancelToken,
+
+        fn range(w: *W, self: *@This(), chunk: Chunk) anyerror!void {
+            var i = chunk.start;
+            while (i < chunk.end) {
+                try checkCancel(self.cancel);
+                const block_end = @min(i + cancel_block, chunk.end);
+                while (i < block_end) : (i += 1) {
+                    try run(w, self.shared.*, i / self.cols, i % self.cols);
+                }
+            }
+        }
+    };
+
+    var runner = Runner{
+        .shared = &shared,
+        .cols = cols,
+        .cancel = options.cancel,
+    };
+    return parallelForRange(pool, &runner, total, options, Runner.range);
+}
+
 /// Parallel loop over half-open ranges. The callback receives one chunk.
 pub fn parallelForRange(
     pool: anytype,
@@ -915,4 +957,39 @@ test "serial fold honors cancellation" {
             .cancel = &token,
         }, 0, Map.map, Add.combine),
     );
+}
+
+test "parallelFor2D covers every cell exactly once" {
+    const io = std.testing.io;
+    var pool = try core.Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 128,
+        .worker_stack_size = 1 * 1024 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+
+    const rows = 17;
+    const cols = 31;
+    const n = rows * cols;
+    var counts = [_]std.atomic.Value(u32){.init(0)} ** n;
+    const Ctx = struct {
+        fn run(
+            _: *core.Worker(void),
+            shared: *[n]std.atomic.Value(u32),
+            row: usize,
+            col: usize,
+        ) anyerror!void {
+            _ = shared[row * cols + col].fetchAdd(1, .monotonic);
+        }
+    };
+    try parallelFor2D(&pool, &counts, rows, cols, .{
+        .min_chunk = 1,
+        .serial_threshold = 0,
+    }, Ctx.run);
+    for (counts) |count| {
+        try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
+    }
 }

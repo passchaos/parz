@@ -47,6 +47,9 @@ pub fn Options(comptime Ctx: type) type {
         /// shares work and only eager `kickstart` paths (flat loops) run in
         /// parallel.
         enable_heartbeat: bool = true,
+        /// Pin each background worker to a distinct allowed CPU. Linux only;
+        /// a no-op elsewhere. The caller thread is not pinned.
+        pin_workers: bool = false,
         /// Optional per-worker context constructor.
         context_init: ?*const fn (allocator: std.mem.Allocator, index: usize) anyerror!Ctx = null,
         /// Optional per-worker context destructor.
@@ -393,6 +396,32 @@ pub fn Pool(comptime Ctx: type) type {
             self.shareMany(owner, max);
         }
 
+        fn pinWorker(self: *Self, index: usize) void {
+            if (!self.options.pin_workers) return;
+            if (comptime builtin.os.tag != .linux) return;
+
+            const affinity = std.posix.sched_getaffinity(0) catch return;
+            const count: usize = std.posix.CPU_COUNT(affinity);
+            if (count == 0) return;
+            const target = index % count;
+
+            var seen: usize = 0;
+            for (affinity, 0..) |word, word_index| {
+                var bits = word;
+                while (bits != 0) {
+                    const bit = @ctz(bits);
+                    if (seen == target) {
+                        var set = std.mem.zeroes(std.os.linux.cpu_set_t);
+                        set[word_index] = @as(usize, 1) << @intCast(bit);
+                        std.os.linux.sched_setaffinity(0, &set) catch {};
+                        return;
+                    }
+                    seen += 1;
+                    bits &= bits - 1;
+                }
+            }
+        }
+
         /// Periodically mark every active worker as ready to share one batch
         /// of local work. Small fork/join trees finish before the first
         /// heartbeat, so they never pay thread-wakeup cost.
@@ -425,6 +454,7 @@ pub fn Pool(comptime Ctx: type) type {
         }
 
         fn backgroundWorker(self: *Self, w: *Worker(Ctx)) void {
+            self.pinWorker(w.index);
             self.workers_ready.post(self.io);
             self.mutex.lockUncancelable(self.io);
             defer self.mutex.unlock(self.io);
@@ -759,4 +789,19 @@ test "future: fork/join tree sum with caller fallback" {
 
     const total = try task.call(anyerror!i64, sumFn, &root);
     try std.testing.expectEqual(@as(i64, 28), total);
+}
+
+test "pool pins workers when requested" {
+    if (comptime builtin.os.tag != .linux) return error.SkipZigTest;
+    const io = std.testing.io;
+    var pool = try Pool(void).init(std.testing.allocator, io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 8,
+        .pin_workers = true,
+    });
+    defer pool.deinit();
+    try pool.start();
+    try std.testing.expectEqual(@as(usize, 2), pool.spawned_background);
 }
