@@ -184,6 +184,17 @@ pub fn ShardedMpscQueue(comptime T: type, comptime shard_count: usize) type {
             self.* = undefined;
         }
 
+        pub fn capacity(self: *const Self) usize {
+            return self.shards[0].queue.capacity() * shard_count;
+        }
+
+        /// Approximate under concurrent producers; exact when quiescent.
+        pub fn len(self: *const Self) usize {
+            var total: usize = 0;
+            for (&self.shards) |*shard| total += shard.queue.len();
+            return total;
+        }
+
         pub fn tryPush(self: *Self, shard_index: usize, value: T) bool {
             std.debug.assert(shard_index < shard_count);
             return self.shards[shard_index].queue.tryPush(value);
@@ -660,11 +671,14 @@ test "sharded mpsc queue: single-threaded round robin" {
     var queue = try ShardedMpscQueue(u32, 2).init(std.testing.allocator, 4);
     defer queue.deinit();
 
+    try std.testing.expectEqual(@as(usize, 8), queue.capacity());
+    try std.testing.expectEqual(@as(usize, 0), queue.len());
     try std.testing.expect(queue.tryPop() == null);
     try std.testing.expect(queue.tryPush(0, 0));
     try std.testing.expect(queue.tryPush(1, 2));
     try std.testing.expect(queue.tryPush(0, 1));
     try std.testing.expect(queue.tryPush(1, 3));
+    try std.testing.expectEqual(@as(usize, 4), queue.len());
 
     var seen = [_]bool{ false, false, false, false };
     for (0..4) |_| {
