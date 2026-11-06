@@ -26,8 +26,9 @@ adding parallelism to a small workload must not make it meaningfully slower.
   combination.
 - `CancelToken` with cooperative cancellation checked at chunk boundaries and
   every 4096 items inside a chunk.
-- `sync` module: bounded SPSC/MPSC queues, a multi-producer/single-consumer
-  Treiber stack, a counting semaphore, and a wait group.
+- `sync` module: bounded SPSC/MPSC queues, a bounded blocking MPMC queue, a
+  multi-producer/single-consumer Treiber stack, a counting semaphore, and a
+  wait group.
 - `parallelFor2D` for row-major grids and optional Linux CPU affinity via
   `Options.pin_workers`.
 - Serial fallback for single-threaded/WASM targets, exhausted execute states,

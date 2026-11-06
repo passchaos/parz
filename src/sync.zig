@@ -142,6 +142,93 @@ pub fn MpscQueue(comptime T: type) type {
     };
 }
 
+/// Bounded blocking multi-producer/multi-consumer queue. `put` and `get`
+/// wait on `std.Io` conditions; `tryPut`/`tryGet` are non-blocking.
+pub fn BlockingQueue(comptime T: type) type {
+    return struct {
+        const Self = @This();
+
+        buffer: []T,
+        mask: usize,
+        head: usize = 0,
+        tail: usize = 0,
+        count: usize = 0,
+        mutex: std.Io.Mutex = .init,
+        not_empty: std.Io.Condition = .init,
+        not_full: std.Io.Condition = .init,
+        allocator: std.mem.Allocator,
+
+        pub fn init(allocator: std.mem.Allocator, requested_capacity: usize) !Self {
+            const actual_capacity = std.math.ceilPowerOfTwo(usize, @max(requested_capacity, 1)) catch
+                return error.CapacityOverflow;
+            const buffer = try allocator.alloc(T, actual_capacity);
+            return .{ .buffer = buffer, .mask = actual_capacity - 1, .allocator = allocator };
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.allocator.free(self.buffer);
+            self.* = undefined;
+        }
+
+        pub fn capacity(self: *const Self) usize {
+            return self.buffer.len;
+        }
+
+        pub fn len(self: *Self, io: std.Io) usize {
+            self.mutex.lockUncancelable(io);
+            defer self.mutex.unlock(io);
+            return self.count;
+        }
+
+        pub fn tryPut(self: *Self, io: std.Io, value: T) bool {
+            self.mutex.lockUncancelable(io);
+            defer self.mutex.unlock(io);
+            if (self.count == self.buffer.len) return false;
+            self.buffer[self.tail] = value;
+            self.tail = (self.tail + 1) & self.mask;
+            self.count += 1;
+            self.not_empty.signal(io);
+            return true;
+        }
+
+        pub fn put(self: *Self, io: std.Io, value: T) std.Io.Cancelable!void {
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
+            while (self.count == self.buffer.len) {
+                try self.not_full.wait(io, &self.mutex);
+            }
+            self.buffer[self.tail] = value;
+            self.tail = (self.tail + 1) & self.mask;
+            self.count += 1;
+            self.not_empty.signal(io);
+        }
+
+        pub fn tryGet(self: *Self, io: std.Io) ?T {
+            self.mutex.lockUncancelable(io);
+            defer self.mutex.unlock(io);
+            if (self.count == 0) return null;
+            const value = self.buffer[self.head];
+            self.head = (self.head + 1) & self.mask;
+            self.count -= 1;
+            self.not_full.signal(io);
+            return value;
+        }
+
+        pub fn get(self: *Self, io: std.Io) std.Io.Cancelable!T {
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
+            while (self.count == 0) {
+                try self.not_empty.wait(io, &self.mutex);
+            }
+            const value = self.buffer[self.head];
+            self.head = (self.head + 1) & self.mask;
+            self.count -= 1;
+            self.not_full.signal(io);
+            return value;
+        }
+    };
+}
+
 /// Multi-producer/single-consumer Treiber stack. Nodes are caller-owned.
 ///
 /// With one consumer, ABA cannot occur: producers only push, and the consumer
@@ -444,4 +531,67 @@ test "wait group waits for all members" {
     for (&threads) |*thread| thread.* = try std.Thread.spawn(.{}, Worker.run, .{&group});
     group.wait(io);
     for (threads) |thread| thread.join();
+}
+
+test "blocking queue: single-threaded order and bounds" {
+    const io = std.testing.io;
+    var queue = try BlockingQueue(u32).init(std.testing.allocator, 4);
+    defer queue.deinit();
+
+    try std.testing.expect(queue.tryGet(io) == null);
+    for (0..4) |index| try std.testing.expect(queue.tryPut(io, @intCast(index)));
+    try std.testing.expect(!queue.tryPut(io, 99));
+    try std.testing.expectEqual(@as(usize, 4), queue.len(io));
+    for (0..4) |index| try std.testing.expectEqual(@as(u32, @intCast(index)), queue.tryGet(io).?);
+    try std.testing.expect(queue.tryGet(io) == null);
+}
+
+test "blocking queue: threaded producers and consumers" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+
+    const producers = 2;
+    const consumers = 2;
+    const per_producer = 10_000;
+    const total = producers * per_producer;
+    const per_consumer = total / consumers;
+
+    var queue = try BlockingQueue(u32).init(std.testing.allocator, 128);
+    defer queue.deinit();
+
+    const seen = try std.testing.allocator.alloc(std.atomic.Value(bool), total);
+    defer std.testing.allocator.free(seen);
+    for (seen) |*slot| slot.* = .init(false);
+
+    const Producer = struct {
+        fn run(q: *BlockingQueue(u32), base: u32) void {
+            for (0..per_producer) |index| {
+                q.put(std.testing.io, base + @as(u32, @intCast(index))) catch unreachable;
+            }
+        }
+    };
+    const Consumer = struct {
+        fn run(q: *BlockingQueue(u32), flags: []std.atomic.Value(bool)) void {
+            for (0..per_consumer) |_| {
+                const value = q.get(std.testing.io) catch unreachable;
+                std.debug.assert(value < total);
+                std.debug.assert(!flags[value].swap(true, .monotonic));
+            }
+        }
+    };
+
+    var producer_threads: [producers]std.Thread = undefined;
+    for (&producer_threads, 0..) |*thread, index| {
+        thread.* = try std.Thread.spawn(.{}, Producer.run, .{
+            &queue,
+            @as(u32, @intCast(index * per_producer)),
+        });
+    }
+    var consumer_threads: [consumers]std.Thread = undefined;
+    for (&consumer_threads) |*thread| {
+        thread.* = try std.Thread.spawn(.{}, Consumer.run, .{ &queue, seen });
+    }
+    for (producer_threads) |thread| thread.join();
+    for (consumer_threads) |thread| thread.join();
+
+    for (seen) |slot| try std.testing.expect(slot.load(.monotonic));
 }
