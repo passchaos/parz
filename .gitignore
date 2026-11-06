@@ -1,2 +1,4 @@
 .zig-cache/
 zig-out/
+bench/compare/omp_bench
+bench/compare/rayon-bench/target/

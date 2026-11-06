@@ -88,4 +88,37 @@ pub fn build(b: *std.Build) void {
     bench_step.dependOn(bench_for_step);
     bench_step.dependOn(bench_compute_step);
     bench_step.dependOn(bench_micro_step);
+
+    const compare_parz_mod = b.createModule(.{
+        .root_source_file = b.path("bench/compare/parz_bench.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const compare_parz = b.addExecutable(.{
+        .name = "compare-parz",
+        .root_module = compare_parz_mod,
+    });
+    const compare_step = b.step("bench-compare", "Build the parz comparison benchmark");
+    compare_step.dependOn(&b.addInstallArtifact(compare_parz, .{}).step);
+
+    if (b.option([]const u8, "spice-dir", "Path to a judofyr/spice clone")) |spice_dir| {
+        const spice_root = b.pathJoin(&.{ spice_dir, "src", "root.zig" });
+        const spice_mod = b.addModule("spice", .{
+            .root_source_file = .{ .cwd_relative = spice_root },
+            .target = target,
+            .optimize = .ReleaseFast,
+        });
+        const compare_spice_mod = b.createModule(.{
+            .root_source_file = b.path("bench/compare/spice_bench.zig"),
+            .target = target,
+            .optimize = .ReleaseFast,
+            .imports = &.{.{ .name = "spice", .module = spice_mod }},
+        });
+        const compare_spice = b.addExecutable(.{
+            .name = "compare-spice",
+            .root_module = compare_spice_mod,
+        });
+        compare_step.dependOn(&b.addInstallArtifact(compare_spice, .{}).step);
+    }
 }

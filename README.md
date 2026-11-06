@@ -177,7 +177,14 @@ zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
 zig build bench-micro
 zig build bench                      # all benchmarks
+
+# Cross-library comparison (needs a spice checkout, Cargo, and GCC/OpenMP).
+zig build bench-compare -Doptimize=ReleaseFast
+SPICE_DIR=/tmp/spice python3 bench/compare/run_compare.py --rounds 5 --lanes 32
 ```
+
+See `bench/compare/README.md` for the comparison methodology and fairness
+notes.
 
 Benchmarks print `serial_ns`, `parallel_ns`, and `speedup`; they verify the
 checksum before reporting.
