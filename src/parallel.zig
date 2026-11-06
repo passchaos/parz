@@ -110,12 +110,21 @@ pub fn parallelFor2D(
         cancel: ?*CancelToken,
 
         fn range(w: *W, self: *@This(), chunk: Chunk) anyerror!void {
+            // Convert the flat chunk offset to row/col once, then advance
+            // with increments instead of dividing for every cell.
             var i = chunk.start;
+            var row = i / self.cols;
+            var col = i % self.cols;
             while (i < chunk.end) {
                 try checkCancel(self.cancel);
                 const block_end = @min(i + cancel_block, chunk.end);
                 while (i < block_end) : (i += 1) {
-                    try run(w, self.shared.*, i / self.cols, i % self.cols);
+                    try run(w, self.shared.*, row, col);
+                    col += 1;
+                    if (col == self.cols) {
+                        col = 0;
+                        row += 1;
+                    }
                 }
             }
         }
