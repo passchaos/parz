@@ -1,0 +1,322 @@
+[
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1826,
+    "parallel_ns": 4118
+  },
+  {
+    "variant": "cold",
+    "round": 0,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 2449,
+    "parallel_ns": 4492
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1416,
+    "parallel_ns": 3485
+  },
+  {
+    "variant": "cold",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 2150,
+    "parallel_ns": 4713
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1581865,
+    "parallel_ns": 929219
+  },
+  {
+    "variant": "cold",
+    "round": 0,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1645668,
+    "parallel_ns": 1029275
+  },
+  {
+    "variant": "before",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62133079,
+    "parallel_ns": 11308347
+  },
+  {
+    "variant": "cold",
+    "round": 0,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62307409,
+    "parallel_ns": 11513550
+  },
+  {
+    "variant": "cold",
+    "round": 1,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1949,
+    "parallel_ns": 4229
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1911,
+    "parallel_ns": 4319
+  },
+  {
+    "variant": "cold",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1343,
+    "parallel_ns": 3718
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1994,
+    "parallel_ns": 4901
+  },
+  {
+    "variant": "cold",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1540670,
+    "parallel_ns": 1057139
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1573535,
+    "parallel_ns": 954508
+  },
+  {
+    "variant": "cold",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62261254,
+    "parallel_ns": 9707469
+  },
+  {
+    "variant": "before",
+    "round": 1,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61911545,
+    "parallel_ns": 11408302
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1417,
+    "parallel_ns": 2325
+  },
+  {
+    "variant": "cold",
+    "round": 2,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1391,
+    "parallel_ns": 2638
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1477,
+    "parallel_ns": 3457
+  },
+  {
+    "variant": "cold",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1352,
+    "parallel_ns": 3828
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1504835,
+    "parallel_ns": 963589
+  },
+  {
+    "variant": "cold",
+    "round": 2,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1499843,
+    "parallel_ns": 933976
+  },
+  {
+    "variant": "before",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61895089,
+    "parallel_ns": 11219250
+  },
+  {
+    "variant": "cold",
+    "round": 2,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61849880,
+    "parallel_ns": 11836345
+  },
+  {
+    "variant": "cold",
+    "round": 3,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1345,
+    "parallel_ns": 2524
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1412,
+    "parallel_ns": 2253
+  },
+  {
+    "variant": "cold",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1471,
+    "parallel_ns": 3845
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1476,
+    "parallel_ns": 3261
+  },
+  {
+    "variant": "cold",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1542593,
+    "parallel_ns": 1108105
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1557237,
+    "parallel_ns": 1177739
+  },
+  {
+    "variant": "cold",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61851975,
+    "parallel_ns": 11091461
+  },
+  {
+    "variant": "before",
+    "round": 3,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61879442,
+    "parallel_ns": 11101339
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 2114,
+    "parallel_ns": 3746
+  },
+  {
+    "variant": "cold",
+    "round": 4,
+    "workload": "tree",
+    "count": 1000,
+    "serial_ns": 1347,
+    "parallel_ns": 2559
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1476,
+    "parallel_ns": 3439
+  },
+  {
+    "variant": "cold",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000,
+    "serial_ns": 1392,
+    "parallel_ns": 3817
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1551124,
+    "parallel_ns": 872671
+  },
+  {
+    "variant": "cold",
+    "round": 4,
+    "workload": "tree-err",
+    "count": 1000000,
+    "serial_ns": 1523894,
+    "parallel_ns": 923244
+  },
+  {
+    "variant": "before",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 62088760,
+    "parallel_ns": 9604060
+  },
+  {
+    "variant": "cold",
+    "round": 4,
+    "workload": "compute",
+    "count": 1000003,
+    "serial_ns": 61930550,
+    "parallel_ns": 9629847
+  }
+]

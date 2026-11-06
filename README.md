@@ -225,6 +225,7 @@ zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
 zig build bench-compute -- 1000000 pin   # exercise pin_workers
 zig build bench-micro
+zig build bench-micro -- 1000 8       # paired callback-shape overhead
 zig build bench-irregular -- 200000 8 9 mixed
 taskset -c 0,2,4,6,8,10,12,14 zig build bench-irregular \
     -Doptimize=ReleaseFast -- 200000 8 9 skewed
@@ -326,3 +327,11 @@ CPU list. The caller keeps its existing affinity.
 The scheduler core is derived from judofyr/spice, distributed under the
 BSD Zero Clause License (0BSD), Copyright (c) 2024 Magnus Holm. See
 `LICENSE.txt`.
+
+Concurrent `SpscQueue.len()` snapshots are approximate and bounded by capacity.
+`TreiberStack.len()` includes pushes that have reserved their count before
+publishing their node; it is exact after operations have finished.
+
+`bench-micro` accepts `[nodes] [lanes]`, disables heartbeat sharing, verifies
+every plain/error-union result, alternates each path with serial traversal,
+and reports paired medians. Lanes 1 exercises zero-background-worker fallback.

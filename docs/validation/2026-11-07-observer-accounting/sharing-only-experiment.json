@@ -1,0 +1,242 @@
+[
+  {
+    "variant": "before",
+    "workload": "tree",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1533,
+    "parallel_ns": 2537
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1972,
+    "parallel_ns": 3798
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1880,
+    "parallel_ns": 4847
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 0,
+    "serial_ns": 1400,
+    "parallel_ns": 3476
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 0,
+    "serial_ns": 1634622,
+    "parallel_ns": 898901
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 0,
+    "serial_ns": 1562385,
+    "parallel_ns": 894444
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1441,
+    "parallel_ns": 2332
+  },
+  {
+    "variant": "before",
+    "workload": "tree",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1380,
+    "parallel_ns": 2265
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1862,
+    "parallel_ns": 4810
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 1,
+    "serial_ns": 1476,
+    "parallel_ns": 3548
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 1,
+    "serial_ns": 1544769,
+    "parallel_ns": 983695
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 1,
+    "serial_ns": 1818993,
+    "parallel_ns": 950320
+  },
+  {
+    "variant": "before",
+    "workload": "tree",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 1452,
+    "parallel_ns": 2381
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 2048,
+    "parallel_ns": 3797
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 1745,
+    "parallel_ns": 5079
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 2,
+    "serial_ns": 1429,
+    "parallel_ns": 3617
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 2,
+    "serial_ns": 1601705,
+    "parallel_ns": 939313
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 2,
+    "serial_ns": 1639997,
+    "parallel_ns": 896414
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1845,
+    "parallel_ns": 3806
+  },
+  {
+    "variant": "before",
+    "workload": "tree",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1467,
+    "parallel_ns": 2315
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1429,
+    "parallel_ns": 3428
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 3,
+    "serial_ns": 1422,
+    "parallel_ns": 3481
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 3,
+    "serial_ns": 1541611,
+    "parallel_ns": 892513
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 3,
+    "serial_ns": 1592882,
+    "parallel_ns": 866806
+  },
+  {
+    "variant": "before",
+    "workload": "tree",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 2052,
+    "parallel_ns": 4145
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 1420,
+    "parallel_ns": 2317
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 1775,
+    "parallel_ns": 4832
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000,
+    "round": 4,
+    "serial_ns": 1880,
+    "parallel_ns": 5288
+  },
+  {
+    "variant": "before",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 4,
+    "serial_ns": 1648474,
+    "parallel_ns": 916492
+  },
+  {
+    "variant": "sharing",
+    "workload": "tree-err",
+    "count": 1000000,
+    "round": 4,
+    "serial_ns": 1578516,
+    "parallel_ns": 910994
+  }
+]

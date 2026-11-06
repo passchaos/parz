@@ -94,6 +94,7 @@ pub fn build(b: *std.Build) void {
     });
     const micro = b.addExecutable(.{ .name = "parz-micro", .root_module = micro_mod });
     const run_micro = b.addRunArtifact(micro);
+    if (b.args) |args| run_micro.addArgs(args);
     const bench_micro_step = b.step("bench-micro", "Run the fork/join micro benchmark");
     bench_micro_step.dependOn(&run_micro.step);
 

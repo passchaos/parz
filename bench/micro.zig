@@ -5,6 +5,7 @@
 
 const std = @import("std");
 const parz = @import("parz");
+const timing = @import("timing.zig");
 
 const Node = struct {
     value: i64,
@@ -61,9 +62,22 @@ fn errParallel(task: *parz.Task(void), node: *const Node) anyerror!i64 {
     return result;
 }
 
-fn now(io: std.Io) std.Io.Clock.Timestamp {
-    return std.Io.Clock.Timestamp.now(io, .awake);
-}
+const Run = struct {
+    node: *const Node,
+    caller: *parz.Worker(void),
+
+    fn serial(self: *@This()) !i64 {
+        return serialSum(self.node);
+    }
+    fn plain(self: *@This()) !i64 {
+        var task = self.caller.begin();
+        return task.call(i64, plainParallel, self.node);
+    }
+    fn fallible(self: *@This()) !i64 {
+        var task = self.caller.begin();
+        return task.call(anyerror!i64, errParallel, self.node);
+    }
+};
 
 fn buildTree(allocator: std.mem.Allocator, node_count: usize) ![]Node {
     const nodes = try allocator.alloc(Node, node_count);
@@ -79,13 +93,18 @@ pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
     const io = init.io;
 
-    const node_count = 100_000;
+    var args = try std.process.Args.Iterator.initAllocator(init.minimal.args, allocator);
+    defer args.deinit();
+    _ = args.next();
+    const node_count = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 100_000;
+    const lanes = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 0;
+    if (node_count == 0) return;
     const nodes = try buildTree(allocator, node_count);
     defer allocator.free(nodes);
 
     var pool = try parz.Pool(void).init(allocator, io, .{
-        .workers = 0,
-        .max_workers = 64,
+        .workers = if (lanes > 1) lanes - 1 else 0,
+        .max_workers = if (lanes == 1) 0 else 64,
         .max_callers = 1,
         .max_execute_states = 4096,
         .worker_stack_size = 2 * 1024 * 1024,
@@ -97,32 +116,11 @@ pub fn main(init: std.process.Init) !void {
     const caller = pool.claimCaller() orelse return error.NoCallerSlot;
     defer pool.releaseCaller(caller);
 
-    var serial_best: i96 = std.math.maxInt(i96);
-    var plain_best: i96 = std.math.maxInt(i96);
-    var err_best: i96 = std.math.maxInt(i96);
-    var checksum: i64 = 0;
-
-    for (0..9) |_| {
-        var start = now(io);
-        checksum = serialSum(&nodes[0]);
-        const t = start.untilNow(io).raw.toNanoseconds();
-        if (t < serial_best) serial_best = t;
-
-        start = now(io);
-        var task = caller.begin();
-        checksum +%= task.call(i64, plainParallel, &nodes[0]);
-        const p = start.untilNow(io).raw.toNanoseconds();
-        if (p < plain_best) plain_best = p;
-
-        start = now(io);
-        task = caller.begin();
-        checksum +%= try task.call(anyerror!i64, errParallel, &nodes[0]);
-        const e = start.untilNow(io).raw.toNanoseconds();
-        if (e < err_best) err_best = e;
-    }
-
-    std.debug.print(
-        "checksum={d} serial_ns={d} plain_ns={d} err_ns={d}\n",
-        .{ checksum, serial_best, plain_best, err_best },
-    );
+    var run = Run{ .node = &nodes[0], .caller = caller };
+    std.debug.print("micro nodes={d} workers={d} checksum={d} callback=plain\n", .{ node_count, pool.spawned_background, node_count });
+    const plain = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.plain);
+    std.debug.print("micro callback=plain serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n", .{ plain.serial_ns, plain.parallel_ns, plain.speedup() });
+    std.debug.print("micro nodes={d} workers={d} checksum={d} callback=error-union\n", .{ node_count, pool.spawned_background, node_count });
+    const fallible = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.fallible);
+    std.debug.print("micro callback=error-union serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n", .{ fallible.serial_ns, fallible.parallel_ns, fallible.speedup() });
 }
