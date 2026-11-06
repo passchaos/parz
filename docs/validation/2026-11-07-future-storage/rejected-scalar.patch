@@ -1,0 +1,19 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -618,0 +619 @@
++        const Payload = if (payload_size == 16) u128 else [payload_size]u8;
+@@ -623 +624 @@
+-        payload: [payload_size]u8 align(payload_align) = undefined,
++        payload: Payload align(payload_align) = undefined,
+@@ -627 +628 @@
+-            @memcpy(std.mem.asBytes(&input), self.payload[0..@sizeOf(Input)]);
++            @memcpy(std.mem.asBytes(&input), std.mem.asBytes(&self.payload)[0..@sizeOf(Input)]);
+@@ -632 +633 @@
+-            @memcpy(self.payload[0..@sizeOf(Input)], std.mem.asBytes(&input));
++            @memcpy(std.mem.asBytes(&self.payload)[0..@sizeOf(Input)], std.mem.asBytes(&input));
+@@ -637 +638 @@
+-            @memcpy(std.mem.asBytes(&output), self.payload[0..@sizeOf(Output)]);
++            @memcpy(std.mem.asBytes(&output), std.mem.asBytes(&self.payload)[0..@sizeOf(Output)]);
+@@ -642 +643 @@
+-            @memcpy(self.payload[0..@sizeOf(Output)], std.mem.asBytes(&output));
++            @memcpy(std.mem.asBytes(&self.payload)[0..@sizeOf(Output)], std.mem.asBytes(&output));

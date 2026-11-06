@@ -1,0 +1,24 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -617 +616,0 @@
+-        const payload_size = @max(@sizeOf(Input), @sizeOf(Output));
+@@ -618,0 +618,4 @@
++        const Payload = extern union {
++            input: [@sizeOf(Input)]u8,
++            output: [@sizeOf(Output)]u8,
++        };
+@@ -623 +626 @@
+-        payload: [payload_size]u8 align(payload_align) = undefined,
++        payload: Payload align(payload_align) = undefined,
+@@ -627 +630 @@
+-            @memcpy(std.mem.asBytes(&input), self.payload[0..@sizeOf(Input)]);
++            @memcpy(std.mem.asBytes(&input), &self.payload.input);
+@@ -632 +635 @@
+-            @memcpy(self.payload[0..@sizeOf(Input)], std.mem.asBytes(&input));
++            @memcpy(&self.payload.input, std.mem.asBytes(&input));
+@@ -637 +640 @@
+-            @memcpy(std.mem.asBytes(&output), self.payload[0..@sizeOf(Output)]);
++            @memcpy(std.mem.asBytes(&output), &self.payload.output);
+@@ -642 +645 @@
+-            @memcpy(self.payload[0..@sizeOf(Output)], std.mem.asBytes(&output));
++            @memcpy(&self.payload.output, std.mem.asBytes(&output));

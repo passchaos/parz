@@ -1,0 +1,6 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -632,0 +633,3 @@
++            // The output is inactive until execution replaces it. Mark bytes
++            // beyond the input undefined instead of preserving constructor data.
++            @memset(self.payload[@sizeOf(Input)..], undefined);

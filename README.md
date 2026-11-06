@@ -369,6 +369,8 @@ records the aligned controls and rejected register-return experiments.
 `check-worker-layout` reports the actual compiler layout for ordinary and
 overaligned contexts. [Worker layout experiments](docs/validation/2026-11-07-worker-layout/README.md)
 did not establish a stable padding benefit, so the compact worker layout is retained.
+Three [Future storage trials](docs/validation/2026-11-07-future-storage/README.md)
+emitted identical executable code; the byte-array payload remains in use.
 
 Optional NUMA-backed allocation:
 

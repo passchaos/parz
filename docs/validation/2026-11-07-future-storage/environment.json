@@ -1,0 +1,34 @@
+{
+  "captured_at_utc": "2026-11-06T22:16:41.117912+00:00",
+  "baseline_commit": "d3d41bb18dda7666dab0c8855bdf54a9b34b4816",
+  "zig_version": "0.16.0",
+  "loadavg": "10.91 10.78 9.97 9/2139 3258766",
+  "cpus": "24-31",
+  "caller_cpu": 31,
+  "background_cpus": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+  ],
+  "source_sha256": {
+    "src/core.zig": "dd9c77af026aeb7ec9a1ee62e5cc1bdce6a4a85075aa780fe13254db3a13dca9",
+    "bench/micro.zig": "26acf978b5715929e80c6ba7cfb0082725f4585ed30284df40de3d2de0b82600",
+    "bench/tree_sum.zig": "1cbefd57a01bda204747f85ebb9d280a51e14c61c42d33b192e71bbadf0a072e"
+  },
+  "machine_text": {
+    "baseline": "abbcd0e913050ad4d7bb4dfa164b9eed5d4c66b8e2811e402e43147958bcfd54",
+    "union": "abbcd0e913050ad4d7bb4dfa164b9eed5d4c66b8e2811e402e43147958bcfd54",
+    "undefined-tail": "abbcd0e913050ad4d7bb4dfa164b9eed5d4c66b8e2811e402e43147958bcfd54",
+    "scalar": "abbcd0e913050ad4d7bb4dfa164b9eed5d4c66b8e2811e402e43147958bcfd54"
+  },
+  "binary_sha256": {
+    "baseline": "d940c4dfef66e216e035bb4c15ff5f188d36f7e2dc77070f1ee718f2f8ac8c64",
+    "union": "4b43b32be326b36ab6c686c5f087807d5f24d2b907d08e8ad8e6482b7230257a",
+    "undefined-tail": "9f30a785f0b71538d3eaf4e02dd55150d56a448058bb04f9d667bf4c47090f10",
+    "scalar": "0510a79b5f891f892826db57ff5524142b9381328e2b9b3ab2e576d5b83706ac"
+  }
+}
