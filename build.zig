@@ -56,6 +56,21 @@ pub fn build(b: *std.Build) void {
     const bench_for_step = b.step("bench-parallel-for", "Run the flat parallel-for benchmark");
     bench_for_step.dependOn(&run_for_bench.step);
 
+    const for_2d_mod = b.createModule(.{
+        .root_source_file = b.path("bench/parallel_for_2d.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const for_2d_bench = b.addExecutable(.{
+        .name = "parz-parallel-for-2d",
+        .root_module = for_2d_mod,
+    });
+    const run_for_2d_bench = b.addRunArtifact(for_2d_bench);
+    if (b.args) |args| run_for_2d_bench.addArgs(args);
+    const bench_for_2d_step = b.step("bench-2d", "Run the 2D parallel-for benchmark");
+    bench_for_2d_step.dependOn(&run_for_2d_bench.step);
+
     const compute_mod = b.createModule(.{
         .root_source_file = b.path("bench/compute.zig"),
         .target = target,
@@ -97,6 +112,7 @@ pub fn build(b: *std.Build) void {
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);
+    bench_step.dependOn(bench_for_2d_step);
     bench_step.dependOn(bench_compute_step);
     bench_step.dependOn(bench_micro_step);
     bench_step.dependOn(bench_sync_step);
