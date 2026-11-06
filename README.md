@@ -190,6 +190,9 @@ SPICE_DIR=/tmp/spice python3 bench/compare/run_compare.py --rounds 5 --lanes 32
 # WASM compile-only check. The std.Io blocking primitives need atomics.
 zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics \
     -OReleaseSafe --test-no-exec
+
+# ThreadSanitizer validation for scheduler/sync changes.
+zig test src/root.zig -fsanitize-thread -OReleaseSafe
 ```
 
 See `bench/compare/README.md` for the comparison methodology and fairness

@@ -103,7 +103,7 @@ pub const Job = struct {
     /// Append an already-detached job to a shared list.
     pub fn pushShared(self: *Job, tail: **Job) void {
         self.next_or_null = null;
-        tail.*.next_or_null = @ptrCast(self);
+        @atomicStore(?*anyopaque, &tail.*.next_or_null, @ptrCast(self), .release);
         // The release store publishes the handler, the next link, and the
         // shared tag on the previous pointer.
         @atomicStore(
@@ -158,7 +158,7 @@ pub const Job = struct {
     /// Remove the head job from a shared list, including when it is the only
     /// element. The job stays `queued_shared` until an execute state is set.
     pub fn popHead(sentinel: *Job, tail: **Job) ?*Job {
-        const raw = sentinel.next_or_null orelse return null;
+        const raw = @atomicLoad(?*anyopaque, &sentinel.next_or_null, .acquire) orelse return null;
         const job: *Job = @ptrCast(@alignCast(raw));
         std.debug.assert(job.state() == .queued_shared);
 
@@ -167,7 +167,12 @@ pub const Job = struct {
         else
             null;
 
-        sentinel.next_or_null = if (next) |n| @ptrCast(n) else null;
+        @atomicStore(
+            ?*anyopaque,
+            &sentinel.next_or_null,
+            if (next) |n| @as(?*anyopaque, @ptrCast(n)) else null,
+            .release,
+        );
         if (next) |n| {
             @atomicStore(
                 ?*anyopaque,

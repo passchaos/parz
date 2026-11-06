@@ -43,6 +43,8 @@ iterator algebra; `imx` already chose direct callbacks for a reason.
   runs, identical output).
 - Every fallback change needs a zero-worker test.
 - Validate with `zig build test` and `zig build test -Doptimize=ReleaseSafe`.
+- For scheduler/sync concurrency changes, also run
+  `zig test src/root.zig -fsanitize-thread -OReleaseSafe`.
 - Benchmark claims require fixed input, fixed CPU, and alternating serial /
   parallel runs. Report `serial_ns`, `parallel_ns`, and `speedup`, and always
   verify the checksum first.
