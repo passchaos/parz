@@ -105,6 +105,17 @@ fn sum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
 `Task.call` must be used for recursive calls; direct calls bypass heartbeat
 checks and the caller-fallback protocol.
 
+Correctness rules:
+
+- A `Future` must be joined by the same task that forked it. It lives on that
+  task's stack and its job is linked into that task's local list.
+- `fork` must be followed by `join`/`tryJoin`/`joinOrCall`; do not drop a
+  forked future.
+- `Task.call` is the only legal way to invoke a recursive parallel function.
+- A worker context is owned by its lane. Do not share it across lanes or keep
+  pointers into it after the callback returns.
+- `deinit` requires all caller slots released and no active flat call.
+
 ## Per-worker context
 
 ```zig
