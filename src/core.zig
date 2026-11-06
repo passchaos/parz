@@ -539,9 +539,9 @@ pub fn Worker(comptime Ctx: type) type {
         /// Cheap hot-path check. Only a heartbeat or an explicit kickstart
         /// lets work leave the local list, so tiny workloads stay serial.
         pub inline fn tick(self: *Self) void {
-            if (!self.active) return;
-            // Plain atomic load: only the heartbeat thread writes `heartbeat`,
-            // so no read-modify-write barrier is needed on the hot path.
+            // Inactive workers never have `heartbeat` set (the heartbeat
+            // thread skips them and releaseCaller clears the flag), so the
+            // atomic load is sufficient here.
             if (!self.heartbeat.load(.monotonic)) return;
             self.heartbeat.store(false, .monotonic);
             self.maybeShare();
