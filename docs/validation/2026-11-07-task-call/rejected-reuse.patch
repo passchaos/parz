@@ -1,0 +1,39 @@
+diff --git a/src/core.zig b/src/core.zig
+index ce84b22..31e6fa6 100644
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -584,27 +584,28 @@ pub fn Task(comptime Ctx: type) type {
+             comptime func: anytype,
+             arg: anytype,
+         ) R {
+-            return callWithContext(Ctx, self.worker, R, func, arg);
++            return callWithTask(Ctx, self, R, func, arg);
+         }
+     };
+ }
+ 
+-fn callWithContext(
++fn callWithTask(
+     comptime Ctx: type,
+-    worker: *Worker(Ctx),
++    task: *Task(Ctx),
+     comptime R: type,
+     comptime func: anytype,
+     arg: anytype,
+ ) R {
+-    var task = Task(Ctx){ .worker = worker };
++    const worker = task.worker;
++    defer task.worker = worker;
+     task.tick();
+     // Error-union returns are passed indirectly by LLVM when forced inline,
+     // which costs more than the register-passing win. Let the optimizer decide
+     // for those and keep the forced-inline fast path for plain values.
+     if (comptime @typeInfo(R) == .error_union) {
+-        return func(&task, arg);
++        return func(task, arg);
+     }
+-    return @call(.always_inline, func, .{ &task, arg });
++    return @call(.always_inline, func, .{ task, arg });
+ }
+ 
+ /// A single-use fork/join slot. `fork` requires pending storage initialized

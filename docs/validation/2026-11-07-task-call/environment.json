@@ -1,0 +1,11 @@
+{
+  "baseline_commit": "ea34b6ec29a4888b8031c5e363b56a645bd79b57",
+  "zig_version": "0.16.0",
+  "loadavg": "6.53 6.98 6.75 6/2079 894903",
+  "binary_sha256": {
+    "baseline-tree_sum": "2d5568c79d58840183f138030182229ff471050f649381aaab207bd34d777214",
+    "baseline-micro": "e09fe73de2a7e88a08c3048ec811e207a7d38607feaa08a5388cad2823b9b43c",
+    "reuse-micro": "80d7ab1c0d1afa1c8312f65f94621c6bf94d0b7cc1464382894e24eb96716e7c",
+    "reuse-tree_sum": "8debc7074e4e735c5471d9e32e193cb3720d6f676e4a6eaf4b750f4e1e756155"
+  }
+}

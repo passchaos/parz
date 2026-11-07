@@ -1,0 +1,194 @@
+[
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 1640,
+    "parallel_ns": 3380,
+    "speedup": 0.485
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1506,
+    "parallel_ns": 3308,
+    "speedup": 0.455
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 1519,
+    "parallel_ns": 3254,
+    "speedup": 0.467
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 1765398,
+    "parallel_ns": 774720,
+    "speedup": 2.279
+  },
+  {
+    "round": 0,
+    "variant": "reuse",
+    "workload": "plain",
+    "serial_ns": 1830,
+    "parallel_ns": 3073,
+    "speedup": 0.596
+  },
+  {
+    "round": 0,
+    "variant": "reuse",
+    "workload": "error-union",
+    "serial_ns": 1818,
+    "parallel_ns": 3507,
+    "speedup": 0.518
+  },
+  {
+    "round": 0,
+    "variant": "reuse",
+    "workload": "1000",
+    "serial_ns": 1479,
+    "parallel_ns": 3320,
+    "speedup": 0.445
+  },
+  {
+    "round": 0,
+    "variant": "reuse",
+    "workload": "1000000",
+    "serial_ns": 1721842,
+    "parallel_ns": 799457,
+    "speedup": 2.154
+  },
+  {
+    "round": 1,
+    "variant": "reuse",
+    "workload": "plain",
+    "serial_ns": 1893,
+    "parallel_ns": 2885,
+    "speedup": 0.656
+  },
+  {
+    "round": 1,
+    "variant": "reuse",
+    "workload": "error-union",
+    "serial_ns": 1921,
+    "parallel_ns": 3463,
+    "speedup": 0.555
+  },
+  {
+    "round": 1,
+    "variant": "reuse",
+    "workload": "1000",
+    "serial_ns": 1469,
+    "parallel_ns": 3313,
+    "speedup": 0.443
+  },
+  {
+    "round": 1,
+    "variant": "reuse",
+    "workload": "1000000",
+    "serial_ns": 1714869,
+    "parallel_ns": 817008,
+    "speedup": 2.099
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 2017,
+    "parallel_ns": 3302,
+    "speedup": 0.611
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1929,
+    "parallel_ns": 3231,
+    "speedup": 0.597
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 1533,
+    "parallel_ns": 3140,
+    "speedup": 0.488
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 1994706,
+    "parallel_ns": 765604,
+    "speedup": 2.605
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 2008,
+    "parallel_ns": 3356,
+    "speedup": 0.598
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1495,
+    "parallel_ns": 3285,
+    "speedup": 0.455
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 1507,
+    "parallel_ns": 3217,
+    "speedup": 0.468
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 1858416,
+    "parallel_ns": 739900,
+    "speedup": 2.512
+  },
+  {
+    "round": 2,
+    "variant": "reuse",
+    "workload": "plain",
+    "serial_ns": 1544,
+    "parallel_ns": 3007,
+    "speedup": 0.513
+  },
+  {
+    "round": 2,
+    "variant": "reuse",
+    "workload": "error-union",
+    "serial_ns": 1486,
+    "parallel_ns": 3439,
+    "speedup": 0.432
+  },
+  {
+    "round": 2,
+    "variant": "reuse",
+    "workload": "1000",
+    "serial_ns": 1484,
+    "parallel_ns": 3574,
+    "speedup": 0.415
+  },
+  {
+    "round": 2,
+    "variant": "reuse",
+    "workload": "1000000",
+    "serial_ns": 1834391,
+    "parallel_ns": 799135,
+    "speedup": 2.295
+  }
+]
