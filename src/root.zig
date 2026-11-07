@@ -3,7 +3,7 @@
 //! Public surface:
 //! - `Pool(Ctx)` / `Worker(Ctx)` / `Task(Ctx)` / `Future(Ctx, Input, Output)`
 //! - `parallelFor`, `parallelForEach`, `parallelForRange`, `parallelFold`,
-//!   `parallelReduce`
+//!   `parallelFoldRange`, `parallelReduce`
 //!
 //! The scheduler core is derived from judofyr/spice (0BSD). The flat loop
 //! APIs, error propagation, per-worker context, deterministic combine, and
@@ -32,6 +32,8 @@ pub const parallelForRange = parallel.parallelForRange;
 pub const parallelFor2D = parallel.parallelFor2D;
 pub const parallelFold = parallel.parallelFold;
 pub const parallelFoldInfallible = parallel.parallelFoldInfallible;
+pub const parallelFoldRange = parallel.parallelFoldRange;
+pub const parallelFoldRangeInfallible = parallel.parallelFoldRangeInfallible;
 pub const parallelReduce = parallel.parallelReduce;
 pub const parallelReduceInfallible = parallel.parallelReduceInfallible;
 

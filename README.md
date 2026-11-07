@@ -22,8 +22,9 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - `tryJoin` / `result` for large or error-union payloads without materializing
   `?Output`.
 - `parallelFor`, `parallelForEach`, `parallelForRange`, `parallelFold`,
-  `parallelFoldInfallible`, `parallelReduce` with deterministic chunk-index
-  combination.
+  `parallelFoldInfallible`, `parallelFoldRange`,
+  `parallelFoldRangeInfallible`, `parallelReduce` with deterministic
+  chunk-index combination.
 - Uncancelled infallible folds use plain-value chunk results and callbacks,
   reducing dispatch storage while preserving the same chunk planning.
 - `CancelToken` with cooperative cancellation checked at chunk entry/exit,
@@ -120,6 +121,19 @@ const total_infallible = try parz.parallelFoldInfallible(
     &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, Map.map, Add.combine,
 );
 
+// Let a direct, potentially vectorized kernel reduce each planned range.
+const RangeMap = struct {
+    fn map(_: *parz.Worker(void), values: []const u64, chunk: parz.Chunk) u64 {
+        var subtotal: u64 = 0;
+        for (values[chunk.start..chunk.end]) |value| subtotal +%= value;
+        return subtotal;
+    }
+};
+const total_by_range = try parz.parallelFoldRangeInfallible(
+    &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0,
+    RangeMap.map, Add.combine,
+);
+
 // Cooperative cancellation. Nonempty flat calls check chunk entry/exit and
 // successful completion; index loops also check every 4096 items.
 var token = parz.CancelToken{};
@@ -166,6 +180,13 @@ For folds, `combine` needs an associative operation and a valid identity to
 match serial results across different chunk configurations. Chunk-index
 combination preserves order; floating-point addition can still change with
 chunk boundaries because it is not associative.
+
+Range folds invoke the callback once per planned nonempty `Chunk`, allowing
+the callback to use a direct inner loop, SIMD, or domain-specific kernel.
+Fallible and infallible forms preserve chunk-index result/error ordering. A
+serial fallback invokes the range callback once for the complete input. Entry
+and exit cancellation checks remain automatic; a long-running range callback
+should check its token internally when lower cancellation latency is needed.
 
 Correctness rules:
 
@@ -342,6 +363,12 @@ calls with a non-cancelled token and records dispatch allocations. Arguments
 are workload (`scan` or `compute`), count, lanes, caller CPU, minimum chunk,
 chunks per worker, and rounds. [Pure-value fold evidence](docs/validation/2026-11-07-infallible-value-dispatch/README.md)
 includes fixed-CPU comparisons and the before/after allocation-failure fixture.
+
+`parallelFoldRange` and `parallelFoldRangeInfallible` expose each planned
+chunk to a direct callback while keeping deterministic ordered combination.
+The fixed-CPU SIMD comparison and full fallback/cancellation validation are
+recorded in
+[the range-fold report](docs/validation/2026-11-07-range-fold/README.md).
 
 `bench-mpsc-batch` compares scalar and slice transfers using fixed prebuilt
 input, checks per-producer FIFO as well as the checksum, and alternates both

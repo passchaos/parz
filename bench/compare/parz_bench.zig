@@ -277,8 +277,23 @@ fn serialCompute(count: usize) u64 {
     return total;
 }
 
+const FlatRangeMap = struct {
+    fn map(_: *parz.Worker(void), data: []const u64, chunk: parz.Chunk) u64 {
+        const Vec = @Vector(8, u64);
+        var vectors: Vec = @splat(0);
+        var index = chunk.start;
+        while (chunk.end - index >= 8) : (index += 8) {
+            const values: Vec = data[index..][0..8].*;
+            vectors +%= values;
+        }
+        var total = @reduce(.Add, vectors);
+        for (data[index..chunk.end]) |value| total +%= value;
+        return total;
+    }
+};
+
 const FlatMap = struct {
-    fn map(_: *parz.Worker(void), data: []const u64, index: usize) anyerror!u64 {
+    fn map(_: *parz.Worker(void), data: []const u64, index: usize) u64 {
         return data[index];
     }
 };
@@ -286,6 +301,14 @@ const FlatMap = struct {
 const ComputeMap = struct {
     fn map(_: *parz.Worker(void), _: void, index: usize) anyerror!u64 {
         return work(index);
+    }
+};
+
+const ComputeRangeMap = struct {
+    fn map(_: *parz.Worker(void), _: void, chunk: parz.Chunk) u64 {
+        var total: u64 = 0;
+        for (chunk.start..chunk.end) |index| total +%= work(index);
+        return total;
     }
 };
 
@@ -586,7 +609,8 @@ pub fn main(init: std.process.Init) !void {
         return;
     }
 
-    if (std.mem.eql(u8, workload, "flat")) {
+    if (std.mem.eql(u8, workload, "flat") or std.mem.eql(u8, workload, "flat-element")) {
+        const use_range = std.mem.eql(u8, workload, "flat");
         const data = try allocator.alloc(u64, count);
         defer allocator.free(data);
         for (data, 0..) |*value, index| value.* = index;
@@ -603,16 +627,28 @@ pub fn main(init: std.process.Init) !void {
             if (t_serial < serial_best) serial_best = t_serial;
 
             start = now(io);
-            parallel_result = try parz.parallelFold(
-                &pool,
-                u64,
-                data,
-                count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
-                0,
-                FlatMap.map,
-                add,
-            );
+            parallel_result = if (use_range)
+                try parz.parallelFoldRangeInfallible(
+                    &pool,
+                    u64,
+                    data,
+                    count,
+                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                    0,
+                    FlatRangeMap.map,
+                    add,
+                )
+            else
+                try parz.parallelFoldInfallible(
+                    &pool,
+                    u64,
+                    data,
+                    count,
+                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                    0,
+                    FlatMap.map,
+                    add,
+                );
             const t_parallel = elapsed(start, io);
             if (serial_result != parallel_result) return error.ChecksumMismatch;
             if (t_parallel < parallel_best) parallel_best = t_parallel;
@@ -622,18 +658,13 @@ pub fn main(init: std.process.Init) !void {
             return error.ChecksumMismatch;
         }
         const speedup = @as(f64, @floatFromInt(serial_best)) / @as(f64, @floatFromInt(parallel_best));
-        std.debug.print("parz flat n={d} lanes={d} serial_ns={d} parallel_ns={d} speedup={d:.2}\n", .{
-            count, lanes, serial_best, parallel_best, speedup,
+        std.debug.print("parz {s} n={d} lanes={d} serial_ns={d} parallel_ns={d} speedup={d:.2}\n", .{
+            workload, count, lanes, serial_best, parallel_best, speedup,
         });
         return;
     }
 
     if (std.mem.eql(u8, workload, "compute-inf")) {
-        const ComputeInfMap = struct {
-            fn map(_: *parz.Worker(void), _: void, index: usize) u64 {
-                return work(index);
-            }
-        };
         var serial_result: u64 = 0;
         var parallel_result: u64 = 0;
         var serial_best: i96 = std.math.maxInt(i96);
@@ -645,14 +676,14 @@ pub fn main(init: std.process.Init) !void {
             if (t_serial < serial_best) serial_best = t_serial;
 
             start = now(io);
-            parallel_result = try parz.parallelFoldInfallible(
+            parallel_result = try parz.parallelFoldRangeInfallible(
                 &pool,
                 u64,
                 {},
                 count,
                 .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
                 0,
-                ComputeInfMap.map,
+                ComputeRangeMap.map,
                 add,
             );
             const t_parallel = elapsed(start, io);

@@ -59,6 +59,9 @@ skipped with a warning.
 - Parz's tree uses its documented remaining-depth grain cutoff: subtrees of
   at most 2047 nodes run through the direct serial kernel. Uncut and
   error-union variants remain available as separate diagnostics.
+- Parz's flat sum uses `parallelFoldRangeInfallible` with a portable
+  `@Vector(8, u64)` chunk kernel. `flat-element` retains the ordinary
+  per-element infallible fold as a code-generation diagnostic.
 - OpenMP's tree uses `#pragma omp task` with a depth cutoff of 8. Its flat and
   compute loops use `parallel for reduction(static)`.
 - GCC is compiled with `-fno-tree-vectorize` for the compute workload so its

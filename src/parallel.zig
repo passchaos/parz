@@ -185,6 +185,119 @@ pub fn parallelForRange(
     try checkCancel(options.cancel);
 }
 
+/// Deterministic ordered fold over planned ranges. `map_range` is invoked
+/// once per nonempty chunk and may fail. It can use a direct inner loop while
+/// parz retains chunk-index result and error ordering.
+pub fn parallelFoldRange(
+    pool: anytype,
+    comptime T: type,
+    shared: anytype,
+    count: usize,
+    options: Options,
+    identity: T,
+    comptime map_range: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    if (count == 0) return identity;
+
+    const P = @TypeOf(pool.*);
+    const Tm = P.TaskType;
+    const Shared = @TypeOf(shared);
+
+    const Runner = struct {
+        shared: *const Shared,
+        cancel: ?*CancelToken,
+    };
+    const Input = struct {
+        runner: *Runner,
+        chunk: Chunk,
+    };
+    const Exec = struct {
+        fn exec(t: *Tm, input: Input) anyerror!T {
+            try checkCancel(input.runner.cancel);
+            const result = try map_range(t.worker, input.runner.shared.*, input.chunk);
+            try checkCancel(input.runner.cancel);
+            return result;
+        }
+    };
+
+    var runner = Runner{ .shared = &shared, .cancel = options.cancel };
+    if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
+        return serialFoldRange(pool, T, shared, count, options.cancel, identity, map_range, combine);
+    }
+    const caller = pool.claimCaller() orelse {
+        return serialFoldRange(pool, T, shared, count, options.cancel, identity, map_range, combine);
+    };
+    defer pool.releaseCaller(caller);
+    var task = caller.begin();
+
+    const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    try checkCancel(options.cancel);
+    return result;
+}
+
+/// Infallible range fold. Without a cancellation token, both the range
+/// callback and dispatch results use plain values.
+pub fn parallelFoldRangeInfallible(
+    pool: anytype,
+    comptime T: type,
+    shared: anytype,
+    count: usize,
+    options: Options,
+    identity: T,
+    comptime map_range: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    if (count == 0) return identity;
+
+    const P = @TypeOf(pool.*);
+    const Tm = P.TaskType;
+    const Shared = @TypeOf(shared);
+
+    const Runner = struct {
+        shared: *const Shared,
+        cancel: ?*CancelToken,
+    };
+    const Input = struct {
+        runner: *Runner,
+        chunk: Chunk,
+    };
+    const Exec = struct {
+        fn exec(t: *Tm, input: Input) anyerror!T {
+            try checkCancel(input.runner.cancel);
+            const result = map_range(t.worker, input.runner.shared.*, input.chunk);
+            try checkCancel(input.runner.cancel);
+            return result;
+        }
+    };
+    const ExecValue = struct {
+        fn exec(t: *Tm, input: Input) T {
+            return map_range(t.worker, input.runner.shared.*, input.chunk);
+        }
+    };
+
+    var runner = Runner{ .shared = &shared, .cancel = options.cancel };
+    if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
+        return serialFoldRangeInfallible(pool, T, shared, count, options.cancel, identity, map_range, combine);
+    }
+    const caller = pool.claimCaller() orelse {
+        return serialFoldRangeInfallible(pool, T, shared, count, options.cancel, identity, map_range, combine);
+    };
+    defer pool.releaseCaller(caller);
+    var task = caller.begin();
+
+    const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    if (options.cancel == null) {
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, identity, ExecValue.exec, combine);
+    }
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    try checkCancel(options.cancel);
+    return result;
+}
+
 /// Deterministic ordered fold. Each chunk accumulates with `combine`; the
 /// caller then combines chunk results in index order. `map` may fail.
 pub fn parallelFold(
@@ -603,6 +716,48 @@ fn serialFoldInfallible(
     }
     try checkCancel(cancel);
     return total;
+}
+
+fn serialFoldRange(
+    pool: anytype,
+    comptime T: type,
+    shared: anytype,
+    count: usize,
+    cancel: ?*CancelToken,
+    identity: T,
+    comptime map_range: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    const P = @TypeOf(pool.*);
+    const W = P.WorkerType;
+    try checkCancel(cancel);
+    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
+    defer pool.destroyTempContext(&temp.ctx);
+    try checkCancel(cancel);
+    const value = try map_range(&temp, shared, .{ .start = 0, .end = count });
+    try checkCancel(cancel);
+    return combine(identity, value);
+}
+
+fn serialFoldRangeInfallible(
+    pool: anytype,
+    comptime T: type,
+    shared: anytype,
+    count: usize,
+    cancel: ?*CancelToken,
+    identity: T,
+    comptime map_range: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    const P = @TypeOf(pool.*);
+    const W = P.WorkerType;
+    try checkCancel(cancel);
+    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
+    defer pool.destroyTempContext(&temp.ctx);
+    try checkCancel(cancel);
+    const value = map_range(&temp, shared, .{ .start = 0, .end = count });
+    try checkCancel(cancel);
+    return combine(identity, value);
 }
 
 test "parallelForRange partitions uneven counts into nonempty ordered ranges" {
@@ -1047,6 +1202,108 @@ test "parallelFold is deterministic and ordered" {
     try std.testing.expectEqual(expected, total);
 }
 
+test "range folds preserve deterministic chunk-index order across worker counts" {
+    const Sequence = struct {
+        hash: u64 = 0,
+        factor: u64 = 1,
+
+        fn combine(a: @This(), b: @This()) @This() {
+            return .{ .hash = a.hash *% b.factor +% b.hash, .factor = a.factor *% b.factor };
+        }
+        fn range(_: *core.Worker(void), _: void, chunk: Chunk) @This() {
+            var result = @This(){};
+            for (chunk.start..chunk.end) |index| {
+                result = combine(result, .{ .hash = index + 1, .factor = 31 });
+            }
+            return result;
+        }
+        fn fallible(w: *core.Worker(void), shared: void, chunk: Chunk) anyerror!@This() {
+            return range(w, shared, chunk);
+        }
+    };
+    const count = 37;
+    var expected = Sequence{};
+    for (0..count) |index| {
+        expected = Sequence.combine(expected, .{ .hash = index + 1, .factor = 31 });
+    }
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for (0..5) |_| {
+            const options = Options{ .min_chunk = 3, .max_chunks = 7, .chunks_per_worker = 3, .serial_threshold = 0 };
+            try std.testing.expectEqualDeep(expected, try parallelFoldRange(
+                &pool,
+                Sequence,
+                {},
+                count,
+                options,
+                .{},
+                Sequence.fallible,
+                Sequence.combine,
+            ));
+            try std.testing.expectEqualDeep(expected, try parallelFoldRangeInfallible(
+                &pool,
+                Sequence,
+                {},
+                count,
+                options,
+                .{},
+                Sequence.range,
+                Sequence.combine,
+            ));
+        }
+        const serial_options = Options{ .serial_threshold = count + 1 };
+        try std.testing.expectEqualDeep(expected, try parallelFoldRange(&pool, Sequence, {}, count, serial_options, .{}, Sequence.fallible, Sequence.combine));
+        try std.testing.expectEqualDeep(expected, try parallelFoldRangeInfallible(&pool, Sequence, {}, count, serial_options, .{}, Sequence.range, Sequence.combine));
+    }
+}
+
+test "range fold errors are selected by chunk index" {
+    const Run = struct {
+        fn map(_: *core.Worker(void), _: void, chunk: Chunk) anyerror!u64 {
+            if (chunk.start == 0) return error.FirstChunk;
+            return error.LaterChunk;
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+        fn never(_: *core.Worker(void), _: void, _: Chunk) anyerror!u64 {
+            return error.UnexpectedCallback;
+        }
+        fn neverValue(_: *core.Worker(void), _: void, _: Chunk) u64 {
+            @panic("empty range fold callback must not run");
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        try std.testing.expectEqual(@as(u64, 9), try parallelFoldRange(&pool, u64, {}, 0, .{}, 9, Run.never, Run.add));
+        try std.testing.expectEqual(@as(u64, 11), try parallelFoldRangeInfallible(&pool, u64, {}, 0, .{}, 11, Run.neverValue, Run.add));
+        for (0..5) |_| {
+            try std.testing.expectError(error.FirstChunk, parallelFoldRange(
+                &pool,
+                u64,
+                {},
+                64,
+                .{ .min_chunk = 1, .max_chunks = 8, .chunks_per_worker = 8, .serial_threshold = 0 },
+                0,
+                Run.map,
+                Run.add,
+            ));
+        }
+    }
+}
+
 test "serial fallback worker index matches its context initialization index" {
     const Context = struct {
         index: usize,
@@ -1066,6 +1323,14 @@ test "serial fallback worker index matches its context initialization index" {
         fn value(w: *core.Worker(Context), mismatch: *bool, index: usize) u64 {
             mismatch.* = mismatch.* or w.context().index != w.index;
             return index;
+        }
+        fn rangeMap(w: *core.Worker(Context), _: void, chunk: Chunk) anyerror!u64 {
+            try std.testing.expectEqual(w.context().index, w.index);
+            return (chunk.start + chunk.end - 1) * (chunk.end - chunk.start) / 2;
+        }
+        fn rangeValue(w: *core.Worker(Context), mismatch: *bool, chunk: Chunk) u64 {
+            mismatch.* = mismatch.* or w.context().index != w.index;
+            return (chunk.start + chunk.end - 1) * (chunk.end - chunk.start) / 2;
         }
         fn add(a: u64, b: u64) u64 {
             return a + b;
@@ -1088,6 +1353,8 @@ test "serial fallback worker index matches its context initialization index" {
             try std.testing.expectEqual(@as(u64, 28), try parallelFold(&pool, u64, {}, 8, options, 0, Run.map, Run.add));
             var mismatch = false;
             try std.testing.expectEqual(@as(u64, 28), try parallelFoldInfallible(&pool, u64, &mismatch, 8, options, 0, Run.value, Run.add));
+            try std.testing.expectEqual(@as(u64, 28), try parallelFoldRange(&pool, u64, {}, 8, options, 0, Run.rangeMap, Run.add));
+            try std.testing.expectEqual(@as(u64, 28), try parallelFoldRangeInfallible(&pool, u64, &mismatch, 8, options, 0, Run.rangeValue, Run.add));
             try std.testing.expect(!mismatch);
         }
     }
@@ -1109,6 +1376,12 @@ test "already cancelled serial calls skip temporary context construction" {
             return error.UnexpectedCallback;
         }
         fn value(_: *core.Worker(Context), _: void, _: usize) u64 {
+            @panic("cancelled callback must not run");
+        }
+        fn rangeMap(_: *core.Worker(Context), _: void, _: Chunk) anyerror!u64 {
+            return error.UnexpectedCallback;
+        }
+        fn rangeValue(_: *core.Worker(Context), _: void, _: Chunk) u64 {
             @panic("cancelled callback must not run");
         }
         fn add(a: u64, b: u64) u64 {
@@ -1134,6 +1407,8 @@ test "already cancelled serial calls skip temporary context construction" {
         try std.testing.expectError(error.Cancelled, parallelForRange(&pool, {}, 8, options, Run.range));
         try std.testing.expectError(error.Cancelled, parallelFold(&pool, u64, {}, 8, options, 0, Run.map, Run.add));
         try std.testing.expectError(error.Cancelled, parallelFoldInfallible(&pool, u64, {}, 8, options, 0, Run.value, Run.add));
+        try std.testing.expectError(error.Cancelled, parallelFoldRange(&pool, u64, {}, 8, options, 0, Run.rangeMap, Run.add));
+        try std.testing.expectError(error.Cancelled, parallelFoldRangeInfallible(&pool, u64, {}, 8, options, 0, Run.rangeValue, Run.add));
     }
 }
 
@@ -1203,6 +1478,19 @@ test "serial fallback destroys the mutated worker context" {
             return index;
         }
 
+        fn rangeMap(w: *core.Worker(Context), shared: void, chunk: Chunk) anyerror!u64 {
+            var total: u64 = 0;
+            for (chunk.start..chunk.end) |index| {
+                try run(w, shared, index);
+                total += index;
+            }
+            return total;
+        }
+
+        fn rangeInfallible(w: *core.Worker(Context), shared: void, chunk: Chunk) u64 {
+            return rangeMap(w, shared, chunk) catch @panic("scratch allocation or contents failed");
+        }
+
         fn combine(a: u64, b: u64) u64 {
             return a + b;
         }
@@ -1239,6 +1527,26 @@ test "serial fallback destroys the mutated worker context" {
             options,
             0,
             Run.infallible,
+            Run.combine,
+        ));
+        try std.testing.expectEqual(@as(u64, 28), try parallelFoldRange(
+            &pool,
+            u64,
+            {},
+            8,
+            options,
+            0,
+            Run.rangeMap,
+            Run.combine,
+        ));
+        try std.testing.expectEqual(@as(u64, 28), try parallelFoldRangeInfallible(
+            &pool,
+            u64,
+            {},
+            8,
+            options,
+            0,
+            Run.rangeInfallible,
             Run.combine,
         ));
     }
@@ -1428,6 +1736,9 @@ test "uncancelled infallible fold fits 256 u64 results and lane futures on the s
         fn map(_: *core.Worker(void), _: void, index: usize) u64 {
             return index;
         }
+        fn range(_: *core.Worker(void), _: void, chunk: Chunk) u64 {
+            return (chunk.start + chunk.end - 1) * (chunk.end - chunk.start) / 2;
+        }
         fn add(a: u64, b: u64) u64 {
             return a + b;
         }
@@ -1455,6 +1766,15 @@ test "uncancelled infallible fold fits 256 u64 results and lane futures on the s
                 try std.testing.expectEqual(@as(u64, 8386560), result);
                 try std.testing.expectEqual(allocated, failing.alloc_index);
                 try std.testing.expect(!failing.has_induced_failure);
+                const range_result = try parallelFoldRangeInfallible(&pool, u64, {}, 4096, .{
+                    .min_chunk = 1,
+                    .max_chunks = 256,
+                    .chunks_per_worker = 256,
+                    .serial_threshold = 0,
+                }, 0, Run.range, Run.add);
+                try std.testing.expectEqual(@as(u64, 8386560), range_result);
+                try std.testing.expectEqual(allocated, failing.alloc_index);
+                try std.testing.expect(!failing.has_induced_failure);
                 const caller = pool.claimCaller().?;
                 pool.releaseCaller(caller);
             }
@@ -1472,6 +1792,10 @@ test "infallible value dispatch allocation failures release caller before callba
         }
         fn packet(w: *core.Worker(void), calls: *std.atomic.Value(usize), index: usize) Packet {
             return .{ .words = @splat(map(w, calls, index)) };
+        }
+        fn range(_: *core.Worker(void), calls: *std.atomic.Value(usize), chunk: Chunk) u64 {
+            _ = calls.fetchAdd(1, .monotonic);
+            return (chunk.start + chunk.end - 1) * (chunk.end - chunk.start) / 2;
         }
         fn add(a: u64, b: u64) u64 {
             return a + b;
@@ -1502,6 +1826,15 @@ test "infallible value dispatch allocation failures release caller before callba
     try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
     const caller = pool.claimCaller().?;
     pool.releaseCaller(caller);
+    try std.testing.expectError(error.OutOfMemory, parallelFoldRangeInfallible(&pool, u64, &calls, 4096, .{
+        .min_chunk = 1,
+        .max_chunks = 1024,
+        .chunks_per_worker = 1024,
+        .serial_threshold = 0,
+    }, 0, Run.range, Run.add));
+    try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
+    const after_range = pool.claimCaller().?;
+    pool.releaseCaller(after_range);
     // The value array fits exactly; allocation of lane futures must fail.
     try std.testing.expectError(error.OutOfMemory, parallelFoldInfallible(&pool, Packet, &calls, 64, .{
         .min_chunk = 1,
@@ -1633,6 +1966,22 @@ test "final callback cancellation is observed across flat APIs and serial fallba
             self.visit(index);
             return index;
         }
+        fn rangeMap(_: *core.Worker(void), self: *@This(), chunk: Chunk) anyerror!u64 {
+            var total: u64 = 0;
+            for (chunk.start..chunk.end) |index| {
+                self.visit(index);
+                total += index;
+            }
+            return total;
+        }
+        fn rangeValue(_: *core.Worker(void), self: *@This(), chunk: Chunk) u64 {
+            var total: u64 = 0;
+            for (chunk.start..chunk.end) |index| {
+                self.visit(index);
+                total += index;
+            }
+            return total;
+        }
         fn add(a: u64, b: u64) u64 {
             return a + b;
         }
@@ -1673,6 +2022,12 @@ test "final callback cancellation is observed across flat APIs and serial fallba
             state.reset();
             try std.testing.expectError(error.Cancelled, parallelFoldInfallible(&pool, u64, &state, 64, options, 0, State.value, State.add));
             try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelFoldRange(&pool, u64, &state, 64, options, 0, State.rangeMap, State.add));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelFoldRangeInfallible(&pool, u64, &state, 64, options, 0, State.rangeValue, State.add));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
         }
     }
 }
@@ -1686,6 +2041,12 @@ test "cancellation from final ordered reduction is observed" {
         }
         fn fallible(w: *core.Worker(void), token: *CancelToken, index: usize) anyerror!@This() {
             return map(w, token, index);
+        }
+        fn range(_: *core.Worker(void), token: *CancelToken, chunk: Chunk) @This() {
+            return .{ .items = chunk.end - chunk.start, .token = token };
+        }
+        fn rangeFallible(w: *core.Worker(void), token: *CancelToken, chunk: Chunk) anyerror!@This() {
+            return range(w, token, chunk);
         }
         fn combine(a: @This(), b: @This()) @This() {
             const result = @This(){ .items = a.items + b.items, .token = a.token };
@@ -1707,6 +2068,10 @@ test "cancellation from final ordered reduction is observed" {
         try std.testing.expectError(error.Cancelled, parallelFold(&pool, Count, &token, 64, options, identity, Count.fallible, Count.combine));
         token.reset();
         try std.testing.expectError(error.Cancelled, parallelReduceInfallible(&pool, Count, &token, 64, options, identity, Count.map, Count.combine));
+        token.reset();
+        try std.testing.expectError(error.Cancelled, parallelFoldRange(&pool, Count, &token, 64, options, identity, Count.rangeFallible, Count.combine));
+        token.reset();
+        try std.testing.expectError(error.Cancelled, parallelFoldRangeInfallible(&pool, Count, &token, 64, options, identity, Count.range, Count.combine));
     }
 }
 
@@ -1724,6 +2089,10 @@ test "callback errors retain chunk-index precedence over exit cancellation" {
         fn map(w: *core.Worker(void), self: *@This(), index: usize) anyerror!u64 {
             try item(w, self, index);
             return index;
+        }
+        fn rangeMap(w: *core.Worker(void), self: *@This(), chunk: Chunk) anyerror!u64 {
+            try item(w, self, chunk.start);
+            return chunk.start;
         }
         fn add(a: u64, b: u64) u64 {
             return a + b;
@@ -1744,6 +2113,8 @@ test "callback errors retain chunk-index precedence over exit cancellation" {
                 try std.testing.expectError(error.FirstChunkFailure, parallelFor(&pool, &state, 2, options, State.item));
                 state.token.reset();
                 try std.testing.expectError(error.FirstChunkFailure, parallelFold(&pool, u64, &state, 2, options, 0, State.map, State.add));
+                state.token.reset();
+                try std.testing.expectError(error.FirstChunkFailure, parallelFoldRange(&pool, u64, &state, 2, options, 0, State.rangeMap, State.add));
             }
         }
     }
