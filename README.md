@@ -386,6 +386,11 @@ The high-chunk overhead and uniform-work controls for the opt-in static
 schedule are recorded in
 [the static scheduling report](docs/validation/2026-11-07-static-schedule/README.md).
 
+The fixed-cost compute comparison uses dynamic scheduling with a tuned 128
+chunks per lane; its grain sweep, stack-budget control and final cross-library
+results are recorded in
+[the compute grain report](docs/validation/2026-11-07-compute-grain/README.md).
+
 `bench-mpsc-batch` compares scalar and slice transfers using fixed prebuilt
 input, checks per-producer FIFO as well as the checksum, and alternates both
 APIs and serial/parallel runs. Arguments are items per producer, capacity,

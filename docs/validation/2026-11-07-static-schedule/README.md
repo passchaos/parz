@@ -53,8 +53,11 @@ compute is unchanged. A 512-chunk compute probe favored dynamic because slow
 static spans could not be redistributed, confirming that static must remain
 opt-in rather than replacing the default.
 
-The known-uniform formal flat and compute comparison workloads opt into
-static. Their final three-round medians were:
+The formal flat comparison opts into static. The table below was captured
+while compute also used static-16; a subsequent grain sweep moved compute to
+dynamic-128 and is recorded in the
+[compute grain report](../2026-11-07-compute-grain/README.md). The three-round
+medians for this static-schedule checkpoint were:
 
 | Workload | parz | Spice | Rayon | OpenMP |
 |---|---:|---:|---:|---:|

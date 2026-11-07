@@ -356,8 +356,13 @@ pub fn main(init: std.process.Init) !void {
         try std.fmt.parseInt(usize, argv.items[4], 10)
     else
         0;
-    const chunks_per_worker = if (argv.items.len > 5)
+    const compute_workload = std.mem.eql(u8, workload, "compute-inf") or
+        std.mem.eql(u8, workload, "compute") or
+        std.mem.eql(u8, workload, "compute-chunk");
+    const chunks_per_worker: usize = if (argv.items.len > 5)
         try std.fmt.parseInt(usize, argv.items[5], 10)
+    else if (compute_workload)
+        128
     else
         16;
     const heartbeat = if (argv.items.len > 6)
@@ -370,11 +375,8 @@ pub fn main(init: std.process.Init) !void {
         10 * std.time.ns_per_us;
 
     const call_cap = if (argv.items.len > 8) try std.fmt.parseInt(usize, argv.items[8], 10) else 0;
-    const uniform_workload = std.mem.eql(u8, workload, "flat") or
-        std.mem.eql(u8, workload, "flat-element") or
-        std.mem.eql(u8, workload, "compute-inf") or
-        std.mem.eql(u8, workload, "compute") or
-        std.mem.eql(u8, workload, "compute-chunk");
+    const static_workload = std.mem.eql(u8, workload, "flat") or
+        std.mem.eql(u8, workload, "flat-element");
     const schedule: parz.ParallelSchedule = if (argv.items.len > 9)
         if (std.mem.eql(u8, argv.items[9], "static"))
             .static
@@ -382,7 +384,7 @@ pub fn main(init: std.process.Init) !void {
             .dynamic
         else
             return error.InvalidSchedule
-    else if (uniform_workload) .static else .dynamic;
+    else if (static_workload) .static else .dynamic;
 
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = if (lanes == 0) 1 else lanes - 1,
