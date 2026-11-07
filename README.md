@@ -258,6 +258,14 @@ group.wait(io);
 `MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
 `BlockingQueue` is the multi-consumer blocking option.
 
+`ShardedMpscQueue` also exposes `tryPushSlice(shard, values)` and
+`tryPopSlice(output)`. Producers publish a prefix through their private SPSC
+shard with one release. The single consumer visits each shard at most once per
+call from its round-robin cursor, fills an output prefix, and starts the next
+call at the following shard. FIFO remains per shard; global ordering is not
+defined. Empty slices, partial transfers, scalar/slice mixing and counter wrap
+are supported without allocation.
+
 `MpscQueue` also provides `tryPushSlice` and `tryPopSlice`. For capacities of
 four or more, a producer reserves an available input prefix with one CAS and
 publishes each slot separately. One- and two-slot queues use scalar operations;
@@ -341,6 +349,8 @@ zig build check-worker-layout        # field offsets and context alignment
 zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
 zig build bench-spsc-batch -Doptimize=ReleaseFast -- 3000000 1024 64 24 26 9
 zig build bench-mpsc-batch -Doptimize=ReleaseFast -- 750000 1024 64 24,25,26,27 31 9
+zig build bench-sharded-mpsc-batch -Doptimize=ReleaseFast -- \
+    750000 1024 64 24,25,26,27 31 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -398,6 +408,11 @@ batch size, comma-separated producer CPUs, consumer CPU, and rounds. Each CPU
 must be distinct; allocation, thread startup and affinity setup precede timing.
 Measured results and correctness checks are recorded in
 [the MPSC batch validation report](docs/validation/2026-11-07-mpsc-batch/README.md).
+
+`bench-sharded-mpsc-batch` performs the same fixed-CPU, per-producer FIFO and
+checksum validation for four private SPSC shards. Its API semantics, batch
+controls and throughput evidence are recorded in
+[the sharded MPSC batch report](docs/validation/2026-11-07-sharded-mpsc-batch/README.md).
 
 `bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
 alternate which path runs first, print raw paired samples, and report the
