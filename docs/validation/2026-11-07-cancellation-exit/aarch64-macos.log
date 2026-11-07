@@ -1,0 +1,3 @@
+$ zig test src/root.zig -target aarch64-macos -OReleaseSafe --test-no-exec -femit-bin=/tmp/parz-cancel-exit-aarch64-macos
+
+exit_code=0

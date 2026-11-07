@@ -1,9 +1,10 @@
 //! Cooperative cancellation for flat parallel loops.
 //!
-//! The token is a single atomic flag. The flat APIs check it at chunk
-//! boundaries (and every 4096 items inside long chunks), so a cancelled call
-//! returns `error.Cancelled` without waiting for already-running chunks to
-//! finish.
+//! The token is a single atomic flag. Nonempty flat calls check it at chunk
+//! entry/exit boundaries, every 4096 items in index-based loops, and before
+//! successful completion. Cancellation is cooperative: a call drains all
+//! started lane futures before returning, so caller-owned input and scratch
+//! storage can be released after the call unwinds.
 
 const std = @import("std");
 

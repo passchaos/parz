@@ -1,0 +1,9 @@
+$ zig test src/root.zig -OReleaseSafe --test-filter cancellation from final ordered reduction
+1/2 root.test_0...OK
+2/2 parallel.test.cancellation from final ordered reduction is observed...expected error.Cancelled, found .{ .items = 64, .token = .{ .flag = .{ .raw = true } } }
+FAIL (TestExpectedError)
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/0ee8a20470ddb5d7a98e5636e4fa94d5/test --seed=0xa126e2d3
+
+exit_code=1

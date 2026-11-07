@@ -26,8 +26,8 @@ adding parallelism to a small workload must not make it meaningfully slower.
   combination.
 - Uncancelled infallible folds use plain-value chunk results and callbacks,
   reducing dispatch storage while preserving the same chunk planning.
-- `CancelToken` with cooperative cancellation checked at chunk boundaries and
-  every 4096 items inside a chunk.
+- `CancelToken` with cooperative cancellation checked at chunk entry/exit,
+  every 4096 items in index loops, and before successful completion.
 - `sync` module: bounded SPSC/MPSC queues, a sharded MPSC queue with
   per-producer FIFO shards, a bounded blocking MPMC queue, a
   multi-producer/single-consumer Treiber stack, a counting semaphore, and a
@@ -117,8 +117,8 @@ const total_infallible = try parz.parallelFoldInfallible(
     &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, Map.map, Add.combine,
 );
 
-// Cooperative cancellation. The flat APIs check the token at chunk
-// boundaries and every 4096 items.
+// Cooperative cancellation. Nonempty flat calls check chunk entry/exit and
+// successful completion; index loops also check every 4096 items.
 var token = parz.CancelToken{};
 try parz.parallelFor(
     &pool, rows, rows.len, .{ .min_chunk = 1, .cancel = &token }, Run.run,
@@ -255,6 +255,14 @@ var pool = try parz.Pool(Ctx).init(allocator, io, .{
 
 Inside a callback, `worker.context()` returns the lane's context. It is not
 shared between lanes.
+
+Cancellation is cooperative. A cancelled flat call joins all started lane
+futures before returning, so its input and scratch storage can be released
+after the call unwinds. A callback error takes precedence over cancellation
+observed at that callback's exit; chunk errors are selected in chunk-index
+order. Cancellation from a final successful callback or ordered reduction is
+observed before successful completion. Long `parallelForRange` callbacks can
+check their token during their own work; empty calls retain their no-op result.
 
 ## Building and testing
 

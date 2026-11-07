@@ -1,0 +1,6 @@
+1/2 root.test_0...OK
+2/2 parallel.test.final callback cancellation is observed across flat APIs and serial fallbacks...expected error.Cancelled, found void
+FAIL (TestExpectedError)
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/9e3b51414481c3eb6e0e1d6fb094d0b4/test --seed=0x52906631

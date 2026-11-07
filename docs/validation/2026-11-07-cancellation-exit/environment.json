@@ -1,0 +1,33 @@
+{
+  "captured_at_utc": "2026-11-07T04:49:39.295016+00:00",
+  "baseline_commit": "bed8caabf4c38d5506805b7194e44b5da482d9dc",
+  "zig_version": "0.16.0",
+  "loadavg": "10.46 10.13 9.68 7/2084 1276241",
+  "source_sha256": {
+    "src/parallel.zig": "d698820ca66e1c1279d0206bdd7c87973e2ba307475b146a2fdb5452a9d25583",
+    "src/cancel.zig": "19c15309309eaa872047a61dbacec73c0733b5f0a90be4d05dfea749f57381ba",
+    "bench/infallible_fold.zig": "828de22fd559b58ccfb0c0898255130685abc89da23dcebe50a6396c32c2489b"
+  },
+  "binary_sha256": {
+    "baseline": "a46fc7897e29d133f9d32f5ac38d7c1b0650a1071628e392bb01f511baa4e397",
+    "exit": "0fa482f830997835bfd646140d5b1d32f63c0607897a55ce0648da922b4c917f"
+  },
+  "placement": {
+    "caller": 31,
+    "workers": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ]
+  },
+  "no_token_result_path_unchanged": true,
+  "final_source_sha256": {
+    "src/parallel.zig": "dbc8f6aa60f201b41d71769abed044afa11d4dd9aa88c53dbd243cd592ef4ad5",
+    "src/cancel.zig": "19c15309309eaa872047a61dbacec73c0733b5f0a90be4d05dfea749f57381ba",
+    "bench/infallible_fold.zig": "828de22fd559b58ccfb0c0898255130685abc89da23dcebe50a6396c32c2489b"
+  }
+}

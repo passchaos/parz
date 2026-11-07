@@ -38,8 +38,9 @@ pub const Options = struct {
     /// this is almost always dominated by caller-slot setup, future
     /// allocation, and worker wake-up cost. Set to 0 to force parallelism.
     serial_threshold: usize = 4096,
-    /// Optional cooperative cancellation token. It is checked at chunk
-    /// boundaries and every 4096 items inside a chunk.
+    /// Optional cooperative cancellation token. Nonempty calls check chunk
+    /// entry/exit and successful completion; index loops also check every
+    /// 4096 items. Range callbacks may check the token within their own work.
     cancel: ?*CancelToken = null,
 };
 
@@ -164,6 +165,7 @@ pub fn parallelForRange(
         fn exec(t: *T, input: Input) anyerror!void {
             try checkCancel(input.runner.cancel);
             try run(t.worker, input.runner.shared.*, input.chunk);
+            try checkCancel(input.runner.cancel);
         }
     };
 
@@ -179,7 +181,8 @@ pub fn parallelForRange(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    return dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, Exec.exec);
+    try dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, Exec.exec);
+    try checkCancel(options.cancel);
 }
 
 /// Deterministic ordered fold. Each chunk accumulates with `combine`; the
@@ -221,6 +224,7 @@ pub fn parallelFold(
                     acc = combine(acc, try map(t.worker, runner.shared.*, i));
                 }
             }
+            try checkCancel(runner.cancel);
             return acc;
         }
     };
@@ -241,7 +245,11 @@ pub fn parallelFold(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    return dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    // Dispatch has already selected any chunk error in index order. Only
+    // successful reduction reaches this final cancellation checkpoint.
+    try checkCancel(options.cancel);
+    return result;
 }
 
 /// Deterministic ordered fold for an infallible `map`. The chunk loop has no
@@ -283,6 +291,7 @@ pub fn parallelFoldInfallible(
                     acc = combine(acc, map(t.worker, runner.shared.*, i));
                 }
             }
+            try checkCancel(runner.cancel);
             return acc;
         }
     };
@@ -317,7 +326,9 @@ pub fn parallelFoldInfallible(
     if (options.cancel == null) {
         return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, identity, ExecValue.exec, combine);
     }
-    return dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    try checkCancel(options.cancel);
+    return result;
 }
 
 pub fn parallelReduce(
@@ -534,6 +545,7 @@ fn serialRange(
     defer pool.destroyTempContext(&temp.ctx);
     try checkCancel(cancel);
     try run(&temp, shared, .{ .start = 0, .end = count });
+    try checkCancel(cancel);
 }
 
 fn serialFold(
@@ -559,6 +571,7 @@ fn serialFold(
             total = combine(total, try map(&temp, shared, i));
         }
     }
+    try checkCancel(cancel);
     return total;
 }
 
@@ -585,6 +598,7 @@ fn serialFoldInfallible(
             total = combine(total, map(&temp, shared, i));
         }
     }
+    try checkCancel(cancel);
     return total;
 }
 
@@ -1463,6 +1477,195 @@ test "parallelFoldInfallible matches the fallible fold" {
         Add.combine,
     );
     try std.testing.expectEqual(expected, total);
+}
+
+test "final callback cancellation is observed across flat APIs and serial fallbacks" {
+    const State = struct {
+        token: CancelToken = .{},
+        calls: usize = 0,
+        fn visit(self: *@This(), index: usize) void {
+            self.calls += 1;
+            if (index == 63) self.token.cancel();
+        }
+        fn item(_: *core.Worker(void), self: *@This(), index: usize) anyerror!void {
+            self.visit(index);
+        }
+        fn cell(_: *core.Worker(void), self: *@This(), row: usize, col: usize) anyerror!void {
+            self.visit(row * 8 + col);
+        }
+        fn range(_: *core.Worker(void), self: *@This(), chunk: Chunk) anyerror!void {
+            for (chunk.start..chunk.end) |index| self.visit(index);
+        }
+        fn map(_: *core.Worker(void), self: *@This(), index: usize) anyerror!u64 {
+            self.visit(index);
+            return index;
+        }
+        fn value(_: *core.Worker(void), self: *@This(), index: usize) u64 {
+            self.visit(index);
+            return index;
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+        fn reset(self: *@This()) void {
+            self.token.reset();
+            self.calls = 0;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for (0..3) |mode| {
+            const held = if (mode == 2) pool.claimCaller().? else null;
+            defer if (held) |caller| pool.releaseCaller(caller);
+            var state = State{};
+            const options = Options{
+                .max_chunks = 1,
+                .max_workers = 1,
+                .serial_threshold = if (mode == 1) 4096 else 0,
+                .cancel = &state.token,
+            };
+            try std.testing.expectError(error.Cancelled, parallelFor(&pool, &state, 64, options, State.item));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelForRange(&pool, &state, 64, options, State.range));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelFor2D(&pool, &state, 8, 8, options, State.cell));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelFold(&pool, u64, &state, 64, options, 0, State.map, State.add));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+            state.reset();
+            try std.testing.expectError(error.Cancelled, parallelFoldInfallible(&pool, u64, &state, 64, options, 0, State.value, State.add));
+            try std.testing.expectEqual(@as(usize, 64), state.calls);
+        }
+    }
+}
+
+test "cancellation from final ordered reduction is observed" {
+    const Count = struct {
+        items: usize,
+        token: *CancelToken,
+        fn map(_: *core.Worker(void), token: *CancelToken, _: usize) @This() {
+            return .{ .items = 1, .token = token };
+        }
+        fn fallible(w: *core.Worker(void), token: *CancelToken, index: usize) anyerror!@This() {
+            return map(w, token, index);
+        }
+        fn combine(a: @This(), b: @This()) @This() {
+            const result = @This(){ .items = a.items + b.items, .token = a.token };
+            if (result.items == 64) result.token.cancel();
+            return result;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        var token = CancelToken{};
+        const options = Options{ .max_chunks = 4, .chunks_per_worker = 4, .serial_threshold = 0, .cancel = &token };
+        const identity = Count{ .items = 0, .token = &token };
+        try std.testing.expectError(error.Cancelled, parallelFold(&pool, Count, &token, 64, options, identity, Count.fallible, Count.combine));
+        token.reset();
+        try std.testing.expectError(error.Cancelled, parallelReduceInfallible(&pool, Count, &token, 64, options, identity, Count.map, Count.combine));
+    }
+}
+
+test "callback errors retain chunk-index precedence over exit cancellation" {
+    const State = struct {
+        token: CancelToken = .{},
+        cancel_with_error: bool,
+        fn item(_: *core.Worker(void), self: *@This(), index: usize) anyerror!void {
+            if (index == 0) {
+                if (self.cancel_with_error) self.token.cancel();
+                return error.FirstChunkFailure;
+            }
+            self.token.cancel();
+        }
+        fn map(w: *core.Worker(void), self: *@This(), index: usize) anyerror!u64 {
+            try item(w, self, index);
+            return index;
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for ([_]bool{ false, true }) |same_callback| {
+            for ([_]usize{ 0, 4096 }) |threshold| {
+                var state = State{ .cancel_with_error = same_callback };
+                const options = Options{ .max_workers = 1, .max_chunks = 2, .chunks_per_worker = 2, .serial_threshold = threshold, .cancel = &state.token };
+                try std.testing.expectError(error.FirstChunkFailure, parallelFor(&pool, &state, 2, options, State.item));
+                state.token.reset();
+                try std.testing.expectError(error.FirstChunkFailure, parallelFold(&pool, u64, &state, 2, options, 0, State.map, State.add));
+            }
+        }
+    }
+}
+
+test "cancelled calls drain callbacks and select errors by chunk index" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const State = struct {
+        token: CancelToken = .{},
+        started: std.atomic.Value(usize) = .init(0),
+        finished: std.atomic.Value(usize) = .init(0),
+        release: std.atomic.Value(bool) = .init(false),
+        fail_first: bool,
+        fn run(w: *core.Worker(void), self: *@This(), index: usize) anyerror!void {
+            _ = self.started.fetchAdd(1, .acq_rel);
+            defer _ = self.finished.fetchAdd(1, .release);
+            if (index == 0) {
+                while (!self.release.load(.acquire)) std.atomic.spinLoopHint();
+                try w.pool.io.sleep(std.Io.Duration.fromMilliseconds(2), .awake);
+                if (self.fail_first) return error.FirstChunkFailure;
+            } else {
+                while (self.started.load(.acquire) != 2) std.atomic.spinLoopHint();
+                self.token.cancel();
+                self.release.store(true, .release);
+            }
+        }
+    };
+    var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .workers = 1,
+        .max_workers = 1,
+        .max_callers = 1,
+        .max_execute_states = 8,
+    });
+    defer pool.deinit();
+    try pool.start();
+    if (pool.parallelWorkerCount() != 2) return error.SkipZigTest;
+    for ([_]bool{ false, true }) |fail_first| {
+        for (0..10) |_| {
+            var state = State{ .fail_first = fail_first };
+            const expected = if (fail_first) error.FirstChunkFailure else error.Cancelled;
+            try std.testing.expectError(expected, parallelFor(&pool, &state, 2, .{
+                .max_chunks = 2,
+                .chunks_per_worker = 1,
+                .serial_threshold = 0,
+                .cancel = &state.token,
+            }, State.run));
+            try std.testing.expectEqual(@as(usize, 2), state.finished.load(.acquire));
+            const caller = pool.claimCaller().?;
+            pool.releaseCaller(caller);
+        }
+    }
 }
 
 test "parallelFor returns Cancelled for an already-cancelled token" {
