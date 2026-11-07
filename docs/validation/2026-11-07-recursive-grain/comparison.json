@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-07",
+  "zig": "0.16.0",
+  "host": "13th Gen Intel(R) Core(TM) i9-13900K",
+  "allowed_cpus": "24-31",
+  "caller_cpu": 31,
+  "worker_cpus": [24, 25, 26, 27, 28, 29, 30],
+  "inner_rounds": 9,
+  "outer_rounds": 5,
+  "baseline_commit": "bfb3596479c797ccb358d75074d7a94e2975b7ae",
+  "baseline_tree_source_sha256": "d3e315383704bdece5d055b3d8b501c2f814949b8c37ef98d5077e36463683f1",
+  "candidate_tree_source_sha256": "f0af74e4eb789cfc84475ebeacb21b3e9e7ceb91b9313fd7b68ee0fda9c58c95",
+  "results": {
+    "1000": {
+      "baseline": [
+        {"round": 0, "serial_ns": 1554, "parallel_ns": 3190, "speedup": 0.487},
+        {"round": 1, "serial_ns": 1443, "parallel_ns": 3106, "speedup": 0.465},
+        {"round": 2, "serial_ns": 1507, "parallel_ns": 3184, "speedup": 0.473},
+        {"round": 3, "serial_ns": 1484, "parallel_ns": 3094, "speedup": 0.480},
+        {"round": 4, "serial_ns": 1459, "parallel_ns": 3172, "speedup": 0.460}
+      ],
+      "candidate": [
+        {"round": 0, "serial_ns": 1558, "parallel_ns": 1590, "speedup": 0.980},
+        {"round": 1, "serial_ns": 1490, "parallel_ns": 1515, "speedup": 0.983},
+        {"round": 2, "serial_ns": 1488, "parallel_ns": 1518, "speedup": 0.980},
+        {"round": 3, "serial_ns": 1481, "parallel_ns": 1466, "speedup": 1.010},
+        {"round": 4, "serial_ns": 1450, "parallel_ns": 1499, "speedup": 0.967}
+      ]
+    },
+    "1000000": {
+      "baseline": [
+        {"round": 0, "serial_ns": 1721734, "parallel_ns": 810200, "speedup": 2.125},
+        {"round": 1, "serial_ns": 1706146, "parallel_ns": 762090, "speedup": 2.239},
+        {"round": 2, "serial_ns": 1775523, "parallel_ns": 754194, "speedup": 2.354},
+        {"round": 3, "serial_ns": 1725858, "parallel_ns": 825093, "speedup": 2.092},
+        {"round": 4, "serial_ns": 1844817, "parallel_ns": 806036, "speedup": 2.289}
+      ],
+      "candidate": [
+        {"round": 0, "serial_ns": 1733944, "parallel_ns": 468573, "speedup": 3.700},
+        {"round": 1, "serial_ns": 1835431, "parallel_ns": 488066, "speedup": 3.761},
+        {"round": 2, "serial_ns": 1707067, "parallel_ns": 503894, "speedup": 3.388},
+        {"round": 3, "serial_ns": 1713046, "parallel_ns": 519880, "speedup": 3.295},
+        {"round": 4, "serial_ns": 1820666, "parallel_ns": 519998, "speedup": 3.501}
+      ]
+    }
+  }
+}

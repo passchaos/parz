@@ -1,0 +1,5 @@
+$ zig test --test-filter serial-kick-fixture -OReleaseSafe --dep parz -Mroot=docs/validation/2026-11-07-serial-lane/serial-kick-fixture.zig -OReleaseSafe -Mparz=/home/passchaos/project-z/parz/src/root.zig
+1/1 serial-kick-fixture.test.serial-kick-fixture: inactive fallback keeps jobs local...OK
+All 1 tests passed.
+
+exit_code=0

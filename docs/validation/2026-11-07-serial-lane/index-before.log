@@ -1,0 +1,9 @@
+$ zig test src/root.zig -OReleaseSafe --test-filter serial fallback worker index
+1/2 root.test_0...OK
+2/2 parallel.test.serial fallback worker index matches its context initialization index...expected 1, found 0
+FAIL (TestExpectedEqual)
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/d7677c478986ad812c86d6181fcd3c59/test --seed=0xc61fa540
+
+exit_code=1

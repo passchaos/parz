@@ -1,0 +1,42 @@
+$ taskset -c 24-31 zig build bench-infallible-fold -Doptimize=ReleaseFast -- scan 4096 8 31 1 64 9
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1212 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=15794 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1316 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=33076 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=20917 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1392 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=16919 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1152 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1116 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=21373 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1177 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=25171 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=21551 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1181 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=18208 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1161 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1141 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=17064 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1148 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=28711 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=23560 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1126 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=23714 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1243 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1171 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=21088 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1140 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=21880 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=26028 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1145 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=23850 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1129 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1143 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=21145 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1130 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=23804 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1152 parallel_ns=21088 speedup=0.055 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1148 parallel_ns=23804 speedup=0.048 allocations=1 allocated_bytes=256 statistic=median
+
+exit_code=0

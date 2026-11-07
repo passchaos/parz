@@ -1,0 +1,102 @@
+[
+  {
+    "round": 0,
+    "variant": "baseline",
+    "calls": 10240,
+    "allocations": 10240,
+    "allocated_bytes": 671088640,
+    "serial_ns": 823,
+    "parallel_ns": 29014120,
+    "speedup": 0.0
+  },
+  {
+    "round": 0,
+    "variant": "serial",
+    "calls": 10240,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 542,
+    "parallel_ns": 801,
+    "speedup": 0.677
+  },
+  {
+    "round": 1,
+    "variant": "serial",
+    "calls": 10240,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 543,
+    "parallel_ns": 802,
+    "speedup": 0.677
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "calls": 10240,
+    "allocations": 10240,
+    "allocated_bytes": 671088640,
+    "serial_ns": 817,
+    "parallel_ns": 29190714,
+    "speedup": 0.0
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "calls": 10240,
+    "allocations": 10240,
+    "allocated_bytes": 671088640,
+    "serial_ns": 808,
+    "parallel_ns": 29188388,
+    "speedup": 0.0
+  },
+  {
+    "round": 2,
+    "variant": "serial",
+    "calls": 10240,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 542,
+    "parallel_ns": 802,
+    "speedup": 0.676
+  },
+  {
+    "round": 3,
+    "variant": "serial",
+    "calls": 10240,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 557,
+    "parallel_ns": 821,
+    "speedup": 0.678
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "calls": 10240,
+    "allocations": 10240,
+    "allocated_bytes": 671088640,
+    "serial_ns": 823,
+    "parallel_ns": 28887232,
+    "speedup": 0.0
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "calls": 10240,
+    "allocations": 10240,
+    "allocated_bytes": 671088640,
+    "serial_ns": 804,
+    "parallel_ns": 29087317,
+    "speedup": 0.0
+  },
+  {
+    "round": 4,
+    "variant": "serial",
+    "calls": 10240,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 548,
+    "parallel_ns": 801,
+    "speedup": 0.684
+  }
+]

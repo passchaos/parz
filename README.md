@@ -54,9 +54,12 @@ adding parallelism to a small workload must not make it meaningfully slower.
   - a flat loop calls `kickstart` explicitly.
 - The heartbeat only sets a flag; the owning worker checks it at the next
   `Task.call`, so the call hot path stays a single atomic load.
-- Tiny workloads usually finish before sharing and stay on the caller. They
-  still incur recursive call and Future bookkeeping costs; strict small-tree
-  parity remains an open gate.
+- Tiny workloads usually finish before sharing and stay on the caller.
+  Recursive algorithms should also stop creating `Future`s below a useful
+  grain size and invoke a direct serial kernel for those subtrees: heartbeat
+  pacing avoids worker wake-ups, but cannot remove local Future bookkeeping.
+  The tree gate uses a 2047-node leaf bound and keeps 1000-node traversal at
+  serial parity while retaining parallelism above that bound.
 - Flat loops share one job per lane up front and fall back to serial below
   `serial_threshold` items (default 4096) or when there are fewer chunks than
   lanes. This keeps small loops at serial cost and lets large loops pull work
@@ -150,6 +153,14 @@ fn sum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
 
 `Task.call` must be used for recursive calls; direct calls bypass heartbeat
 checks and the caller-fallback protocol.
+
+Use an explicit grain cutoff before the fork. The cutoff belongs in the
+workload callback because only it knows whether an item represents a cheap
+node visit or substantial work. Below the cutoff, call a dedicated serial
+kernel directly; above it, keep recursive parallel calls on `Task.call`.
+`bench/tree_sum.zig` demonstrates a depth-based cutoff without adding fields
+to the node layout. This is the recursive counterpart of flat APIs'
+`serial_threshold`.
 
 For folds, `combine` needs an associative operation and a valid identity to
 match serial results across different chunk configurations. Chunk-index
@@ -255,6 +266,12 @@ var pool = try parz.Pool(Ctx).init(allocator, io, .{
 
 Inside a callback, `worker.context()` returns the lane's context. It is not
 shared between lanes.
+
+Serial flat fallbacks use a temporary lane whose `worker.index` matches the
+index passed to `context_init`: `pool.worker_count`, outside the registered
+lane range. Temporary contexts remain private to each call. Their inactive
+workers keep forked work local; `kickstart` leaves it for caller execution.
+Already-cancelled nonempty serial calls return before constructing a context.
 
 Cancellation is cooperative. A cancelled flat call joins all started lane
 futures before returning, so its input and scratch storage can be released

@@ -1,0 +1,21 @@
+$ zig test --test-filter serial-kick-fixture -OReleaseSafe --dep parz -Mroot=docs/validation/2026-11-07-serial-lane/serial-kick-fixture.zig -OReleaseSafe -Mparz=/tmp/parz-serial-lane-oenuz6xn/baseline/src/root.zig
+1/1 serial-kick-fixture.test.serial-kick-fixture: inactive fallback keeps jobs local...Segmentation fault at address 0x1018be0
+/tmp/parz-serial-lane-oenuz6xn/baseline/src/job.zig:106:57: 0x105aacd in pushShared (root)
+        @atomicStore(?*anyopaque, &tail.*.next_or_null, @ptrCast(self), .release);
+                                                        ^
+/tmp/parz-serial-lane-oenuz6xn/baseline/src/core.zig:419:27: 0x1027ea1 in kickstart (root)
+            self.shareMany(owner, max);
+                          ^
+/home/passchaos/Temp/zig-x86_64-linux-0.16.0/lib/compiler/test_runner.zig:291:25: 0x107ff31 in mainTerminal (root)
+        if (test_fn.func()) |_| {
+                        ^
+/home/passchaos/Temp/zig-x86_64-linux-0.16.0/lib/std/start.zig:699:88: 0x107e6a3 in callMain (root)
+    if (fn_info.params[0].type.? == std.process.Init.Minimal) return wrapMain(root.main(.{
+                                                                                       ^
+/home/passchaos/Temp/zig-x86_64-linux-0.16.0/lib/std/start.zig:190:5: 0x107e17d in _start (root)
+    asm volatile (switch (native_arch) {
+    ^
+error: the following test command terminated with signal ABRT:
+.zig-cache/o/e3b3a1419fb53ef3a5d615633402b181/root --seed=0x88551988
+
+exit_code=1

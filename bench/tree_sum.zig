@@ -16,33 +16,55 @@ fn serialSum(node: *const Node) align(64) i64 {
     return result;
 }
 
-fn parallelSum(task: *parz.Task(void), node: *const Node) anyerror!i64 {
+const Work = struct {
+    node: *const Node,
+    depth: usize,
+};
+
+// Subtrees this deep contain at most 2047 nodes. Their Future bookkeeping
+// costs more than the useful work, so run them through the serial kernel.
+const serial_depth = 10;
+
+fn parallelSum(task: *parz.Task(void), work: Work) anyerror!i64 {
+    const node = work.node;
+    if (work.depth <= serial_depth) return serialSum(node);
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            const F = parz.Future(void, *const Node, anyerror!i64);
+            const F = parz.Future(void, Work, anyerror!i64);
+            const next_depth = work.depth - 1;
             var future: F = undefined;
             if (comptime @hasDecl(F, "initFork")) {
-                future.initFork(task, parallelSum, right);
+                future.initFork(task, parallelSum, Work{ .node = right, .depth = next_depth });
             } else {
                 future = .{};
-                future.fork(task, parallelSum, right);
+                future.fork(task, parallelSum, Work{ .node = right, .depth = next_depth });
             }
-            result += try task.call(anyerror!i64, parallelSum, left);
+            result += try task.call(anyerror!i64, parallelSum, Work{ .node = left, .depth = next_depth });
             const joined = future.join(task);
             const other = if (joined) |value|
                 try value
             else
-                try task.call(anyerror!i64, parallelSum, right);
+                try task.call(anyerror!i64, parallelSum, Work{ .node = right, .depth = next_depth });
             result += other;
             return result;
         }
-        result += try task.call(anyerror!i64, parallelSum, left);
+        result += try task.call(anyerror!i64, parallelSum, Work{ .node = left, .depth = work.depth - 1 });
     }
     if (node.right) |right| {
-        result += try task.call(anyerror!i64, parallelSum, right);
+        result += try task.call(anyerror!i64, parallelSum, Work{ .node = right, .depth = work.depth - 1 });
     }
     return result;
+}
+
+fn treeDepth(node_count: usize) usize {
+    var depth: usize = 0;
+    var covered: usize = 1;
+    while (covered < node_count) {
+        covered = covered *| 2 +| 1;
+        depth += 1;
+    }
+    return depth;
 }
 
 fn buildTree(allocator: std.mem.Allocator, node_count: usize) ![]Node {
@@ -57,6 +79,7 @@ fn buildTree(allocator: std.mem.Allocator, node_count: usize) ![]Node {
 
 const Run = struct {
     root: *const Node,
+    node_count: usize,
     caller: *parz.Worker(void),
 
     fn serial(self: *@This()) !i64 {
@@ -65,7 +88,7 @@ const Run = struct {
 
     fn parallel(self: *@This()) !i64 {
         var task = self.caller.begin();
-        return task.call(anyerror!i64, parallelSum, self.root);
+        return task.call(anyerror!i64, parallelSum, Work{ .node = self.root, .depth = treeDepth(self.node_count) });
     }
 };
 
@@ -110,7 +133,7 @@ pub fn main(init: std.process.Init) !void {
 
     const caller = pool.claimCaller() orelse return error.NoCallerSlot;
     defer pool.releaseCaller(caller);
-    var run = Run{ .root = &nodes[0], .caller = caller };
+    var run = Run{ .root = &nodes[0], .node_count = node_count, .caller = caller };
     std.debug.print("tree_sum nodes={d} workers={d} checksum={d}\n", .{ node_count, pool.spawned_background, node_count });
     if (caller_cpu) |cpu| std.debug.print("placement caller_cpu={d} worker_cpus={any}\n", .{ cpu, pool.pinned_cpus[0..pool.spawned_background] });
     const times = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.parallel);

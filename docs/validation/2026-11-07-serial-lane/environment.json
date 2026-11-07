@@ -1,0 +1,20 @@
+{
+  "captured_at_utc": "2026-11-07T05:15:24.357961+00:00",
+  "baseline_commit": "bfb3596479c797ccb358d75074d7a94e2975b7ae",
+  "zig_version": "0.16.0",
+  "loadavg": "1.69 2.41 3.91 4/1927 1318834",
+  "source_sha256": {
+    "src/core.zig": "542dc70fe54411a810ca58ffb14ba9e675320223cb14275d48f87f0db0022b60",
+    "src/parallel.zig": "9fe64b12c998aef24ae984941078d920b4e755d65b771dea89a6f5e231a1efca",
+    "docs/validation/2026-11-07-serial-lane/cancelled-context-bench.zig": "c262e125c8675f520ebe2bd8a2045b0f82b51a4f13c70a4c9e9a73fb66d6f4a8"
+  },
+  "binary_sha256": {
+    "baseline": "0ad49056ab560855b62498186f2be68346e315e323db588814f8f0979a2f5135",
+    "serial": "1450b39385cf9466bc6c888205cb5d942a3d71e0dfc1c63dd94878577f506c53"
+  },
+  "benchmark_cpu": 31,
+  "context_bytes": 65536,
+  "batch_repetitions": 1024,
+  "inner_rounds": 9,
+  "outer_rounds": 5
+}

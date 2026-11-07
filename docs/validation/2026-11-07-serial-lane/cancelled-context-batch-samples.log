@@ -1,0 +1,110 @@
+round=0 variant=baseline cpu=31
+sample=0 serial_ns=887 parallel_ns=29004224 speedup=0.000
+sample=1 serial_ns=736 parallel_ns=29079454 speedup=0.000
+sample=2 serial_ns=823 parallel_ns=29064538 speedup=0.000
+sample=3 serial_ns=553 parallel_ns=28922547 speedup=0.000
+sample=4 serial_ns=825 parallel_ns=28963261 speedup=0.000
+sample=5 serial_ns=548 parallel_ns=28991615 speedup=0.000
+sample=6 serial_ns=837 parallel_ns=29649529 speedup=0.000
+sample=7 serial_ns=554 parallel_ns=29369077 speedup=0.000
+sample=8 serial_ns=837 parallel_ns=29014120 speedup=0.000
+cancelled-context bytes=65536 calls=10240 allocations=10240 allocated_bytes=671088640 serial_ns=823 parallel_ns=29014120 speedup=0.000 statistic=median_batch_1024 checksum=0
+round=0 variant=serial cpu=31
+sample=0 serial_ns=589 parallel_ns=822 speedup=0.717
+sample=1 serial_ns=563 parallel_ns=811 speedup=0.694
+sample=2 serial_ns=561 parallel_ns=808 speedup=0.694
+sample=3 serial_ns=547 parallel_ns=801 speedup=0.683
+sample=4 serial_ns=541 parallel_ns=795 speedup=0.681
+sample=5 serial_ns=535 parallel_ns=801 speedup=0.668
+sample=6 serial_ns=541 parallel_ns=795 speedup=0.681
+sample=7 serial_ns=534 parallel_ns=794 speedup=0.673
+sample=8 serial_ns=542 parallel_ns=796 speedup=0.681
+cancelled-context bytes=65536 calls=10240 allocations=0 allocated_bytes=0 serial_ns=542 parallel_ns=801 speedup=0.677 statistic=median_batch_1024 checksum=0
+round=1 variant=serial cpu=31
+sample=0 serial_ns=606 parallel_ns=838 speedup=0.723
+sample=1 serial_ns=563 parallel_ns=811 speedup=0.694
+sample=2 serial_ns=562 parallel_ns=808 speedup=0.696
+sample=3 serial_ns=535 parallel_ns=801 speedup=0.668
+sample=4 serial_ns=542 parallel_ns=797 speedup=0.680
+sample=5 serial_ns=549 parallel_ns=802 speedup=0.685
+sample=6 serial_ns=543 parallel_ns=799 speedup=0.680
+sample=7 serial_ns=537 parallel_ns=804 speedup=0.668
+sample=8 serial_ns=542 parallel_ns=798 speedup=0.679
+cancelled-context bytes=65536 calls=10240 allocations=0 allocated_bytes=0 serial_ns=543 parallel_ns=802 speedup=0.677 statistic=median_batch_1024 checksum=0
+round=1 variant=baseline cpu=31
+sample=0 serial_ns=848 parallel_ns=29337898 speedup=0.000
+sample=1 serial_ns=556 parallel_ns=29123109 speedup=0.000
+sample=2 serial_ns=824 parallel_ns=29173327 speedup=0.000
+sample=3 serial_ns=549 parallel_ns=29158244 speedup=0.000
+sample=4 serial_ns=836 parallel_ns=29195974 speedup=0.000
+sample=5 serial_ns=561 parallel_ns=29190714 speedup=0.000
+sample=6 serial_ns=834 parallel_ns=29161372 speedup=0.000
+sample=7 serial_ns=551 parallel_ns=29360816 speedup=0.000
+sample=8 serial_ns=817 parallel_ns=29430606 speedup=0.000
+cancelled-context bytes=65536 calls=10240 allocations=10240 allocated_bytes=671088640 serial_ns=817 parallel_ns=29190714 speedup=0.000 statistic=median_batch_1024 checksum=0
+round=2 variant=baseline cpu=31
+sample=0 serial_ns=859 parallel_ns=29210341 speedup=0.000
+sample=1 serial_ns=563 parallel_ns=29227772 speedup=0.000
+sample=2 serial_ns=835 parallel_ns=29188388 speedup=0.000
+sample=3 serial_ns=557 parallel_ns=29456414 speedup=0.000
+sample=4 serial_ns=846 parallel_ns=29134274 speedup=0.000
+sample=5 serial_ns=546 parallel_ns=29166048 speedup=0.000
+sample=6 serial_ns=817 parallel_ns=29294039 speedup=0.000
+sample=7 serial_ns=540 parallel_ns=29140740 speedup=0.000
+sample=8 serial_ns=808 parallel_ns=29159141 speedup=0.000
+cancelled-context bytes=65536 calls=10240 allocations=10240 allocated_bytes=671088640 serial_ns=808 parallel_ns=29188388 speedup=0.000 statistic=median_batch_1024 checksum=0
+round=2 variant=serial cpu=31
+sample=0 serial_ns=595 parallel_ns=832 speedup=0.715
+sample=1 serial_ns=558 parallel_ns=809 speedup=0.690
+sample=2 serial_ns=559 parallel_ns=807 speedup=0.693
+sample=3 serial_ns=535 parallel_ns=802 speedup=0.667
+sample=4 serial_ns=542 parallel_ns=801 speedup=0.677
+sample=5 serial_ns=536 parallel_ns=795 speedup=0.674
+sample=6 serial_ns=542 parallel_ns=795 speedup=0.682
+sample=7 serial_ns=535 parallel_ns=803 speedup=0.666
+sample=8 serial_ns=542 parallel_ns=798 speedup=0.679
+cancelled-context bytes=65536 calls=10240 allocations=0 allocated_bytes=0 serial_ns=542 parallel_ns=802 speedup=0.676 statistic=median_batch_1024 checksum=0
+round=3 variant=serial cpu=31
+sample=0 serial_ns=584 parallel_ns=830 speedup=0.704
+sample=1 serial_ns=564 parallel_ns=827 speedup=0.682
+sample=2 serial_ns=557 parallel_ns=849 speedup=0.656
+sample=3 serial_ns=542 parallel_ns=823 speedup=0.659
+sample=4 serial_ns=564 parallel_ns=817 speedup=0.690
+sample=5 serial_ns=539 parallel_ns=821 speedup=0.657
+sample=6 serial_ns=567 parallel_ns=818 speedup=0.693
+sample=7 serial_ns=541 parallel_ns=807 speedup=0.670
+sample=8 serial_ns=554 parallel_ns=799 speedup=0.693
+cancelled-context bytes=65536 calls=10240 allocations=0 allocated_bytes=0 serial_ns=557 parallel_ns=821 speedup=0.678 statistic=median_batch_1024 checksum=0
+round=3 variant=baseline cpu=31
+sample=0 serial_ns=867 parallel_ns=28759037 speedup=0.000
+sample=1 serial_ns=575 parallel_ns=28826013 speedup=0.000
+sample=2 serial_ns=824 parallel_ns=28887232 speedup=0.000
+sample=3 serial_ns=547 parallel_ns=28906552 speedup=0.000
+sample=4 serial_ns=851 parallel_ns=28858247 speedup=0.000
+sample=5 serial_ns=556 parallel_ns=28867064 speedup=0.000
+sample=6 serial_ns=823 parallel_ns=29009622 speedup=0.000
+sample=7 serial_ns=542 parallel_ns=29238923 speedup=0.000
+sample=8 serial_ns=825 parallel_ns=29165587 speedup=0.000
+cancelled-context bytes=65536 calls=10240 allocations=10240 allocated_bytes=671088640 serial_ns=823 parallel_ns=28887232 speedup=0.000 statistic=median_batch_1024 checksum=0
+round=4 variant=baseline cpu=31
+sample=0 serial_ns=856 parallel_ns=29136138 speedup=0.000
+sample=1 serial_ns=563 parallel_ns=29023794 speedup=0.000
+sample=2 serial_ns=821 parallel_ns=29087317 speedup=0.000
+sample=3 serial_ns=548 parallel_ns=29151918 speedup=0.000
+sample=4 serial_ns=823 parallel_ns=29031793 speedup=0.000
+sample=5 serial_ns=560 parallel_ns=29065131 speedup=0.000
+sample=6 serial_ns=844 parallel_ns=29116578 speedup=0.000
+sample=7 serial_ns=547 parallel_ns=28994398 speedup=0.000
+sample=8 serial_ns=804 parallel_ns=29089627 speedup=0.000
+cancelled-context bytes=65536 calls=10240 allocations=10240 allocated_bytes=671088640 serial_ns=804 parallel_ns=29087317 speedup=0.000 statistic=median_batch_1024 checksum=0
+round=4 variant=serial cpu=31
+sample=0 serial_ns=600 parallel_ns=817 speedup=0.734
+sample=1 serial_ns=559 parallel_ns=839 speedup=0.666
+sample=2 serial_ns=547 parallel_ns=801 speedup=0.683
+sample=3 serial_ns=548 parallel_ns=803 speedup=0.682
+sample=4 serial_ns=555 parallel_ns=801 speedup=0.693
+sample=5 serial_ns=534 parallel_ns=794 speedup=0.673
+sample=6 serial_ns=554 parallel_ns=794 speedup=0.698
+sample=7 serial_ns=533 parallel_ns=800 speedup=0.666
+sample=8 serial_ns=541 parallel_ns=794 speedup=0.681
+cancelled-context bytes=65536 calls=10240 allocations=0 allocated_bytes=0 serial_ns=548 parallel_ns=801 speedup=0.684 statistic=median_batch_1024 checksum=0

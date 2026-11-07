@@ -1,0 +1,7 @@
+$ zig build test -j2 -Doptimize=ReleaseSafe --summary all
+Build Summary: 5/5 steps succeeded; 85/85 tests passed
+test success
++- run test 82 pass (82 total) 719ms MaxRSS:4M
+|  +- compile test ReleaseSafe native success 20s MaxRSS:791M
++- run test 3 pass (3 total) 7ms MaxRSS:4M
+   +- compile test ReleaseSafe native success 12s MaxRSS:532M

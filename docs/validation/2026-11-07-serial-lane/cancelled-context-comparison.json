@@ -1,0 +1,102 @@
+[
+  {
+    "round": 0,
+    "variant": "baseline",
+    "calls": 9217,
+    "allocations": 9217,
+    "allocated_bytes": 604045312,
+    "serial_ns": 0,
+    "parallel_ns": 28531,
+    "speedup": 0.0
+  },
+  {
+    "round": 0,
+    "variant": "serial",
+    "calls": 9217,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 0,
+    "parallel_ns": 0,
+    "speedup": 0.0
+  },
+  {
+    "round": 1,
+    "variant": "serial",
+    "calls": 9217,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 0,
+    "parallel_ns": 0,
+    "speedup": 0.0
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "calls": 9217,
+    "allocations": 9217,
+    "allocated_bytes": 604045312,
+    "serial_ns": 0,
+    "parallel_ns": 28360,
+    "speedup": 0.0
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "calls": 9217,
+    "allocations": 9217,
+    "allocated_bytes": 604045312,
+    "serial_ns": 0,
+    "parallel_ns": 28445,
+    "speedup": 0.0
+  },
+  {
+    "round": 2,
+    "variant": "serial",
+    "calls": 9217,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 0,
+    "parallel_ns": 0,
+    "speedup": 0.0
+  },
+  {
+    "round": 3,
+    "variant": "serial",
+    "calls": 9217,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 0,
+    "parallel_ns": 0,
+    "speedup": 0.0
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "calls": 9217,
+    "allocations": 9217,
+    "allocated_bytes": 604045312,
+    "serial_ns": 0,
+    "parallel_ns": 28731,
+    "speedup": 0.0
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "calls": 9217,
+    "allocations": 9217,
+    "allocated_bytes": 604045312,
+    "serial_ns": 0,
+    "parallel_ns": 28405,
+    "speedup": 0.0
+  },
+  {
+    "round": 4,
+    "variant": "serial",
+    "calls": 9217,
+    "allocations": 0,
+    "allocated_bytes": 0,
+    "serial_ns": 0,
+    "parallel_ns": 0,
+    "speedup": 0.0
+  }
+]

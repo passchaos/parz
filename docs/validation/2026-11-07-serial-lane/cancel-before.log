@@ -1,0 +1,9 @@
+$ zig test src/root.zig -OReleaseSafe --test-filter already cancelled serial calls
+1/2 root.test_0...OK
+2/2 parallel.test.already cancelled serial calls skip temporary context construction...expected error.Cancelled, found error.UnexpectedContextConstruction
+FAIL (TestUnexpectedError)
+1 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/9c0ce0ecd412c2f68b13e9e1edc62313/test --seed=0xe105d3bf
+
+exit_code=1

@@ -342,7 +342,7 @@ pub fn Pool(comptime Ctx: type) type {
             self.mutex.lockUncancelable(self.io);
             defer self.mutex.unlock(self.io);
 
-            if (self.is_stopping) return;
+            if (self.is_stopping or !owner.active) return;
             if (@atomicLoad(?*anyopaque, &owner.shared_head.next_or_null, .acquire) != null) return;
 
             var shared: usize = 0;
@@ -522,6 +522,7 @@ pub fn Worker(comptime Ctx: type) type {
         const Self = @This();
 
         pool: *Pool(Ctx),
+        /// Registered lane index. Serial flat fallbacks use pool.worker_count.
         index: usize = 0,
         active: bool = false,
         caller_slot: ?usize = null,
