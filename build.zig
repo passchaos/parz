@@ -207,6 +207,17 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_blocking_batch.addArgs(args);
     b.step("bench-blocking-batch", "Compare scalar and batch BlockingQueue transfers on fixed CPUs").dependOn(&run_blocking_batch.step);
 
+    const treiber_batch_mod = b.createModule(.{
+        .root_source_file = b.path("bench/treiber_batch.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const treiber_batch = b.addExecutable(.{ .name = "parz-treiber-batch", .root_module = treiber_batch_mod });
+    const run_treiber_batch = b.addRunArtifact(treiber_batch);
+    if (b.args) |args| run_treiber_batch.addArgs(args);
+    b.step("bench-treiber-batch", "Compare scalar and batch TreiberStack transfers on fixed CPUs").dependOn(&run_treiber_batch.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);

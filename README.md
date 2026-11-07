@@ -296,6 +296,12 @@ cost of larger queue metadata: 384 bytes on x86_64 using Zig's 128-byte padding
 unit. Sharded MPSC queues inherit this layout. Single-threaded use is supported;
 same-thread throughput is measured separately in the SPSC benchmark.
 
+`TreiberStack.pushSlice(nodes)` publishes a contiguous caller-owned node slice
+with one count update and one successful head CAS; it is equivalent to scalar
+pushes in slice order. The single consumer can use `popSlice(output)` to detach
+a stack-order prefix with one successful CAS. Output entries are node pointers,
+the unused suffix is untouched, and no memory is allocated.
+
 ## Per-worker context
 
 ```zig
@@ -364,6 +370,8 @@ zig build bench-sharded-mpsc-batch -Doptimize=ReleaseFast -- \
     750000 1024 64 24,25,26,27 31 9
 zig build bench-blocking-batch -Doptimize=ReleaseFast -- \
     500000 1024 64 24,25 26,27 31 9
+zig build bench-treiber-batch -Doptimize=ReleaseFast -- \
+    250000 64 24,25,26,27 31 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -431,6 +439,11 @@ controls and throughput evidence are recorded in
 and two consumers, with thread startup outside timing and every output checked
 afterward. Results and cancellation/partial-progress semantics are documented
 in [the BlockingQueue batch report](docs/validation/2026-11-07-blocking-batch/README.md).
+
+`bench-treiber-batch` compares per-node CAS operations with caller-owned node
+slice publication/removal. Its LIFO semantics, mixed concurrency checks and
+fixed-CPU evidence are recorded in
+[the Treiber batch report](docs/validation/2026-11-07-treiber-batch/README.md).
 
 `bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
 alternate which path runs first, print raw paired samples, and report the
