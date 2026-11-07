@@ -18,6 +18,10 @@ inline fn checkCancel(token: ?*CancelToken) anyerror!void {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Public types
+// ---------------------------------------------------------------------------
+
 pub const Chunk = struct {
     start: usize,
     end: usize,
@@ -55,6 +59,10 @@ pub const Options = struct {
     /// 4096 items. Range callbacks may check the token within their own work.
     cancel: ?*CancelToken = null,
 };
+
+// ---------------------------------------------------------------------------
+// Public APIs
+// ---------------------------------------------------------------------------
 
 /// Parallel loop over `[0, count)`.
 pub fn parallelFor(
@@ -482,6 +490,10 @@ pub fn parallelReduceInfallible(
     return parallelFoldInfallible(pool, T, shared, count, options, identity, map, combine);
 }
 
+// ---------------------------------------------------------------------------
+// Dispatch internals
+// ---------------------------------------------------------------------------
+
 // Keep dispatch storage in one bounded buffer, outside the serial fallback frame.
 noinline fn dispatchRange(
     pool: anytype,
@@ -691,6 +703,10 @@ fn runStaticLanes(
     for (futures[0 .. lanes - 1]) |*future| future.joinOrCall(task, LaneExec.run);
 }
 
+// ---------------------------------------------------------------------------
+// Planning
+// ---------------------------------------------------------------------------
+
 /// Balanced contiguous partitions. The first `extra` chunks get one more
 /// item; every chunk is nonempty and lengths differ by at most one. Advancing
 /// a cursor avoids both per-chunk division and overflowing `index * size` or
@@ -741,6 +757,10 @@ fn shouldRunSerial(count: usize, options: Options, worker_count: usize) bool {
     return plannedChunkCount(count, options, worker_count) <
         plannedLaneCount(options, worker_count);
 }
+
+// ---------------------------------------------------------------------------
+// Serial fallbacks
+// ---------------------------------------------------------------------------
 
 fn serialRange(
     pool: anytype,

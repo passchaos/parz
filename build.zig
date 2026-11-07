@@ -1,5 +1,16 @@
 const std = @import("std");
 
+const ToolOptions = struct {
+    name: []const u8,
+    source: []const u8,
+    step: []const u8,
+    description: []const u8,
+    optimize: std.builtin.OptimizeMode,
+    /// Forward `--` arguments to the run step. Harmless for tools that ignore
+    /// them and keeps the command line uniform across benchmarks.
+    forward_args: bool = true,
+};
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -26,208 +37,172 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&run_lib_tests.step);
     test_step.dependOn(&run_integration_tests.step);
 
-    const numa_mod = b.createModule(.{
-        .root_source_file = b.path("bench/numa.zig"),
-        .target = target,
-        .optimize = optimize,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
-    });
-    const numa_check = b.addExecutable(.{ .name = "parz-numa-check", .root_module = numa_mod });
-    const run_numa = b.addRunArtifact(numa_check);
-    if (b.args) |args| run_numa.addArgs(args);
-    b.step("check-numa", "Check NUMA policy, fallback and allocator lifetime").dependOn(&run_numa.step);
+    // Checks and benchmarks share the same shape: a parz-importing executable
+    // plus a named run step. Keep the wiring here so each entry stays a
+    // one-line declaration.
+    const addTool = struct {
+        fn add(
+            b_: *std.Build,
+            parz: *std.Build.Module,
+            resolved_target: std.Build.ResolvedTarget,
+            options: ToolOptions,
+        ) *std.Build.Step {
+            const module = b_.createModule(.{
+                .root_source_file = b_.path(options.source),
+                .target = resolved_target,
+                .optimize = options.optimize,
+                .imports = &.{.{ .name = "parz", .module = parz }},
+            });
+            const exe = b_.addExecutable(.{
+                .name = options.name,
+                .root_module = module,
+            });
+            const run = b_.addRunArtifact(exe);
+            if (options.forward_args) {
+                if (b_.args) |args| run.addArgs(args);
+            }
+            const step = b_.step(options.step, options.description);
+            step.dependOn(&run.step);
+            return step;
+        }
+    }.add;
 
-    const layout_mod = b.createModule(.{
-        .root_source_file = b.path("bench/worker_layout.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-numa-check",
+        .source = "bench/numa.zig",
+        .step = "check-numa",
+        .description = "Check NUMA policy, fallback and allocator lifetime",
         .optimize = optimize,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const layout_check = b.addExecutable(.{ .name = "parz-worker-layout", .root_module = layout_mod });
-    b.step("check-worker-layout", "Report worker field layout across context alignments").dependOn(&b.addRunArtifact(layout_check).step);
 
-    const tree_sum_mod = b.createModule(.{
-        .root_source_file = b.path("bench/tree_sum.zig"),
-        .target = target,
-        .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-worker-layout",
+        .source = "bench/worker_layout.zig",
+        .step = "check-worker-layout",
+        .description = "Report worker field layout across context alignments",
+        .optimize = optimize,
+        .forward_args = false,
     });
-    const tree_sum = b.addExecutable(.{
+
+    const bench_tree_sum_step = addTool(b, parz_mod, target, .{
         .name = "parz-tree-sum",
-        .root_module = tree_sum_mod,
-    });
-    const run_tree_sum = b.addRunArtifact(tree_sum);
-    if (b.args) |args| run_tree_sum.addArgs(args);
-    const bench_tree_sum_step = b.step("bench-tree-sum", "Run the Spice-style tree-sum benchmark");
-    bench_tree_sum_step.dependOn(&run_tree_sum.step);
-
-    const for_bench_mod = b.createModule(.{
-        .root_source_file = b.path("bench/parallel_for.zig"),
-        .target = target,
+        .source = "bench/tree_sum.zig",
+        .step = "bench-tree-sum",
+        .description = "Run the Spice-style tree-sum benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const for_bench = b.addExecutable(.{
+
+    const bench_for_step = addTool(b, parz_mod, target, .{
         .name = "parz-parallel-for",
-        .root_module = for_bench_mod,
-    });
-    const run_for_bench = b.addRunArtifact(for_bench);
-    if (b.args) |args| run_for_bench.addArgs(args);
-    const bench_for_step = b.step("bench-parallel-for", "Run the flat parallel-for benchmark");
-    bench_for_step.dependOn(&run_for_bench.step);
-
-    const for_2d_mod = b.createModule(.{
-        .root_source_file = b.path("bench/parallel_for_2d.zig"),
-        .target = target,
+        .source = "bench/parallel_for.zig",
+        .step = "bench-parallel-for",
+        .description = "Run the flat parallel-for benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const for_2d_bench = b.addExecutable(.{
+
+    const bench_for_2d_step = addTool(b, parz_mod, target, .{
         .name = "parz-parallel-for-2d",
-        .root_module = for_2d_mod,
-    });
-    const run_for_2d_bench = b.addRunArtifact(for_2d_bench);
-    if (b.args) |args| run_for_2d_bench.addArgs(args);
-    const bench_for_2d_step = b.step("bench-2d", "Run the 2D parallel-for benchmark");
-    bench_for_2d_step.dependOn(&run_for_2d_bench.step);
-
-    const compute_mod = b.createModule(.{
-        .root_source_file = b.path("bench/compute.zig"),
-        .target = target,
+        .source = "bench/parallel_for_2d.zig",
+        .step = "bench-2d",
+        .description = "Run the 2D parallel-for benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const compute = b.addExecutable(.{
+
+    const bench_compute_step = addTool(b, parz_mod, target, .{
         .name = "parz-compute",
-        .root_module = compute_mod,
-    });
-    const run_compute = b.addRunArtifact(compute);
-    if (b.args) |args| run_compute.addArgs(args);
-    const bench_compute_step = b.step("bench-compute", "Run the CPU-bound parallel fold benchmark");
-    bench_compute_step.dependOn(&run_compute.step);
-
-    const infallible_mod = b.createModule(.{
-        .root_source_file = b.path("bench/infallible_fold.zig"),
-        .target = target,
+        .source = "bench/compute.zig",
+        .step = "bench-compute",
+        .description = "Run the CPU-bound parallel fold benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const infallible_bench = b.addExecutable(.{ .name = "parz-infallible-fold", .root_module = infallible_mod });
-    const run_infallible = b.addRunArtifact(infallible_bench);
-    if (b.args) |args| run_infallible.addArgs(args);
-    b.step("bench-infallible-fold", "Compare infallible fold paths and dispatch allocations").dependOn(&run_infallible.step);
 
-    const micro_mod = b.createModule(.{
-        .root_source_file = b.path("bench/micro.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-infallible-fold",
+        .source = "bench/infallible_fold.zig",
+        .step = "bench-infallible-fold",
+        .description = "Compare infallible fold paths and dispatch allocations",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const micro = b.addExecutable(.{ .name = "parz-micro", .root_module = micro_mod });
-    const run_micro = b.addRunArtifact(micro);
-    if (b.args) |args| run_micro.addArgs(args);
-    const bench_micro_step = b.step("bench-micro", "Run the fork/join micro benchmark");
-    bench_micro_step.dependOn(&run_micro.step);
 
-    const irregular_mod = b.createModule(.{
-        .root_source_file = b.path("bench/irregular.zig"),
-        .target = target,
+    const bench_micro_step = addTool(b, parz_mod, target, .{
+        .name = "parz-micro",
+        .source = "bench/micro.zig",
+        .step = "bench-micro",
+        .description = "Run the fork/join micro benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const irregular = b.addExecutable(.{ .name = "parz-irregular", .root_module = irregular_mod });
-    const run_irregular = b.addRunArtifact(irregular);
-    if (b.args) |args| run_irregular.addArgs(args);
-    const bench_irregular_step = b.step("bench-irregular", "Run the skewed fork/join benchmark");
-    bench_irregular_step.dependOn(&run_irregular.step);
 
-    const sync_mod = b.createModule(.{
-        .root_source_file = b.path("bench/sync.zig"),
-        .target = target,
+    const bench_irregular_step = addTool(b, parz_mod, target, .{
+        .name = "parz-irregular",
+        .source = "bench/irregular.zig",
+        .step = "bench-irregular",
+        .description = "Run the skewed fork/join benchmark",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const sync_bench = b.addExecutable(.{ .name = "parz-sync-bench", .root_module = sync_mod });
-    const run_sync_bench = b.addRunArtifact(sync_bench);
-    const bench_sync_step = b.step("bench-sync", "Run sync primitive throughput benchmarks");
-    bench_sync_step.dependOn(&run_sync_bench.step);
 
-    const spsc_mod = b.createModule(.{
-        .root_source_file = b.path("bench/spsc.zig"),
-        .target = target,
+    const bench_sync_step = addTool(b, parz_mod, target, .{
+        .name = "parz-sync-bench",
+        .source = "bench/sync.zig",
+        .step = "bench-sync",
+        .description = "Run sync primitive throughput benchmarks",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const spsc = b.addExecutable(.{ .name = "parz-spsc-bench", .root_module = spsc_mod });
-    const run_spsc = b.addRunArtifact(spsc);
-    if (b.args) |args| run_spsc.addArgs(args);
-    b.step("bench-spsc", "Compare checksum-verified SPSC paths on fixed CPUs").dependOn(&run_spsc.step);
 
-    const batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/spsc_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-spsc-bench",
+        .source = "bench/spsc.zig",
+        .step = "bench-spsc",
+        .description = "Compare checksum-verified SPSC paths on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const batch_bench = b.addExecutable(.{ .name = "parz-spsc-batch", .root_module = batch_mod });
-    const run_batch = b.addRunArtifact(batch_bench);
-    if (b.args) |args| run_batch.addArgs(args);
-    b.step("bench-spsc-batch", "Compare scalar and batch SPSC transfers on fixed CPUs").dependOn(&run_batch.step);
 
-    const mpsc_batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/mpsc_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-spsc-batch",
+        .source = "bench/spsc_batch.zig",
+        .step = "bench-spsc-batch",
+        .description = "Compare scalar and batch SPSC transfers on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const mpsc_batch = b.addExecutable(.{ .name = "parz-mpsc-batch", .root_module = mpsc_batch_mod });
-    const run_mpsc_batch = b.addRunArtifact(mpsc_batch);
-    if (b.args) |args| run_mpsc_batch.addArgs(args);
-    b.step("bench-mpsc-batch", "Compare scalar and batch MPSC transfers on fixed CPUs").dependOn(&run_mpsc_batch.step);
 
-    const sharded_batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/sharded_mpsc_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-mpsc-batch",
+        .source = "bench/mpsc_batch.zig",
+        .step = "bench-mpsc-batch",
+        .description = "Compare scalar and batch MPSC transfers on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const sharded_batch = b.addExecutable(.{ .name = "parz-sharded-mpsc-batch", .root_module = sharded_batch_mod });
-    const run_sharded_batch = b.addRunArtifact(sharded_batch);
-    if (b.args) |args| run_sharded_batch.addArgs(args);
-    b.step("bench-sharded-mpsc-batch", "Compare scalar and batch sharded MPSC transfers on fixed CPUs").dependOn(&run_sharded_batch.step);
 
-    const blocking_batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/blocking_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-sharded-mpsc-batch",
+        .source = "bench/sharded_mpsc_batch.zig",
+        .step = "bench-sharded-mpsc-batch",
+        .description = "Compare scalar and batch sharded MPSC transfers on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const blocking_batch = b.addExecutable(.{ .name = "parz-blocking-batch", .root_module = blocking_batch_mod });
-    const run_blocking_batch = b.addRunArtifact(blocking_batch);
-    if (b.args) |args| run_blocking_batch.addArgs(args);
-    b.step("bench-blocking-batch", "Compare scalar and batch BlockingQueue transfers on fixed CPUs").dependOn(&run_blocking_batch.step);
 
-    const treiber_batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/treiber_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-blocking-batch",
+        .source = "bench/blocking_batch.zig",
+        .step = "bench-blocking-batch",
+        .description = "Compare scalar and batch BlockingQueue transfers on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const treiber_batch = b.addExecutable(.{ .name = "parz-treiber-batch", .root_module = treiber_batch_mod });
-    const run_treiber_batch = b.addRunArtifact(treiber_batch);
-    if (b.args) |args| run_treiber_batch.addArgs(args);
-    b.step("bench-treiber-batch", "Compare scalar and batch TreiberStack transfers on fixed CPUs").dependOn(&run_treiber_batch.step);
 
-    const semaphore_batch_mod = b.createModule(.{
-        .root_source_file = b.path("bench/semaphore_batch.zig"),
-        .target = target,
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-treiber-batch",
+        .source = "bench/treiber_batch.zig",
+        .step = "bench-treiber-batch",
+        .description = "Compare scalar and batch TreiberStack transfers on fixed CPUs",
         .optimize = .ReleaseFast,
-        .imports = &.{.{ .name = "parz", .module = parz_mod }},
     });
-    const semaphore_batch = b.addExecutable(.{ .name = "parz-semaphore-batch", .root_module = semaphore_batch_mod });
-    const run_semaphore_batch = b.addRunArtifact(semaphore_batch);
-    if (b.args) |args| run_semaphore_batch.addArgs(args);
-    b.step("bench-semaphore-batch", "Compare scalar and batch semaphore transfers on fixed CPUs").dependOn(&run_semaphore_batch.step);
+
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-semaphore-batch",
+        .source = "bench/semaphore_batch.zig",
+        .step = "bench-semaphore-batch",
+        .description = "Compare scalar and batch semaphore transfers on fixed CPUs",
+        .optimize = .ReleaseFast,
+    });
 
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);

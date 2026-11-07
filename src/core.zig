@@ -13,9 +13,14 @@
 
 const std = @import("std");
 const builtin = @import("builtin");
+const affinity = @import("affinity.zig");
 const job_mod = @import("job.zig");
 const Job = job_mod.Job;
 const ExecuteState = job_mod.ExecuteState;
+
+// ---------------------------------------------------------------------------
+// Options
+// ---------------------------------------------------------------------------
 
 pub fn Options(comptime Ctx: type) type {
     return struct {
@@ -63,6 +68,10 @@ pub fn Options(comptime Ctx: type) type {
     };
 }
 
+// ---------------------------------------------------------------------------
+// Pool
+// ---------------------------------------------------------------------------
+
 pub fn Pool(comptime Ctx: type) type {
     return struct {
         const Self = @This();
@@ -109,14 +118,14 @@ pub fn Pool(comptime Ctx: type) type {
             }
 
             const pinned_cpus: []u32 = if (options.pin_workers)
-                try buildPinnedCpuList(allocator, io)
+                try affinity.pinnedCpuList(allocator, io)
             else
                 &.{};
             errdefer allocator.free(pinned_cpus);
             const cpu_count = if (!builtin.single_threaded and pinned_cpus.len != 0)
                 pinned_cpus.len
             else
-                effectiveCpuCount();
+                affinity.effectiveCpuCount();
             const requested = if (options.workers == 0)
                 cpu_count -| 1
             else
@@ -419,47 +428,17 @@ pub fn Pool(comptime Ctx: type) type {
             self.shareMany(owner, max);
         }
 
-        fn currentNumaNode() ?u16 {
-            var cpu: u32 = 0;
-            var node: u32 = 0;
-            const rc = std.os.linux.syscall3(
-                .getcpu,
-                @intFromPtr(&cpu),
-                @intFromPtr(&node),
-                0,
-            );
-            if (@as(isize, @bitCast(rc)) < 0) return null;
-            if (node == std.math.maxInt(u32)) return null;
-            return @intCast(node);
-        }
-
         fn applyNumaPolicy(self: *Self) void {
             if (comptime builtin.os.tag != .linux) return;
             const node: u16 = self.options.numa_node orelse
-                (if (self.options.auto_numa) currentNumaNode() orelse return else return);
-            if (node >= @bitSizeOf(usize)) return;
-
-            var mask: usize = @as(usize, 1) << @intCast(node);
-            const MPOL_PREFERRED: usize = 1;
-            _ = std.os.linux.syscall3(
-                .set_mempolicy,
-                MPOL_PREFERRED,
-                @intFromPtr(&mask),
-                @as(usize, node) + 1,
-            );
+                (if (self.options.auto_numa) affinity.currentNumaNode() orelse return else return);
+            affinity.applyNumaPreferred(node);
         }
 
         fn pinWorker(self: *Self, index: usize) void {
             if (!self.options.pin_workers) return;
-            if (comptime builtin.os.tag != .linux) return;
             if (self.pinned_cpus.len == 0) return;
-
-            const cpu = self.pinned_cpus[index];
-            const word = cpu / @bitSizeOf(usize);
-            const bit = cpu % @bitSizeOf(usize);
-            var set = std.mem.zeroes(std.os.linux.cpu_set_t);
-            set[word] = @as(usize, 1) << @intCast(bit);
-            std.os.linux.sched_setaffinity(0, &set) catch {};
+            affinity.pinCurrentThread(self.pinned_cpus[index]);
         }
 
         /// Periodically mark every active worker as ready to share one batch
@@ -517,6 +496,10 @@ pub fn Pool(comptime Ctx: type) type {
     };
 }
 
+// ---------------------------------------------------------------------------
+// Worker
+// ---------------------------------------------------------------------------
+
 pub fn Worker(comptime Ctx: type) type {
     return struct {
         const Self = @This();
@@ -569,6 +552,10 @@ pub fn Worker(comptime Ctx: type) type {
     };
 }
 
+// ---------------------------------------------------------------------------
+// Task
+// ---------------------------------------------------------------------------
+
 pub fn Task(comptime Ctx: type) type {
     return struct {
         const Self = @This();
@@ -607,6 +594,10 @@ fn callWithContext(
     }
     return @call(.always_inline, func, .{ &task, arg });
 }
+
+// ---------------------------------------------------------------------------
+// Future
+// ---------------------------------------------------------------------------
 
 /// A single-use fork/join slot. `fork` requires pending storage initialized
 /// with `.{}`; `initFork` initializes unused storage directly. Join leaves the
@@ -752,6 +743,10 @@ pub fn Future(comptime Ctx: type, comptime Input: type, comptime Output: type) t
     };
 }
 
+// ---------------------------------------------------------------------------
+// Context helpers
+// ---------------------------------------------------------------------------
+
 fn initContext(options: anytype, allocator: std.mem.Allocator, index: usize) !@TypeOf(options).Context {
     const Ctx = @TypeOf(options).Context;
     if (comptime Ctx == void) return {};
@@ -765,83 +760,9 @@ fn deinitContext(ctx: anytype, allocator: std.mem.Allocator, options: anytype) v
     if (options.context_deinit) |deinit| deinit(allocator, ctx);
 }
 
-/// Build a CPU list with one logical CPU per physical core (best effort).
-/// On Linux, read the SMT sibling list from sysfs; fall back to the allowed
-/// affinity set when sysfs is unavailable.
-fn buildPinnedCpuList(allocator: std.mem.Allocator, io: std.Io) ![]u32 {
-    if (comptime builtin.os.tag != .linux) return &.{};
-
-    const affinity = std.posix.sched_getaffinity(0) catch return &.{};
-    var allowed = std.ArrayList(u32).empty;
-    defer allowed.deinit(allocator);
-    for (affinity, 0..) |word, word_index| {
-        var bits = word;
-        while (bits != 0) {
-            const bit = @ctz(bits);
-            const cpu: u32 = @intCast(word_index * @bitSizeOf(usize) + bit);
-            try allowed.append(allocator, cpu);
-            bits &= bits - 1;
-        }
-    }
-    if (allowed.items.len == 0) return &.{};
-
-    var selected = std.ArrayList(u32).empty;
-    defer selected.deinit(allocator);
-    var path_buf: [128]u8 = undefined;
-    for (allowed.items) |cpu| {
-        const path = std.fmt.bufPrint(
-            &path_buf,
-            "/sys/devices/system/cpu/cpu{d}/topology/thread_siblings_list",
-            .{cpu},
-        ) catch {
-            try selected.append(allocator, cpu);
-            continue;
-        };
-        const content = std.Io.Dir.cwd().readFileAlloc(
-            io,
-            path,
-            allocator,
-            .limited(64),
-        ) catch {
-            try selected.append(allocator, cpu);
-            continue;
-        };
-        defer allocator.free(content);
-
-        if (!hasEarlierAllowedSibling(allowed.items, cpu, content)) try selected.append(allocator, cpu);
-    }
-
-    if (selected.items.len == 0) return try allowed.toOwnedSlice(allocator);
-    return try selected.toOwnedSlice(allocator);
-}
-
-/// Sysfs lists all siblings, including CPUs outside the caller's affinity.
-/// Pick the first allowed sibling, rather than requiring the absolute first.
-fn hasEarlierAllowedSibling(allowed: []const u32, cpu: u32, text: []const u8) bool {
-    var groups = std.mem.splitScalar(u8, text, ',');
-    while (groups.next()) |group| {
-        const range = std.mem.trim(u8, group, " \n\r\t");
-        const dash = std.mem.indexOfScalar(u8, range, '-');
-        const first = std.fmt.parseInt(u32, if (dash) |offset| range[0..offset] else range, 10) catch return false;
-        const last = if (dash) |offset| std.fmt.parseInt(u32, range[offset + 1 ..], 10) catch return false else first;
-        if (last < first) return false;
-        for (allowed) |other| {
-            if (other >= cpu) break;
-            if (other >= first and other <= last) return true;
-        }
-    }
-    return false;
-}
-
-fn effectiveCpuCount() usize {
-    if (builtin.single_threaded) return 1;
-    if (builtin.os.tag == .linux) {
-        const affinity = std.posix.sched_getaffinity(0) catch
-            return std.Thread.getCpuCount() catch 1;
-        return @max(@as(usize, 1), std.posix.CPU_COUNT(affinity));
-    }
-    return std.Thread.getCpuCount() catch 1;
-}
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
 
 var test_context_live = std.atomic.Value(u32).init(0);
 
@@ -968,15 +889,6 @@ test "pool pins workers when requested" {
     try pool.start();
     try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else @min(2, pool.pinned_cpus.len)), pool.spawned_background);
     try std.testing.expect(pool.pinned_cpus.len > 0);
-}
-
-test "affinity: first allowed siblings survive restricted CPU sets" {
-    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 1, 2 }, 1, "0-1\n"));
-    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 1, 2 }, 2, "2-3\n"));
-    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 2, 3 }, 3, "2-3\n"));
-    try std.testing.expect(!hasEarlierAllowedSibling(&.{ 0, 17, 18 }, 17, "1,17\n"));
-    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17 }, 17, "1,17\n"));
-    try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17, 18 }, 18, "0-3,16-19\n"));
 }
 
 test "affinity: pinned worker counts fit selected CPUs before startup" {
