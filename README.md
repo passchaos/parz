@@ -45,6 +45,9 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - Balanced contiguous flat chunks: every chunk is nonempty, chunk lengths
   differ by at most one item, and `min_chunk` is respected unless the entire
   input is smaller. Range planning supports counts up to `maxInt(usize)`.
+- Flat calls default to dynamic chunk claiming. `ParallelOptions.schedule =
+  .static` assigns each dispatch lane a contiguous span of chunk indices for
+  uniform work, removing the shared cursor while preserving result order.
 
 ## Scheduling model
 
@@ -130,7 +133,8 @@ const RangeMap = struct {
     }
 };
 const total_by_range = try parz.parallelFoldRangeInfallible(
-    &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0,
+    &pool, u64, data, data.len,
+    .{ .min_chunk = 4096, .schedule = .static }, 0,
     RangeMap.map, Add.combine,
 );
 
@@ -187,6 +191,14 @@ Fallible and infallible forms preserve chunk-index result/error ordering. A
 serial fallback invokes the range callback once for the complete input. Entry
 and exit cancellation checks remain automatic; a long-running range callback
 should check its token internally when lower cancellation latency is needed.
+
+Dynamic scheduling is the default and lets fast lanes take more chunks, which
+is preferable for irregular callbacks and heterogeneous CPUs. Static
+scheduling divides chunk indices into balanced contiguous spans, one per
+dispatch future. A future may execute on any available worker, so static is a
+partition/locality guarantee rather than worker-affinity or context-index
+binding. Use it only when chunk cost is predictable; no work is redistributed
+from a slow static span after execution begins.
 
 Correctness rules:
 
@@ -369,6 +381,10 @@ chunk to a direct callback while keeping deterministic ordered combination.
 The fixed-CPU SIMD comparison and full fallback/cancellation validation are
 recorded in
 [the range-fold report](docs/validation/2026-11-07-range-fold/README.md).
+
+The high-chunk overhead and uniform-work controls for the opt-in static
+schedule are recorded in
+[the static scheduling report](docs/validation/2026-11-07-static-schedule/README.md).
 
 `bench-mpsc-batch` compares scalar and slice transfers using fixed prebuilt
 input, checks per-producer FIFO as well as the checksum, and alternates both

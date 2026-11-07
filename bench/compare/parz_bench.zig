@@ -370,6 +370,19 @@ pub fn main(init: std.process.Init) !void {
         10 * std.time.ns_per_us;
 
     const call_cap = if (argv.items.len > 8) try std.fmt.parseInt(usize, argv.items[8], 10) else 0;
+    const uniform_workload = std.mem.eql(u8, workload, "flat") or
+        std.mem.eql(u8, workload, "flat-element") or
+        std.mem.eql(u8, workload, "compute-inf") or
+        std.mem.eql(u8, workload, "compute") or
+        std.mem.eql(u8, workload, "compute-chunk");
+    const schedule: parz.ParallelSchedule = if (argv.items.len > 9)
+        if (std.mem.eql(u8, argv.items[9], "static"))
+            .static
+        else if (std.mem.eql(u8, argv.items[9], "dynamic"))
+            .dynamic
+        else
+            return error.InvalidSchedule
+    else if (uniform_workload) .static else .dynamic;
 
     var pool = try parz.Pool(void).init(allocator, io, .{
         .workers = if (lanes == 0) 1 else lanes - 1,
@@ -633,7 +646,7 @@ pub fn main(init: std.process.Init) !void {
                     u64,
                     data,
                     count,
-                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap, .schedule = schedule },
                     0,
                     FlatRangeMap.map,
                     add,
@@ -644,7 +657,7 @@ pub fn main(init: std.process.Init) !void {
                     u64,
                     data,
                     count,
-                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                    .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 4096, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap, .schedule = schedule },
                     0,
                     FlatMap.map,
                     add,
@@ -681,7 +694,7 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 {},
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap, .schedule = schedule },
                 0,
                 ComputeRangeMap.map,
                 add,
@@ -719,7 +732,7 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 {},
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap, .schedule = schedule },
                 0,
                 ComputeMap.map,
                 add,
@@ -757,7 +770,7 @@ pub fn main(init: std.process.Init) !void {
                 &pool,
                 &total,
                 count,
-                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap, .schedule = schedule },
                 ChunkSum.run,
             );
             parallel_result = total.load(.monotonic);

@@ -23,15 +23,27 @@ pub const Chunk = struct {
     end: usize,
 };
 
+pub const Schedule = enum {
+    /// Idle lanes dynamically claim chunks. Best for irregular work and
+    /// heterogeneous CPUs.
+    dynamic,
+    /// Each dispatch lane owns one contiguous span of chunk indices. This
+    /// removes cursor contention and improves locality for uniform work.
+    static,
+};
+
 pub const Options = struct {
     /// Minimum number of logical items per chunk, unless the whole input is smaller.
     min_chunk: usize = 1,
     /// Hard upper bound on chunks for one call.
     max_chunks: usize = 4096,
-    /// Target chunks per available lane. More chunks improve load balance on
-    /// heterogeneous CPUs. Lanes claim chunks dynamically from an index;
-    /// this controls granularity rather than the number of jobs to wake.
+    /// Target chunks per available lane. More chunks improve dynamic load
+    /// balance; static scheduling assigns them in contiguous lane spans. This
+    /// controls granularity rather than the number of jobs to wake.
     chunks_per_worker: usize = 16,
+    /// Dynamic balances irregular callbacks; static avoids the shared cursor
+    /// when each chunk has predictable cost.
+    schedule: Schedule = .dynamic,
     /// Per-call lane cap, including the caller. 0 uses all available lanes.
     max_workers: usize = 0,
     /// Run serially below this item count. A flat call with fewer items than
@@ -181,7 +193,7 @@ pub fn parallelForRange(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    try dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, Exec.exec);
+    try dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, options.schedule, Exec.exec);
     try checkCancel(options.cancel);
 }
 
@@ -233,7 +245,7 @@ pub fn parallelFoldRange(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
@@ -291,9 +303,9 @@ pub fn parallelFoldRangeInfallible(
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
     if (options.cancel == null) {
-        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, identity, ExecValue.exec, combine);
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, ExecValue.exec, combine);
     }
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
@@ -358,7 +370,7 @@ pub fn parallelFold(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
     // Dispatch has already selected any chunk error in index order. Only
     // successful reduction reaches this final cancellation checkpoint.
     try checkCancel(options.cancel);
@@ -437,9 +449,9 @@ pub fn parallelFoldInfallible(
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
     if (options.cancel == null) {
-        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, identity, ExecValue.exec, combine);
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, ExecValue.exec, combine);
     }
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
@@ -479,13 +491,14 @@ noinline fn dispatchRange(
     count: usize,
     chunks: usize,
     lanes: usize,
+    schedule: Schedule,
     comptime exec: anytype,
 ) anyerror!void {
     var fallback = std.heap.stackFallback(4096, pool.allocator);
     const allocator = fallback.get();
     const results = try allocator.alloc(anyerror!void, chunks);
     defer allocator.free(results);
-    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
     for (results) |result| try result;
 }
 
@@ -498,6 +511,7 @@ noinline fn dispatchFold(
     count: usize,
     chunks: usize,
     lanes: usize,
+    schedule: Schedule,
     identity: T,
     comptime exec: anytype,
     comptime combine: anytype,
@@ -506,7 +520,7 @@ noinline fn dispatchFold(
     const allocator = fallback.get();
     const results = try allocator.alloc(anyerror!T, chunks);
     defer allocator.free(results);
-    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
     var total = identity;
     for (results) |result| total = combine(total, try result);
     return total;
@@ -523,6 +537,7 @@ noinline fn dispatchFoldValue(
     count: usize,
     chunks: usize,
     lanes: usize,
+    schedule: Schedule,
     identity: T,
     comptime exec: anytype,
     comptime combine: anytype,
@@ -531,15 +546,16 @@ noinline fn dispatchFoldValue(
     const allocator = fallback.get();
     const results = try allocator.alloc(T, chunks);
     defer allocator.free(results);
-    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
     var total = identity;
     for (results) |result| total = combine(total, result);
     return total;
 }
 
 /// One future per lane bounds the number of simultaneous chunk callbacks.
-/// Lanes claim disjoint result slots; all are joined before ordered reduction.
-/// The caller's future is the retained local tail and runs before any waits.
+/// Dynamic lanes claim disjoint result slots; static lanes own contiguous
+/// spans. All futures are joined before ordered reduction. The caller's
+/// future is the retained local tail and runs before any waits.
 fn runLanes(
     pool: anytype,
     task: anytype,
@@ -547,6 +563,32 @@ fn runLanes(
     runner: anytype,
     count: usize,
     requested_lanes: usize,
+    schedule: Schedule,
+    results: anytype,
+    allocator: std.mem.Allocator,
+    comptime exec: anytype,
+) anyerror!void {
+    const Result = @typeInfo(@TypeOf(results)).pointer.child;
+    const lanes = @min(requested_lanes, results.len);
+    if (lanes == 1) {
+        var cursor = ChunkCursor.init(count, results.len);
+        for (results) |*result| result.* = task.call(Result, exec, Input{ .runner = runner, .chunk = cursor.next() });
+        return;
+    }
+
+    return switch (schedule) {
+        .dynamic => runDynamicLanes(pool, task, Input, runner, count, lanes, results, allocator, exec),
+        .static => runStaticLanes(pool, task, Input, runner, count, lanes, results, allocator, exec),
+    };
+}
+
+fn runDynamicLanes(
+    pool: anytype,
+    task: anytype,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    lanes: usize,
     results: anytype,
     allocator: std.mem.Allocator,
     comptime exec: anytype,
@@ -555,12 +597,6 @@ fn runLanes(
     const Task = P.TaskType;
     const Runner = @TypeOf(runner);
     const Result = @typeInfo(@TypeOf(results)).pointer.child;
-    const lanes = @min(requested_lanes, results.len);
-    if (lanes == 1) {
-        var cursor = ChunkCursor.init(count, results.len);
-        for (results) |*result| result.* = task.call(Result, exec, Input{ .runner = runner, .chunk = cursor.next() });
-        return;
-    }
 
     const State = struct {
         runner: Runner,
@@ -573,25 +609,86 @@ fn runLanes(
             while (true) {
                 const index = self.next.fetchAdd(1, .monotonic);
                 if (index >= self.results.len) return;
-                // floor-sized chunks plus a prefix of one-item remainders.
-                // For index < chunks, both intermediates remain <= count.
                 const start = index * self.size + @min(index, self.extra);
                 const chunk = Chunk{ .start = start, .end = start + self.size + @intFromBool(index < self.extra) };
                 self.results[index] = t.call(Result, exec, Input{ .runner = self.runner, .chunk = chunk });
             }
         }
     };
-    var state = State{ .runner = runner, .results = results, .size = count / results.len, .extra = count % results.len };
+    var state = State{
+        .runner = runner,
+        .results = results,
+        .size = count / results.len,
+        .extra = count % results.len,
+    };
     const Fut = core.Future(P.Context, *State, void);
     const futures = try allocator.alloc(Fut, lanes);
     defer allocator.free(futures);
-    for (futures) |*future| {
-        future.* = .{};
-        future.fork(task, State.run, &state);
-    }
+    for (futures) |*future| future.initFork(task, State.run, &state);
     pool.kickstart(task.worker, lanes);
     futures[lanes - 1].joinOrCall(task, State.run);
     for (futures[0 .. lanes - 1]) |*future| future.joinOrCall(task, State.run);
+}
+
+fn runStaticLanes(
+    pool: anytype,
+    task: anytype,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    lanes: usize,
+    results: anytype,
+    allocator: std.mem.Allocator,
+    comptime exec: anytype,
+) anyerror!void {
+    const P = @TypeOf(pool.*);
+    const Task = P.TaskType;
+    const Runner = @TypeOf(runner);
+    const Result = @typeInfo(@TypeOf(results)).pointer.child;
+
+    const State = struct {
+        runner: Runner,
+        results: []Result,
+        size: usize,
+        extra: usize,
+        lanes: usize,
+
+        fn execute(self: *@This(), t: *Task, index: usize) void {
+            const start = index * self.size + @min(index, self.extra);
+            const chunk = Chunk{ .start = start, .end = start + self.size + @intFromBool(index < self.extra) };
+            self.results[index] = t.call(Result, exec, Input{ .runner = self.runner, .chunk = chunk });
+        }
+
+        fn runLane(self: *@This(), t: *Task, lane: usize) void {
+            const size = self.results.len / self.lanes;
+            const extra = self.results.len % self.lanes;
+            var index = lane * size + @min(lane, extra);
+            const end = index + size + @intFromBool(lane < extra);
+            while (index < end) : (index += 1) self.execute(t, index);
+        }
+    };
+    const LaneInput = struct { state: *State, lane: usize };
+    const LaneExec = struct {
+        fn run(t: *Task, input: LaneInput) void {
+            input.state.runLane(t, input.lane);
+        }
+    };
+    var state = State{
+        .runner = runner,
+        .results = results,
+        .size = count / results.len,
+        .extra = count % results.len,
+        .lanes = lanes,
+    };
+    const Fut = core.Future(P.Context, LaneInput, void);
+    const futures = try allocator.alloc(Fut, lanes);
+    defer allocator.free(futures);
+    for (futures, 0..) |*future, lane| {
+        future.initFork(task, LaneExec.run, .{ .state = &state, .lane = lane });
+    }
+    pool.kickstart(task.worker, lanes);
+    futures[lanes - 1].joinOrCall(task, LaneExec.run);
+    for (futures[0 .. lanes - 1]) |*future| future.joinOrCall(task, LaneExec.run);
 }
 
 /// Balanced contiguous partitions. The first `extra` chunks get one more
@@ -895,7 +992,6 @@ test "balanced folds preserve sequence order across worker counts" {
             return .{ .hash = a.hash *% b.factor +% b.hash, .factor = a.factor *% b.factor };
         }
     };
-    const options = Options{ .max_chunks = 6, .chunks_per_worker = 6, .serial_threshold = 0 };
     var expected = Sequence{};
     for (0..13) |index| {
         expected = Sequence.combine(expected, .{ .hash = index + 1, .factor = 31 });
@@ -908,27 +1004,30 @@ test "balanced folds preserve sequence order across worker counts" {
         });
         defer pool.deinit();
         try pool.start();
-        for (0..5) |_| {
-            try std.testing.expectEqualDeep(expected, try parallelFold(
-                &pool,
-                Sequence,
-                {},
-                13,
-                options,
-                .{},
-                Sequence.fallible,
-                Sequence.combine,
-            ));
-            try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
-                &pool,
-                Sequence,
-                {},
-                13,
-                options,
-                .{},
-                Sequence.map,
-                Sequence.combine,
-            ));
+        for ([_]Schedule{ .dynamic, .static }) |schedule| {
+            const options = Options{ .max_chunks = 6, .chunks_per_worker = 6, .serial_threshold = 0, .schedule = schedule };
+            for (0..5) |_| {
+                try std.testing.expectEqualDeep(expected, try parallelFold(
+                    &pool,
+                    Sequence,
+                    {},
+                    13,
+                    options,
+                    .{},
+                    Sequence.fallible,
+                    Sequence.combine,
+                ));
+                try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
+                    &pool,
+                    Sequence,
+                    {},
+                    13,
+                    options,
+                    .{},
+                    Sequence.map,
+                    Sequence.combine,
+                ));
+            }
         }
     }
 }
@@ -962,17 +1061,20 @@ test "parallelForRange enforces worker caps including the caller" {
         defer pool.deinit();
         try pool.start();
         for (1..6) |cap| {
-            for (0..3) |_| {
-                var state = State{ .limit = cap, .caller_index = pool.caller_storage[0].index };
-                try parallelForRange(&pool, &state, n, .{
-                    .max_workers = cap,
-                    .max_chunks = 8,
-                    .serial_threshold = 0,
-                }, State.run);
-                try std.testing.expect(!state.exceeded.load(.monotonic));
-                try std.testing.expect(state.caller_ran.load(.monotonic));
-                try std.testing.expectEqual(@as(usize, 0), state.active.load(.monotonic));
-                for (state.counts) |count| try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
+            for ([_]Schedule{ .dynamic, .static }) |schedule| {
+                for (0..3) |_| {
+                    var state = State{ .limit = cap, .caller_index = pool.caller_storage[0].index };
+                    try parallelForRange(&pool, &state, n, .{
+                        .max_workers = cap,
+                        .max_chunks = 8,
+                        .serial_threshold = 0,
+                        .schedule = schedule,
+                    }, State.run);
+                    try std.testing.expect(!state.exceeded.load(.monotonic));
+                    try std.testing.expect(state.caller_ran.load(.monotonic));
+                    try std.testing.expectEqual(@as(usize, 0), state.active.load(.monotonic));
+                    for (state.counts) |count| try std.testing.expectEqual(@as(u32, 1), count.load(.monotonic));
+                }
             }
         }
     }
@@ -1011,38 +1113,40 @@ test "capped folds preserve ordered results and errors across worker counts" {
             defer pool.deinit();
             try pool.start();
             for (1..6) |cap| {
-                const options = Options{ .max_workers = cap, .max_chunks = 6, .serial_threshold = 0 };
-                for (0..3) |_| {
-                    try std.testing.expectEqualDeep(expected, try parallelFold(
-                        &pool,
-                        Sequence,
-                        {},
-                        13,
-                        options,
-                        .{},
-                        Sequence.fallible,
-                        Sequence.combine,
-                    ));
-                    try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
-                        &pool,
-                        Sequence,
-                        {},
-                        13,
-                        options,
-                        .{},
-                        Sequence.map,
-                        Sequence.combine,
-                    ));
-                    try std.testing.expectError(error.FirstFailure, parallelFold(
-                        &pool,
-                        Sequence,
-                        {},
-                        13,
-                        options,
-                        .{},
-                        Sequence.failing,
-                        Sequence.combine,
-                    ));
+                for ([_]Schedule{ .dynamic, .static }) |schedule| {
+                    const options = Options{ .max_workers = cap, .max_chunks = 6, .serial_threshold = 0, .schedule = schedule };
+                    for (0..3) |_| {
+                        try std.testing.expectEqualDeep(expected, try parallelFold(
+                            &pool,
+                            Sequence,
+                            {},
+                            13,
+                            options,
+                            .{},
+                            Sequence.fallible,
+                            Sequence.combine,
+                        ));
+                        try std.testing.expectEqualDeep(expected, try parallelFoldInfallible(
+                            &pool,
+                            Sequence,
+                            {},
+                            13,
+                            options,
+                            .{},
+                            Sequence.map,
+                            Sequence.combine,
+                        ));
+                        try std.testing.expectError(error.FirstFailure, parallelFold(
+                            &pool,
+                            Sequence,
+                            {},
+                            13,
+                            options,
+                            .{},
+                            Sequence.failing,
+                            Sequence.combine,
+                        ));
+                    }
                 }
             }
         }
@@ -1234,28 +1338,30 @@ test "range folds preserve deterministic chunk-index order across worker counts"
         });
         defer pool.deinit();
         try pool.start();
-        for (0..5) |_| {
-            const options = Options{ .min_chunk = 3, .max_chunks = 7, .chunks_per_worker = 3, .serial_threshold = 0 };
-            try std.testing.expectEqualDeep(expected, try parallelFoldRange(
-                &pool,
-                Sequence,
-                {},
-                count,
-                options,
-                .{},
-                Sequence.fallible,
-                Sequence.combine,
-            ));
-            try std.testing.expectEqualDeep(expected, try parallelFoldRangeInfallible(
-                &pool,
-                Sequence,
-                {},
-                count,
-                options,
-                .{},
-                Sequence.range,
-                Sequence.combine,
-            ));
+        for ([_]Schedule{ .dynamic, .static }) |schedule| {
+            for (0..5) |_| {
+                const options = Options{ .min_chunk = 3, .max_chunks = 7, .chunks_per_worker = 3, .serial_threshold = 0, .schedule = schedule };
+                try std.testing.expectEqualDeep(expected, try parallelFoldRange(
+                    &pool,
+                    Sequence,
+                    {},
+                    count,
+                    options,
+                    .{},
+                    Sequence.fallible,
+                    Sequence.combine,
+                ));
+                try std.testing.expectEqualDeep(expected, try parallelFoldRangeInfallible(
+                    &pool,
+                    Sequence,
+                    {},
+                    count,
+                    options,
+                    .{},
+                    Sequence.range,
+                    Sequence.combine,
+                ));
+            }
         }
         const serial_options = Options{ .serial_threshold = count + 1 };
         try std.testing.expectEqualDeep(expected, try parallelFoldRange(&pool, Sequence, {}, count, serial_options, .{}, Sequence.fallible, Sequence.combine));
@@ -1289,17 +1395,19 @@ test "range fold errors are selected by chunk index" {
         try pool.start();
         try std.testing.expectEqual(@as(u64, 9), try parallelFoldRange(&pool, u64, {}, 0, .{}, 9, Run.never, Run.add));
         try std.testing.expectEqual(@as(u64, 11), try parallelFoldRangeInfallible(&pool, u64, {}, 0, .{}, 11, Run.neverValue, Run.add));
-        for (0..5) |_| {
-            try std.testing.expectError(error.FirstChunk, parallelFoldRange(
-                &pool,
-                u64,
-                {},
-                64,
-                .{ .min_chunk = 1, .max_chunks = 8, .chunks_per_worker = 8, .serial_threshold = 0 },
-                0,
-                Run.map,
-                Run.add,
-            ));
+        for ([_]Schedule{ .dynamic, .static }) |schedule| {
+            for (0..5) |_| {
+                try std.testing.expectError(error.FirstChunk, parallelFoldRange(
+                    &pool,
+                    u64,
+                    {},
+                    64,
+                    .{ .min_chunk = 1, .max_chunks = 8, .chunks_per_worker = 8, .serial_threshold = 0, .schedule = schedule },
+                    0,
+                    Run.map,
+                    Run.add,
+                ));
+            }
         }
     }
 }

@@ -62,6 +62,9 @@ skipped with a warning.
 - Parz's flat sum uses `parallelFoldRangeInfallible` with a portable
   `@Vector(8, u64)` chunk kernel. `flat-element` retains the ordinary
   per-element infallible fold as a code-generation diagnostic.
+- Parz's known-uniform flat and compute workloads opt into contiguous static
+  chunk spans. Pass `dynamic` or `static` after the call-cap argument to
+  override the benchmark schedule; the public library default is dynamic.
 - OpenMP's tree uses `#pragma omp task` with a depth cutoff of 8. Its flat and
   compute loops use `parallel for reduction(static)`.
 - GCC is compiled with `-fno-tree-vectorize` for the compute workload so its
