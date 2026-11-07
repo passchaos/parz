@@ -1,0 +1,83 @@
+{
+  "captured_at_utc": "2026-11-07T00:38:37.981369+00:00",
+  "baseline_commit": "ca58d5dd7b7b517495651489d8ef7e0ca882821d",
+  "zig_version": "0.16.0",
+  "loadavg": "8.02 7.92 6.68 8/2117 3798330",
+  "source_sha256": {
+    "src/sync.zig": "2806eda80dade65ddece2a3a65f04a3b2f89c61ef6d261173ceb773f9735375d",
+    "bench/spsc_batch.zig": "c44861c3f00aeba7aaf82a453ab09a7d61e1c3f5c975ae69d2ce53f3a3e1bb10",
+    "build.zig": "cb5173a2c9ea3ed3b65d17f67407006eef8988466c3d9466247dfe440d6b33bb"
+  },
+  "comparisons": [
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1024,
+      "batch": 1,
+      "items": 3000000
+    },
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1024,
+      "batch": 8,
+      "items": 3000000
+    },
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1024,
+      "batch": 64,
+      "items": 3000000
+    },
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1024,
+      "batch": 256,
+      "items": 3000000
+    },
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1,
+      "batch": 64,
+      "effective_batch": 1,
+      "items": 100000
+    },
+    {
+      "cpu_pair": [
+        0,
+        2
+      ],
+      "capacity": 1024,
+      "batch": 64,
+      "items": 3000000
+    },
+    {
+      "cpu_pair": [
+        24,
+        26
+      ],
+      "capacity": 1024,
+      "batch": 64,
+      "items": 1000
+    }
+  ],
+  "checks": [
+    "FIFO on every payload",
+    "checksum on every warmup and measured run",
+    "quiescent length zero",
+    "nine rounds alternating scalar/batch and serial/parallel"
+  ]
+}

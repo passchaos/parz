@@ -183,6 +183,18 @@ Correctness rules:
 - `TreiberStack(T)` — multi-producer/single-consumer stack; nodes are caller-owned.
 - `Semaphore` and `WaitGroup`.
 
+SPSC also supports partial bulk transfer without allocating:
+
+```zig
+const pushed = queue.tryPushSlice(pending); // prefix accepted, possibly zero
+const popped = queue.tryPopSlice(received); // received[0..popped] is valid
+```
+
+Keep one producer and one consumer. Slice transfers may be mixed with
+`tryPush`/`tryPop`, preserve FIFO order, and publish/free a whole batch with
+one release store. Input/output slices must not alias queue storage. A pop
+leaves the unused output suffix untouched.
+
 ```zig
 var queue = try parz.sync.BlockingQueue(Message).init(allocator, 1024);
 defer queue.deinit();
@@ -252,6 +264,7 @@ zig build bench-2d                   # 2D grid fill
 zig build bench-sync                 # sync primitive throughput
 zig build check-worker-layout        # field offsets and context alignment
 zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
+zig build bench-spsc-batch -Doptimize=ReleaseFast -- 3000000 1024 64 24 26 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -327,6 +340,10 @@ creation, and affinity setup occur before timing. It retains the SPSC
 implementation from `efeb092` as a frozen baseline. Paired medians and layout
 tradeoffs are recorded in
 [the SPSC validation report](docs/validation/2026-11-07-cached-spsc/README.md).
+`bench-spsc-batch` compares scalar and slice APIs using identical prebuilt
+input and receiver buffers. Arguments are items, capacity, batch size,
+producer CPU, consumer CPU, and rounds. [Batch transfer evidence](docs/validation/2026-11-07-spsc-batch/README.md)
+records every payload check, capacity-one controls and publication amortization.
 
 ## Known limits / next steps
 

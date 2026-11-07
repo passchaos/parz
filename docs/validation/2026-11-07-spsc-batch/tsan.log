@@ -1,0 +1,68 @@
+1/67 root.test_0...OK
+2/67 job.test.job list: push, shift, and remove preserve order...OK
+3/67 job.test.job list: shared list supports single-element pop...OK
+4/67 job.test.job list: remove middle node repairs tail...OK
+5/67 core.test.pool: per-worker context init and deinit...OK
+6/67 core.test.pool: start and stop without workers...OK
+7/67 core.test.future: fork/join tree sum with caller fallback...OK
+8/67 core.test.pool pins workers when requested...OK
+9/67 core.test.affinity: first allowed siblings survive restricted CPU sets...OK
+10/67 core.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+11/67 core.test.affinity: context initialization failure releases selected CPU storage...OK
+12/67 core.test.pool applies a preferred numa node...OK
+13/67 core.test.pool applies automatic numa policy...OK
+14/67 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+15/67 core.test.Future shares input and output storage...OK
+16/67 core.test.future: initFork accepts undefined storage and reuses joined slots...OK
+17/67 core.test.future: reclaimed parent fallback publishes descendant forks...OK
+18/67 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+19/67 parallel.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+20/67 parallel.test.parallelForRange accepts usize limits and saturates lane planning...OK
+21/67 parallel.test.balanced folds preserve sequence order across worker counts...OK
+22/67 parallel.test.parallelForRange enforces worker caps including the caller...OK
+23/67 parallel.test.capped folds preserve ordered results and errors across worker counts...OK
+24/67 parallel.test.capped allocation failures release caller slots before invoking callbacks...OK
+25/67 parallel.test.capped nested calls and cancellation drain their lane futures...OK
+26/67 parallel.test.parallelFor covers every index exactly once...OK
+27/67 parallel.test.parallelFold is deterministic and ordered...OK
+28/67 parallel.test.serial fallback destroys the mutated worker context...OK
+29/67 parallel.test.parallelFor serial fallback with no background workers...OK
+30/67 parallel.test.nested parallelFor...OK
+31/67 parallel.test.parallelFor returns the first error by index...OK
+32/67 parallel.test.parallelFold covers stack and heap dispatch storage...OK
+33/67 parallel.test.parallelFold is deterministic across worker counts...OK
+34/67 parallel.test.parallelFoldInfallible matches the fallible fold...OK
+35/67 parallel.test.parallelFor returns Cancelled for an already-cancelled token...OK
+36/67 parallel.test.parallelFold cancels from a callback...OK
+37/67 parallel.test.parallelFoldInfallible honors cancellation...OK
+38/67 parallel.test.serial fold honors cancellation...OK
+39/67 parallel.test.parallelFor2D covers every cell exactly once...OK
+40/67 parallel.test.parallelFor2D handles empty dimensions and overflow...OK
+41/67 parallel.test.parallelFor cancellation from another thread...OK
+42/67 cancel.test.cancel token transitions...OK
+43/67 sync.test.spsc queue: single-threaded order and bounds...OK
+44/67 sync.test.spsc queue: capacity boundaries and cached cursors survive wraparound...OK
+45/67 sync.test.spsc queue: mixed slice and scalar transfers match FIFO through wrap...OK
+46/67 sync.test.spsc queue: slice transfers support empty elements...OK
+47/67 sync.test.spsc queue: concurrent mixed batch transfer and length observer...OK
+48/67 sync.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+49/67 sync.test.mpsc queue: single-threaded order and bounds...OK
+50/67 sync.test.mpsc queue: singleton concurrent producers preserve every value and producer order...OK
+51/67 sync.test.treiber stack: single-threaded order...OK
+52/67 sync.test.spsc queue: concurrent observer length stays within capacity...OK
+53/67 sync.test.spsc queue: repeated threaded FIFO across capacities and counter wrap...OK
+54/67 sync.test.mpsc queue: threaded producers and consumer...OK
+55/67 sync.test.treiber stack: concurrent length does not underflow...OK
+56/67 sync.test.treiber stack: threaded producers and consumer...OK
+57/67 sync.test.semaphore wakes a waiter...OK
+58/67 sync.test.wait group waits for all members...OK
+59/67 sync.test.blocking queue: single-threaded order and bounds...OK
+60/67 sync.test.blocking queue: threaded producers and consumers...OK
+61/67 sync.test.sharded mpsc queue: single-threaded round robin...OK
+62/67 sync.test.sharded mpsc queue: threaded producers and consumer...OK
+63/67 numa.test.numa allocator validates policy node sets and copies wide masks...OK
+64/67 numa.test.numa allocator preserves contents alignment and failed reallocations...OK
+65/67 numa.test.numa required policy either applies or reports allocation failure...OK
+66/67 numa.test.numa allocator handles every policy and init-time allocation failure...OK
+67/67 numa.test.numa VMA policy survives reallocating an anonymous mapping...OK
+All 67 tests passed.

@@ -1,0 +1,4 @@
+wasm32-wasi +atomics compilation passed
+x86_64-windows-gnu compilation passed
+aarch64-macos compilation passed
+x86_64-linux-musl compilation passed
