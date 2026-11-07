@@ -1,0 +1,14 @@
+$ zig build bench-mpsc-batch -Doptimize=ReleaseFast -- 100000 8 8 24,25,26,27 31 9
+mpsc-batch per_producer=100000 capacity=8 batch=8 effective_batch=8 producer_cpus={ 24, 25, 26, 27 } consumer_cpu=31 checksum=79999800000
+sample=0 scalar_serial_ns=4782232 scalar_parallel_ns=58826881 batch_serial_ns=1978411 batch_parallel_ns=21177379
+sample=1 scalar_serial_ns=4360224 scalar_parallel_ns=58879011 batch_serial_ns=1985668 batch_parallel_ns=21284244
+sample=2 scalar_serial_ns=4313294 scalar_parallel_ns=59268600 batch_serial_ns=1982990 batch_parallel_ns=21214356
+sample=3 scalar_serial_ns=4553207 scalar_parallel_ns=59318603 batch_serial_ns=1988580 batch_parallel_ns=21351019
+sample=4 scalar_serial_ns=4447810 scalar_parallel_ns=59294795 batch_serial_ns=1991516 batch_parallel_ns=21234921
+sample=5 scalar_serial_ns=4441253 scalar_parallel_ns=59249265 batch_serial_ns=1989489 batch_parallel_ns=21220746
+sample=6 scalar_serial_ns=4326275 scalar_parallel_ns=58804875 batch_serial_ns=1989958 batch_parallel_ns=21361960
+sample=7 scalar_serial_ns=4436835 scalar_parallel_ns=59462061 batch_serial_ns=1971916 batch_parallel_ns=21322497
+sample=8 scalar_serial_ns=4761732 scalar_parallel_ns=59156667 batch_serial_ns=1990339 batch_parallel_ns=21185459
+mpsc implementation=scalar serial_ns=4441253 parallel_ns=59249265 speedup=0.075 statistic=median
+mpsc implementation=batch serial_ns=1988580 parallel_ns=21234921 speedup=0.094 statistic=median
+mpsc comparison scalar_ns=59249265 batch_ns=21234921 speedup=2.790

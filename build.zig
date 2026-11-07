@@ -163,6 +163,17 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_batch.addArgs(args);
     b.step("bench-spsc-batch", "Compare scalar and batch SPSC transfers on fixed CPUs").dependOn(&run_batch.step);
 
+    const mpsc_batch_mod = b.createModule(.{
+        .root_source_file = b.path("bench/mpsc_batch.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const mpsc_batch = b.addExecutable(.{ .name = "parz-mpsc-batch", .root_module = mpsc_batch_mod });
+    const run_mpsc_batch = b.addRunArtifact(mpsc_batch);
+    if (b.args) |args| run_mpsc_batch.addArgs(args);
+    b.step("bench-mpsc-batch", "Compare scalar and batch MPSC transfers on fixed CPUs").dependOn(&run_mpsc_batch.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);

@@ -1,0 +1,11 @@
+$ zig build bench-sync -Doptimize=ReleaseFast
+spsc count=1000000 ns=13379250 ops_per_sec=74742605
+spsc checksum=499999500000
+mpsc count=1000000 ns=149789399 ops_per_sec=6676040
+mpsc-1p count=1000000 ns=31886319 ops_per_sec=31361412
+mpsc-sharded count=1000000 ns=35751314 ops_per_sec=27971000
+mpsc-mutex count=1000000 ns=295414764 ops_per_sec=3385071
+treiber count=1000000 ns=61195195 ops_per_sec=16341152
+blocking count=1000000 ns=130859767 ops_per_sec=7641768
+
+exit_code=0

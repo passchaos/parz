@@ -1,0 +1,8 @@
+$ zig build bench-mpsc-batch -Doptimize=ReleaseFast -- 100000 1024 64 24,25,26,27 31 3
+mpsc-batch per_producer=100000 capacity=1024 batch=64 effective_batch=64 producer_cpus={ 24, 25, 26, 27 } consumer_cpu=31 checksum=79999800000
+sample=0 scalar_serial_ns=4456927 scalar_parallel_ns=51839856 batch_serial_ns=1629355 batch_parallel_ns=1987910
+sample=1 scalar_serial_ns=4335422 scalar_parallel_ns=52106978 batch_serial_ns=1669942 batch_parallel_ns=5080256
+sample=2 scalar_serial_ns=4332138 scalar_parallel_ns=52298962 batch_serial_ns=1644228 batch_parallel_ns=5034167
+mpsc implementation=scalar serial_ns=4335422 parallel_ns=52106978 speedup=0.083 statistic=median
+mpsc implementation=batch serial_ns=1644228 parallel_ns=5034167 speedup=0.327 statistic=median
+mpsc comparison scalar_ns=52106978 batch_ns=5034167 speedup=10.351

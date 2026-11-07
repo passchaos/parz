@@ -1,0 +1,21 @@
+--- a/src/sync.zig
++++ b/src/sync.zig
+@@ -225 +225,2 @@
+-        /// Reserve and publish an available prefix with one enqueue CAS.
++        /// Reserve and publish an available prefix with one enqueue CAS for
++        /// capacities >= 4. Tiny queues use at most two scalar operations.
+@@ -233,0 +235,4 @@
++            if (self.mask == 1) {
++                if (!self.tryPush(values[0])) return 0;
++                return 1 + @as(usize, @intFromBool(self.tryPush(values[1])));
++            }
+@@ -291 +296,2 @@
+-        /// per call, with no allocation and one consumer-position update.
++        /// per call, with no allocation. Larger queues update the consumer
++        /// position once; one- and two-slot queues use scalar operations.
+@@ -296,0 +303,5 @@
++            }
++            if (self.mask == 1) {
++                output[0] = self.tryPop() orelse return 0;
++                output[1] = self.tryPop() orelse return 1;
++                return 2;

@@ -222,6 +222,55 @@ pub fn MpscQueue(comptime T: type) type {
             }
         }
 
+        /// Reserve and publish an available prefix with one enqueue CAS for
+        /// capacities >= 4. Tiny queues use at most two scalar operations.
+        /// Concurrent producers may reserve later prefixes while an earlier
+        /// producer is still publishing. FIFO follows reservation order; the
+        /// consumer stops at the first unpublished slot. Input must not alias
+        /// queue storage. No memory is allocated.
+        pub inline fn tryPushSlice(self: *Self, values: []const T) usize {
+            if (values.len == 0) return 0;
+            if (values.len == 1 or self.mask == 0)
+                return @intFromBool(self.tryPush(values[0]));
+            if (self.mask == 1) {
+                if (!self.tryPush(values[0])) return 0;
+                return 1 + @as(usize, @intFromBool(self.tryPush(values[1])));
+            }
+            return self.pushSliceBatch(values);
+        }
+
+        noinline fn pushSliceBatch(self: *Self, values: []const T) usize {
+            const limit = @min(values.len, self.buffer.len);
+            var pos = self.enqueue_pos.load(.monotonic);
+            retry: while (true) {
+                var count: usize = 0;
+                while (count < limit) : (count += 1) {
+                    const position = pos +% count;
+                    const sequence = self.buffer[position & self.mask].sequence.load(.acquire);
+                    const difference = @as(isize, @bitCast(sequence -% position));
+                    if (difference < 0) break;
+                    if (difference > 0) {
+                        pos = self.enqueue_pos.load(.monotonic);
+                        continue :retry;
+                    }
+                }
+                if (count == 0) return 0;
+                if (self.enqueue_pos.cmpxchgWeak(pos, pos +% count, .monotonic, .monotonic)) |actual| {
+                    pos = actual;
+                    continue;
+                }
+                // The successful CAS owns every slot in this prefix. Each
+                // slot retains its own release/acquire publication protocol.
+                for (values[0..count], 0..) |value, offset| {
+                    const position = pos +% offset;
+                    const slot = &self.buffer[position & self.mask];
+                    slot.value = value;
+                    slot.sequence.store(position +% 1, .release);
+                }
+                return count;
+            }
+        }
+
         /// Single consumer only. The consumer position is a plain field, so
         /// it does not share a cache line with the producers' enqueue position.
         pub fn tryPop(self: *Self) ?T {
@@ -232,20 +281,47 @@ pub fn MpscQueue(comptime T: type) type {
                 slot.sequence.store(0, .release);
                 return value;
             }
-            var pos = self.dequeue_pos;
-            while (true) {
-                const slot = &self.buffer[pos & self.mask];
-                const seq = slot.sequence.load(.acquire);
-                const dif = @as(isize, @bitCast(seq -% (pos +% 1)));
-                if (dif == 0) {
-                    self.dequeue_pos = pos +% 1;
-                    const value = slot.value;
-                    slot.sequence.store(pos +% self.buffer.len, .release);
-                    return value;
-                }
-                if (dif < 0) return null;
-                pos = self.dequeue_pos;
+            const pos = self.dequeue_pos;
+            const slot = &self.buffer[pos & self.mask];
+            if (slot.sequence.load(.acquire) != pos +% 1) return null;
+            const value = slot.value;
+            self.dequeue_pos = pos +% 1;
+            slot.sequence.store(pos +% self.buffer.len, .release);
+            return value;
+        }
+
+        /// Copy a ready prefix, stopping at the first unpublished slot.
+        /// Single consumer only. Output must not alias queue storage; its
+        /// unused suffix is left untouched. At most capacity items are copied
+        /// per call, with no allocation. Larger queues update the consumer
+        /// position once; one- and two-slot queues use scalar operations.
+        pub inline fn tryPopSlice(self: *Self, output: []T) usize {
+            if (output.len == 0) return 0;
+            if (output.len == 1 or self.mask == 0) {
+                output[0] = self.tryPop() orelse return 0;
+                return 1;
             }
+            if (self.mask == 1) {
+                output[0] = self.tryPop() orelse return 0;
+                output[1] = self.tryPop() orelse return 1;
+                return 2;
+            }
+            return self.popSliceBatch(output);
+        }
+
+        noinline fn popSliceBatch(self: *Self, output: []T) usize {
+            const limit = @min(output.len, self.buffer.len);
+            const pos = self.dequeue_pos;
+            var count: usize = 0;
+            while (count < limit) : (count += 1) {
+                const position = pos +% count;
+                const slot = &self.buffer[position & self.mask];
+                if (slot.sequence.load(.acquire) != position +% 1) break;
+                output[count] = slot.value;
+                slot.sequence.store(position +% self.buffer.len, .release);
+            }
+            self.dequeue_pos = pos +% count;
+            return count;
         }
     };
 }
@@ -734,6 +810,192 @@ test "mpsc queue: single-threaded order and bounds" {
     try std.testing.expect(!queue.tryPush(99));
     for (0..4) |index| try std.testing.expectEqual(@as(u32, @intCast(index)), queue.tryPop().?);
     try std.testing.expect(queue.tryPop() == null);
+}
+
+fn seedMpscPosition(queue: anytype, position: usize) void {
+    if (queue.capacity() == 1) return;
+    queue.enqueue_pos.store(position, .monotonic);
+    queue.dequeue_pos = position;
+    for (0..queue.capacity()) |offset| {
+        const next = position +% offset;
+        queue.buffer[next & queue.mask].sequence.store(next, .monotonic);
+    }
+}
+
+test "mpsc queue: mixed slice and scalar prefixes preserve FIFO across counter wrap" {
+    for ([_]usize{ 0, 1, 2, 3, 8, 64 }) |capacity| {
+        var queue = try MpscQueue(u64).init(std.testing.allocator, capacity);
+        defer queue.deinit();
+        seedMpscPosition(&queue, std.math.maxInt(usize) - 27);
+        var reference: [64]u64 = undefined;
+        var head: usize = 0;
+        var tail: usize = 0;
+        var count: usize = 0;
+        var next: u64 = 0;
+        var random = std.Random.DefaultPrng.init(0xb471c + capacity);
+        for (0..3000) |step| {
+            if (random.random().boolean()) {
+                var values: [71]u64 = undefined;
+                const length = random.random().uintLessThan(usize, values.len + 1);
+                for (values[0..length], 0..) |*value, offset| value.* = next + offset;
+                const pushed = if (step % 3 == 0 and length != 0)
+                    @as(usize, @intFromBool(queue.tryPush(values[0])))
+                else
+                    queue.tryPushSlice(values[0..length]);
+                const requested = if (step % 3 == 0 and length != 0) 1 else length;
+                try std.testing.expectEqual(@min(requested, queue.capacity() - count), pushed);
+                for (values[0..pushed]) |value| {
+                    reference[tail % reference.len] = value;
+                    tail += 1;
+                    count += 1;
+                }
+                next += pushed;
+            } else {
+                var output: [73]u64 = @splat(std.math.maxInt(u64));
+                const length = random.random().uintLessThan(usize, output.len + 1);
+                const popped = if (step % 3 == 0 and length != 0) blk: {
+                    output[0] = queue.tryPop() orelse break :blk @as(usize, 0);
+                    break :blk @as(usize, 1);
+                } else queue.tryPopSlice(output[0..length]);
+                const requested = if (step % 3 == 0 and length != 0) 1 else length;
+                try std.testing.expectEqual(@min(requested, count), popped);
+                for (output[0..popped]) |value| {
+                    try std.testing.expectEqual(reference[head % reference.len], value);
+                    head += 1;
+                    count -= 1;
+                }
+                for (output[popped..]) |value| try std.testing.expectEqual(std.math.maxInt(u64), value);
+            }
+        }
+        while (count != 0) : (count -= 1) {
+            try std.testing.expectEqual(reference[head % reference.len], queue.tryPop().?);
+            head += 1;
+        }
+        try std.testing.expectEqual(@as(?u64, null), queue.tryPop());
+        try std.testing.expect(queue.tryPush(123));
+        try std.testing.expectEqual(@as(?u64, 123), queue.tryPop());
+    }
+}
+
+test "mpsc queue: ready batches cannot skip an earlier reserved slot" {
+    var queue = try MpscQueue(u64).init(std.testing.allocator, 8);
+    defer queue.deinit();
+    // Pause a producer after reserving slot zero, before its publication.
+    queue.enqueue_pos.store(1, .monotonic);
+    try std.testing.expectEqual(@as(usize, 3), queue.tryPushSlice(&.{ 11, 12, 13 }));
+    var output: [8]u64 = @splat(99);
+    try std.testing.expectEqual(@as(usize, 0), queue.tryPopSlice(&output));
+    try std.testing.expectEqual(@as(?u64, null), queue.tryPop());
+    for (output) |value| try std.testing.expectEqual(@as(u64, 99), value);
+    queue.buffer[0].value = 10;
+    queue.buffer[0].sequence.store(1, .release);
+    try std.testing.expectEqual(@as(usize, 4), queue.tryPopSlice(&output));
+    try std.testing.expectEqualSlices(u64, &.{ 10, 11, 12, 13, 99, 99, 99, 99 }, &output);
+    try std.testing.expectEqual(@as(usize, 8), queue.tryPushSlice(&.{ 20, 21, 22, 23, 24, 25, 26, 27, 28 }));
+    try std.testing.expectEqual(@as(usize, 8), queue.tryPopSlice(&output));
+    try std.testing.expectEqualSlices(u64, &.{ 20, 21, 22, 23, 24, 25, 26, 27 }, &output);
+}
+
+test "mpsc queue: slice transfers retain aligned payloads and empty elements" {
+    const Packet = struct {
+        id: u64 align(64),
+        bytes: [43]u8,
+    };
+    var queue = try MpscQueue(Packet).init(std.testing.allocator, 4);
+    defer queue.deinit();
+    const input = [_]Packet{ .{ .id = 5, .bytes = @splat(5) }, .{ .id = 7, .bytes = @splat(7) } };
+    for (0..5) |_| {
+        try std.testing.expectEqual(input.len, queue.tryPushSlice(&input));
+        var output: [2]Packet = undefined;
+        try std.testing.expectEqual(input.len, queue.tryPopSlice(&output));
+        for (input, output) |expected, actual| {
+            try std.testing.expectEqual(expected.id, actual.id);
+            try std.testing.expectEqualSlices(u8, &expected.bytes, &actual.bytes);
+        }
+    }
+    var empty = try MpscQueue(void).init(std.testing.allocator, 2);
+    defer empty.deinit();
+    try std.testing.expectEqual(@as(usize, 2), empty.tryPushSlice(&.{ {}, {}, {} }));
+    var output: [3]void = undefined;
+    try std.testing.expectEqual(@as(usize, 2), empty.tryPopSlice(&output));
+    try std.testing.expectEqual(@as(usize, 0), empty.tryPopSlice(&output));
+}
+
+test "mpsc queue: concurrent scalar and batch producers retain every value and producer order" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const producers = 4;
+    const per_producer = 2000;
+    const State = struct {
+        queue: *MpscQueue(u64),
+        start: std.atomic.Value(bool) = .init(false),
+
+        fn produce(self: *@This(), id: usize) void {
+            while (!self.start.load(.acquire)) std.atomic.spinLoopHint();
+            var next: usize = 0;
+            while (next < per_producer) {
+                var input: [31]u64 = undefined;
+                const length = @min(1 + (next + id * 7) % input.len, per_producer - next);
+                for (input[0..length], 0..) |*value, offset| value.* = id * per_producer + next + offset;
+                const pushed = if (next % 7 == 0)
+                    @as(usize, @intFromBool(self.queue.tryPush(input[0])))
+                else
+                    self.queue.tryPushSlice(input[0..length]);
+                next += pushed;
+                if (pushed == 0) std.atomic.spinLoopHint();
+            }
+        }
+    };
+    for ([_]usize{ 1, 2, 8, 1024 }) |capacity| {
+        for (0..2) |_| {
+            var queue = try MpscQueue(u64).init(std.testing.allocator, capacity);
+            defer queue.deinit();
+            seedMpscPosition(&queue, std.math.maxInt(usize) - 127);
+            var state = State{ .queue = &queue };
+            var threads: [producers]std.Thread = undefined;
+            var spawned: usize = 0;
+            defer for (threads[0..spawned]) |thread| thread.join();
+            // Release any already spawned producers on a spawn failure too.
+            defer state.start.store(true, .release);
+            for (&threads, 0..) |*thread, id| {
+                thread.* = std.Thread.spawn(.{}, State.produce, .{ &state, id }) catch |err| {
+                    state.start.store(true, .release);
+                    var drained: usize = 0;
+                    while (drained < spawned * per_producer) {
+                        if (queue.tryPop() != null) drained += 1 else std.atomic.spinLoopHint();
+                    }
+                    return err;
+                };
+                spawned += 1;
+            }
+            state.start.store(true, .release);
+            var next: [producers]usize = @splat(0);
+            var received: usize = 0;
+            var checksum: u64 = 0;
+            var bad_order = false;
+            while (received < producers * per_producer) {
+                var output: [37]u64 = undefined;
+                const popped = if (received % 5 == 0) blk: {
+                    output[0] = queue.tryPop() orelse break :blk @as(usize, 0);
+                    break :blk @as(usize, 1);
+                } else queue.tryPopSlice(&output);
+                for (output[0..popped]) |value| {
+                    const id = value / per_producer;
+                    if (id < producers) {
+                        bad_order = bad_order or value % per_producer != next[id];
+                        next[id] += 1;
+                    } else bad_order = true;
+                    checksum += value;
+                    received += 1;
+                }
+                if (popped == 0) std.atomic.spinLoopHint();
+            }
+            try std.testing.expect(!bad_order);
+            for (next) |count| try std.testing.expectEqual(@as(usize, per_producer), count);
+            const total = producers * per_producer;
+            try std.testing.expectEqual(@as(u64, total * (total - 1) / 2), checksum);
+            try std.testing.expectEqual(@as(?u64, null), queue.tryPop());
+        }
+    }
 }
 
 test "mpsc queue: singleton concurrent producers preserve every value and producer order" {

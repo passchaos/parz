@@ -1,0 +1,15 @@
+$ taskset -c 24-31 zig build bench-tree-sum -Doptimize=ReleaseFast -- 1000000 heartbeat gate 31
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1837907 parallel_ns=846430 speedup=2.171
+sample=1 serial_ns=1751253 parallel_ns=805957 speedup=2.173
+sample=2 serial_ns=1789140 parallel_ns=827903 speedup=2.161
+sample=3 serial_ns=1733756 parallel_ns=716612 speedup=2.419
+sample=4 serial_ns=1787184 parallel_ns=824667 speedup=2.167
+sample=5 serial_ns=1705596 parallel_ns=742892 speedup=2.296
+sample=6 serial_ns=1782506 parallel_ns=815263 speedup=2.186
+sample=7 serial_ns=1687457 parallel_ns=870032 speedup=1.940
+sample=8 serial_ns=1707820 parallel_ns=773989 speedup=2.207
+tree_sum nodes=1000000 workers=7 serial_ns=1751253 parallel_ns=815263 speedup=2.148 statistic=median
+
+exit_code=0

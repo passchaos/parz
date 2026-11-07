@@ -1,0 +1,408 @@
+[
+  {
+    "case": "before-one-item-specialization-capacity-eight",
+    "implementation": "scalar",
+    "serial_ns": 4543459,
+    "parallel_ns": 56090662,
+    "speedup": 0.081
+  },
+  {
+    "case": "before-one-item-specialization-capacity-eight",
+    "implementation": "batch",
+    "serial_ns": 1996820,
+    "parallel_ns": 21465113,
+    "speedup": 0.093
+  },
+  {
+    "case": "before-one-item-specialization-capacity-two",
+    "implementation": "scalar",
+    "serial_ns": 4794146,
+    "parallel_ns": 60914547,
+    "speedup": 0.079
+  },
+  {
+    "case": "before-one-item-specialization-capacity-two",
+    "implementation": "batch",
+    "serial_ns": 4880286,
+    "parallel_ns": 60578119,
+    "speedup": 0.081
+  },
+  {
+    "case": "before-one-item-specialization-four-producers-64",
+    "implementation": "scalar",
+    "serial_ns": 33051835,
+    "parallel_ns": 386775767,
+    "speedup": 0.085
+  },
+  {
+    "case": "before-one-item-specialization-four-producers-64",
+    "implementation": "batch",
+    "serial_ns": 12860050,
+    "parallel_ns": 38197604,
+    "speedup": 0.337
+  },
+  {
+    "case": "before-one-item-specialization-four-producers-8",
+    "implementation": "scalar",
+    "serial_ns": 32170145,
+    "parallel_ns": 420632662,
+    "speedup": 0.076
+  },
+  {
+    "case": "before-one-item-specialization-four-producers-8",
+    "implementation": "batch",
+    "serial_ns": 14570136,
+    "parallel_ns": 48703758,
+    "speedup": 0.299
+  },
+  {
+    "case": "before-one-item-specialization-one-producer-64",
+    "implementation": "scalar",
+    "serial_ns": 11004397,
+    "parallel_ns": 43810372,
+    "speedup": 0.251
+  },
+  {
+    "case": "before-one-item-specialization-one-producer-64",
+    "implementation": "batch",
+    "serial_ns": 4213094,
+    "parallel_ns": 11049234,
+    "speedup": 0.381
+  },
+  {
+    "case": "before-one-item-specialization-pcores-64",
+    "implementation": "scalar",
+    "serial_ns": 38199318,
+    "parallel_ns": 421572694,
+    "speedup": 0.091
+  },
+  {
+    "case": "before-one-item-specialization-pcores-64",
+    "implementation": "batch",
+    "serial_ns": 9815470,
+    "parallel_ns": 35882232,
+    "speedup": 0.274
+  },
+  {
+    "case": "capacity-eight",
+    "implementation": "scalar",
+    "serial_ns": 4252418,
+    "parallel_ns": 61240979,
+    "speedup": 0.069
+  },
+  {
+    "case": "capacity-eight",
+    "implementation": "batch",
+    "serial_ns": 1979846,
+    "parallel_ns": 21949551,
+    "speedup": 0.09
+  },
+  {
+    "case": "capacity-two-confirm",
+    "implementation": "scalar",
+    "serial_ns": 4660873,
+    "parallel_ns": 72048485,
+    "speedup": 0.065
+  },
+  {
+    "case": "capacity-two-confirm",
+    "implementation": "batch",
+    "serial_ns": 4787007,
+    "parallel_ns": 73178244,
+    "speedup": 0.065
+  },
+  {
+    "case": "capacity-two",
+    "implementation": "scalar",
+    "serial_ns": 4514254,
+    "parallel_ns": 72575519,
+    "speedup": 0.062
+  },
+  {
+    "case": "capacity-two",
+    "implementation": "batch",
+    "serial_ns": 4789197,
+    "parallel_ns": 72163228,
+    "speedup": 0.066
+  },
+  {
+    "case": "four-producers-64",
+    "implementation": "scalar",
+    "serial_ns": 32199234,
+    "parallel_ns": 426233373,
+    "speedup": 0.076
+  },
+  {
+    "case": "four-producers-64",
+    "implementation": "batch",
+    "serial_ns": 12492254,
+    "parallel_ns": 39286910,
+    "speedup": 0.318
+  },
+  {
+    "case": "four-producers-8",
+    "implementation": "scalar",
+    "serial_ns": 32034570,
+    "parallel_ns": 410379283,
+    "speedup": 0.078
+  },
+  {
+    "case": "four-producers-8",
+    "implementation": "batch",
+    "serial_ns": 14597405,
+    "parallel_ns": 48495728,
+    "speedup": 0.301
+  },
+  {
+    "case": "initial-capacity-eight-confirm",
+    "implementation": "scalar",
+    "serial_ns": 4775439,
+    "parallel_ns": 56404048,
+    "speedup": 0.085
+  },
+  {
+    "case": "initial-capacity-eight-confirm",
+    "implementation": "batch",
+    "serial_ns": 1990018,
+    "parallel_ns": 19236668,
+    "speedup": 0.103
+  },
+  {
+    "case": "initial-capacity-eight",
+    "implementation": "scalar",
+    "serial_ns": 4441253,
+    "parallel_ns": 59249265,
+    "speedup": 0.075
+  },
+  {
+    "case": "initial-capacity-eight",
+    "implementation": "batch",
+    "serial_ns": 1988580,
+    "parallel_ns": 21234921,
+    "speedup": 0.094
+  },
+  {
+    "case": "initial-capacity-two-confirm",
+    "implementation": "scalar",
+    "serial_ns": 4682272,
+    "parallel_ns": 65301451,
+    "speedup": 0.072
+  },
+  {
+    "case": "initial-capacity-two-confirm",
+    "implementation": "batch",
+    "serial_ns": 2948391,
+    "parallel_ns": 82223093,
+    "speedup": 0.036
+  },
+  {
+    "case": "initial-capacity-two",
+    "implementation": "scalar",
+    "serial_ns": 4745934,
+    "parallel_ns": 59248144,
+    "speedup": 0.08
+  },
+  {
+    "case": "initial-capacity-two",
+    "implementation": "batch",
+    "serial_ns": 2956084,
+    "parallel_ns": 63274831,
+    "speedup": 0.047
+  },
+  {
+    "case": "initial-four-producers-64",
+    "implementation": "scalar",
+    "serial_ns": 33006212,
+    "parallel_ns": 385232732,
+    "speedup": 0.086
+  },
+  {
+    "case": "initial-four-producers-64",
+    "implementation": "batch",
+    "serial_ns": 12328295,
+    "parallel_ns": 38477835,
+    "speedup": 0.32
+  },
+  {
+    "case": "initial-four-producers-8",
+    "implementation": "scalar",
+    "serial_ns": 34804978,
+    "parallel_ns": 427724235,
+    "speedup": 0.081
+  },
+  {
+    "case": "initial-four-producers-8",
+    "implementation": "batch",
+    "serial_ns": 14568890,
+    "parallel_ns": 61726696,
+    "speedup": 0.236
+  },
+  {
+    "case": "initial-one-producer-64",
+    "implementation": "scalar",
+    "serial_ns": 11030846,
+    "parallel_ns": 40518395,
+    "speedup": 0.272
+  },
+  {
+    "case": "initial-one-producer-64",
+    "implementation": "batch",
+    "serial_ns": 4085442,
+    "parallel_ns": 11309791,
+    "speedup": 0.361
+  },
+  {
+    "case": "initial-pcores-64",
+    "implementation": "scalar",
+    "serial_ns": 38567232,
+    "parallel_ns": 488907003,
+    "speedup": 0.079
+  },
+  {
+    "case": "initial-pcores-64",
+    "implementation": "batch",
+    "serial_ns": 10198616,
+    "parallel_ns": 30734831,
+    "speedup": 0.332
+  },
+  {
+    "case": "initial-single-item",
+    "implementation": "scalar",
+    "serial_ns": 24828918,
+    "parallel_ns": 432850070,
+    "speedup": 0.057
+  },
+  {
+    "case": "initial-single-item",
+    "implementation": "batch",
+    "serial_ns": 24982991,
+    "parallel_ns": 427159478,
+    "speedup": 0.058
+  },
+  {
+    "case": "initial-singleton",
+    "implementation": "scalar",
+    "serial_ns": 1710105,
+    "parallel_ns": 20173692,
+    "speedup": 0.085
+  },
+  {
+    "case": "initial-singleton",
+    "implementation": "batch",
+    "serial_ns": 1708204,
+    "parallel_ns": 20027822,
+    "speedup": 0.085
+  },
+  {
+    "case": "initial-smoke",
+    "implementation": "scalar",
+    "serial_ns": 4335422,
+    "parallel_ns": 52106978,
+    "speedup": 0.083
+  },
+  {
+    "case": "initial-smoke",
+    "implementation": "batch",
+    "serial_ns": 1644228,
+    "parallel_ns": 5034167,
+    "speedup": 0.327
+  },
+  {
+    "case": "one-producer-64",
+    "implementation": "scalar",
+    "serial_ns": 10666171,
+    "parallel_ns": 42384711,
+    "speedup": 0.252
+  },
+  {
+    "case": "one-producer-64",
+    "implementation": "batch",
+    "serial_ns": 4101660,
+    "parallel_ns": 11914415,
+    "speedup": 0.344
+  },
+  {
+    "case": "pcores-64",
+    "implementation": "scalar",
+    "serial_ns": 37950450,
+    "parallel_ns": 501952754,
+    "speedup": 0.076
+  },
+  {
+    "case": "pcores-64",
+    "implementation": "batch",
+    "serial_ns": 9821808,
+    "parallel_ns": 29587654,
+    "speedup": 0.332
+  },
+  {
+    "case": "runtime-length-single-item",
+    "implementation": "scalar",
+    "serial_ns": 24864287,
+    "parallel_ns": 432628864,
+    "speedup": 0.057
+  },
+  {
+    "case": "runtime-length-single-item",
+    "implementation": "batch",
+    "serial_ns": 27323117,
+    "parallel_ns": 423539376,
+    "speedup": 0.065
+  },
+  {
+    "case": "runtime-length-singleton",
+    "implementation": "scalar",
+    "serial_ns": 1721671,
+    "parallel_ns": 60658294,
+    "speedup": 0.028
+  },
+  {
+    "case": "runtime-length-singleton",
+    "implementation": "batch",
+    "serial_ns": 2072674,
+    "parallel_ns": 70599145,
+    "speedup": 0.029
+  },
+  {
+    "case": "single-item",
+    "implementation": "scalar",
+    "serial_ns": 23263221,
+    "parallel_ns": 410221549,
+    "speedup": 0.057
+  },
+  {
+    "case": "single-item",
+    "implementation": "batch",
+    "serial_ns": 23372761,
+    "parallel_ns": 410732429,
+    "speedup": 0.057
+  },
+  {
+    "case": "singleton",
+    "implementation": "scalar",
+    "serial_ns": 1913254,
+    "parallel_ns": 24770433,
+    "speedup": 0.077
+  },
+  {
+    "case": "singleton",
+    "implementation": "batch",
+    "serial_ns": 1949020,
+    "parallel_ns": 23778938,
+    "speedup": 0.082
+  },
+  {
+    "case": "smoke",
+    "implementation": "scalar",
+    "serial_ns": 4272304,
+    "parallel_ns": 51496292,
+    "speedup": 0.083
+  },
+  {
+    "case": "smoke",
+    "implementation": "batch",
+    "serial_ns": 1651521,
+    "parallel_ns": 5236407,
+    "speedup": 0.315
+  }
+]

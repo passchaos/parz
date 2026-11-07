@@ -212,6 +212,18 @@ group.wait(io);
 `MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
 `BlockingQueue` is the multi-consumer blocking option.
 
+`MpscQueue` also provides `tryPushSlice` and `tryPopSlice`. For capacities of
+four or more, a producer reserves an available input prefix with one CAS and
+publishes each slot separately. One- and two-slot queues use scalar operations;
+another producer may interleave between those scalar pushes.
+The consumer copies a ready prefix, stopping at the first unpublished slot;
+later producers cannot bypass an earlier reservation. Both operations return
+the transferred count, support mixing with scalar operations, allocate
+nothing, and transfer at most the queue capacity. Input/output must not alias
+queue storage, and an unused output suffix stays untouched. FIFO follows
+reservation order; individual producer sequences retain their order. A stalled
+producer can temporarily prevent the consumer from reaching later ready slots.
+
 `SpscQueue` caches the opposite endpoint's position until a possible full or
 empty boundary. Producer state, consumer state, and immutable buffer metadata
 occupy separate cache lines. This reduces communication between cores at the
@@ -265,6 +277,7 @@ zig build bench-sync                 # sync primitive throughput
 zig build check-worker-layout        # field offsets and context alignment
 zig build bench-spsc -Doptimize=ReleaseFast -- 3000000 1024 24 26 9
 zig build bench-spsc-batch -Doptimize=ReleaseFast -- 3000000 1024 64 24 26 9
+zig build bench-mpsc-batch -Doptimize=ReleaseFast -- 750000 1024 64 24,25,26,27 31 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -293,6 +306,14 @@ notes.
 
 Benchmarks print `serial_ns`, `parallel_ns`, and `speedup`; they verify the
 checksum before reporting.
+
+`bench-mpsc-batch` compares scalar and slice transfers using fixed prebuilt
+input, checks per-producer FIFO as well as the checksum, and alternates both
+APIs and serial/parallel runs. Arguments are items per producer, capacity,
+batch size, comma-separated producer CPUs, consumer CPU, and rounds. Each CPU
+must be distinct; allocation, thread startup and affinity setup precede timing.
+Measured results and correctness checks are recorded in
+[the MPSC batch validation report](docs/validation/2026-11-07-mpsc-batch/README.md).
 
 `bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
 alternate which path runs first, print raw paired samples, and report the
