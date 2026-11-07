@@ -375,8 +375,9 @@ taskset -c 0,2,4,6,8,10,12,14 zig build bench-tree-sum \
     -Doptimize=ReleaseFast -- 1000 heartbeat gate
 ```
 
-This strict performance gate is currently failing and is tracked separately
-from `scripts/check.sh`, which verifies correctness and target compatibility.
+This strict performance gate passes with the recursive grain cutoff and is
+tracked separately from `scripts/check.sh`, which verifies correctness and
+target compatibility.
 
 Indicative snapshot from a 32-thread x86-64 Linux host (31 background workers,
 ReleaseFast, best of several runs, machine otherwise loaded):
@@ -393,9 +394,10 @@ ReleaseFast, best of several runs, machine otherwise loaded):
 These older best-run measurements are indicative and use a different timing
 method from the paired medians. Current fixed-CPU evidence is recorded in
 [the boundary validation report](docs/validation/2026-11-07-boundaries/README.md).
-The small-tree parity target remains open: direct serial recursion is faster
-than the current fork/join path for the 1000-node case, especially with an
-error-union result.
+Current fixed-CPU small-tree and large-tree results are recorded in
+[the recursive grain report](docs/validation/2026-11-07-recursive-grain/README.md).
+The 1000-node parity gate now passes by routing subtrees of at most 2047 nodes
+through the direct serial kernel; larger trees retain heartbeat fork/join.
 
 Sync primitives have a separate throughput smoke benchmark
 (`zig build bench-sync`); its SPSC path verifies FIFO order and checksum.

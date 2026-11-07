@@ -45,23 +45,43 @@ fn parallelSumErr(task: *parz.Task(void), node: *const Node) anyerror!i64 {
     return result;
 }
 
-fn parallelSum(task: *parz.Task(void), node: *const Node) i64 {
+const TreeWork = struct {
+    node: *const Node,
+    depth: usize,
+};
+
+const tree_serial_depth = 10;
+
+fn treeDepth(node_count: usize) usize {
+    var depth: usize = 0;
+    var covered: usize = 1;
+    while (covered < node_count) {
+        covered = covered *| 2 +| 1;
+        depth += 1;
+    }
+    return depth;
+}
+
+fn parallelSum(task: *parz.Task(void), work_input: TreeWork) i64 {
+    if (work_input.depth <= tree_serial_depth) return serialSum(work_input.node);
+    const node = work_input.node;
     var result = node.value;
     if (node.left) |left| {
         if (node.right) |right| {
-            var future = parz.Future(void, *const Node, i64){};
-            future.fork(task, parallelSum, right);
-            result += task.call(i64, parallelSum, left);
+            const next_depth = work_input.depth - 1;
+            var future: parz.Future(void, TreeWork, i64) = undefined;
+            future.initFork(task, parallelSum, .{ .node = right, .depth = next_depth });
+            result += task.call(i64, parallelSum, TreeWork{ .node = left, .depth = next_depth });
             result += if (future.join(task)) |value|
                 value
             else
-                task.call(i64, parallelSum, right);
+                task.call(i64, parallelSum, TreeWork{ .node = right, .depth = next_depth });
             return result;
         }
-        result += task.call(i64, parallelSum, left);
+        result += task.call(i64, parallelSum, TreeWork{ .node = left, .depth = work_input.depth - 1 });
     }
     if (node.right) |right| {
-        result += task.call(i64, parallelSum, right);
+        result += task.call(i64, parallelSum, TreeWork{ .node = right, .depth = work_input.depth - 1 });
     }
     return result;
 }
@@ -549,7 +569,7 @@ pub fn main(init: std.process.Init) !void {
             parallel_result = if (use_err)
                 try task.call(anyerror!i64, parallelSumErr, &nodes[0])
             else
-                task.call(i64, parallelSum, &nodes[0]);
+                task.call(i64, parallelSum, TreeWork{ .node = &nodes[0], .depth = treeDepth(count) });
             const t_parallel = elapsed(start, io);
             pool.releaseCaller(caller);
             if (serial_result != parallel_result) return error.ChecksumMismatch;
@@ -630,7 +650,7 @@ pub fn main(init: std.process.Init) !void {
                 u64,
                 {},
                 count,
-                .{ .min_chunk = 1024, .chunks_per_worker = 16, .max_workers = call_cap },
+                .{ .min_chunk = if (min_chunk_arg != 0) min_chunk_arg else 1024, .chunks_per_worker = chunks_per_worker, .max_workers = call_cap },
                 0,
                 ComputeInfMap.map,
                 add,

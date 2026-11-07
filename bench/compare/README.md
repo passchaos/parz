@@ -16,8 +16,8 @@ external spice checkout, Cargo/Rayon, and a GCC with OpenMP.
 
 Each benchmark alternates a serial run and a parallel run, verifies the
 checksum, and reports `serial_ns`, `parallel_ns`, and `speedup`. The runner
-interleaves the four implementations across rounds and reports the best
-parallel time per cell.
+interleaves the four implementations across rounds and reports outer medians
+for serial and parallel time plus their ratio.
 
 ## Dependencies
 
@@ -56,6 +56,9 @@ skipped with a warning.
 - Spice has no flat-loop API. Its `flat` and `compute` numbers use a recursive
   range fork/join with 4096/1024-element leaves; treat them as an adaptation,
   not a native spice feature.
+- Parz's tree uses its documented remaining-depth grain cutoff: subtrees of
+  at most 2047 nodes run through the direct serial kernel. Uncut and
+  error-union variants remain available as separate diagnostics.
 - OpenMP's tree uses `#pragma omp task` with a depth cutoff of 8. Its flat and
   compute loops use `parallel for reduction(static)`.
 - GCC is compiled with `-fno-tree-vectorize` for the compute workload so its
@@ -65,7 +68,10 @@ skipped with a warning.
   scaling, and other load on the machine. Use `--cpus` and an otherwise idle
   host for publishable numbers.
 - The checksum gate is part of every process: a mismatch exits non-zero and the
-  runner stops.
+  runner stops. `--gate` is a conservative regression smoke test. Broad
+  parallel and compute floors scale down below the historical 32-lane ceiling,
+  so they do not require more speedup than an explicit small lane count can
+  provide.
 
 [spice]: https://github.com/judofyr/spice
 [Rayon]: https://github.com/rayon-rs/rayon
@@ -78,5 +84,5 @@ taskset -c 0,2,4,6,8,10,12,14 zig-out/bin/compare-parz \
     compute 1000000 8 1024 16 heartbeat 10000 2
 ```
 
-Every measured parz checksum is validated, including samples that are not
-selected as the best time.
+Every measured parz checksum is validated, including samples on either side
+of the reported median.

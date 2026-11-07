@@ -3,7 +3,7 @@
 
 The benchmark processes alternate serial and parallel runs internally and
 verify their checksum before printing. This runner interleaves the four
-implementations across rounds and reports the best parallel time per cell.
+implementations across rounds and reports outer medians per cell.
 """
 
 import argparse
@@ -26,6 +26,28 @@ WORKLOADS = [
     ("flat", 16_000_000),
     ("compute", 1_000_000),
 ]
+
+
+def summarize(runs):
+    return (
+        statistics.median(item[0] for item in runs),
+        statistics.median(item[1] for item in runs),
+    )
+
+
+def gate_thresholds(lanes):
+    # Preserve the historical 32-lane ceilings while making the smoke gate
+    # achievable with smaller explicit lane counts. These are regression
+    # floors, not competitive targets.
+    broad = min(2.5, max(0.8, lanes * 0.25))
+    compute = min(10.0, max(0.8, lanes * 0.65))
+    return {
+        "tree-1000": 0.30,
+        "tree-100000": 0.80,
+        "tree-10000000": broad,
+        "flat-16000000": broad,
+        "compute-1000000": compute,
+    }
 
 
 def run(cmd, cwd=ROOT, check=True):
@@ -95,6 +117,10 @@ def main():
         help="fail if parz speedups fall below conservative smoke thresholds",
     )
     args = parser.parse_args()
+    if args.rounds < 1:
+        parser.error("--rounds must be at least 1")
+    if args.lanes < 1:
+        parser.error("--lanes must be at least 1")
 
     if not args.no_build:
         build(args)
@@ -133,7 +159,7 @@ def main():
                     flush=True,
                 )
 
-    print("\n=== best (min) parallel time per implementation ===")
+    print("\n=== median time per implementation ===")
     header = f"{'workload':16s}"
     for name in impls:
         header += f" {name:>18s}"
@@ -146,27 +172,21 @@ def main():
             if not runs:
                 line += f" {'-':>18s}"
                 continue
-            serial, parallel = min(runs, key=lambda item: item[1])
+            serial, parallel = summarize(runs)
             line += f" {parallel / 1e6:10.3f}ms/{serial / parallel:5.2f}x"
         print(line)
 
     if args.gate:
         # Conservative smoke floors, not competitive targets. They are meant
         # to catch catastrophic regressions on a loaded development host.
-        gates = {
-            "tree-1000": 0.30,
-            "tree-100000": 0.80,
-            "tree-10000000": 2.50,
-            "flat-16000000": 2.50,
-            "compute-1000000": 10.0,
-        }
+        gates = gate_thresholds(args.lanes)
         failures = []
         for key, minimum in gates.items():
             runs = data["parz"].get(key, [])
             if not runs:
                 failures.append(f"{key}: missing")
                 continue
-            serial, parallel = min(runs, key=lambda item: item[1])
+            serial, parallel = summarize(runs)
             speedup = serial / parallel
             if speedup < minimum:
                 failures.append(f"{key}: {speedup:.2f}x < {minimum:.2f}x")

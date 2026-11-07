@@ -65,3 +65,8 @@ This resolves the named small-tree parity gate. It does not by itself prove
 global theoretical optimality across all recursive workloads, architectures,
 worker counts or sibling-library integrations, so the broader optimization
 goal remains active.
+
+The same cutoff was subsequently applied to the formal parz/Spice/Rayon/OpenMP
+tree workload. Its fixed-CPU before/after samples and cross-implementation
+medians are recorded in the
+[comparison-grain report](../2026-11-07-comparison-grain/README.md).
