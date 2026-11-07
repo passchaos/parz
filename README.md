@@ -258,6 +258,10 @@ group.add(io, workers);
 // each worker:
 group.done(io);
 group.wait(io);
+
+var permits = parz.sync.Semaphore.init(initial_permits);
+permits.postMany(io, produced);
+try permits.waitMany(io, required);
 ```
 
 `MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
@@ -301,6 +305,12 @@ with one count update and one successful head CAS; it is equivalent to scalar
 pushes in slice order. The single consumer can use `popSlice(output)` to detach
 a stack-order prefix with one successful CAS. Output entries are node pointers,
 the unused suffix is untouched, and no memory is allocated.
+
+`Semaphore` supports atomic multi-permit `postMany`, `waitMany`, and
+`waitManyUncancelable`. It tracks wide waiters under the semaphore mutex and
+broadcasts when necessary so a large request cannot strand permits needed by
+a smaller waiter. `WaitGroup.doneMany` completes several members with one
+lock, and `waitCancelable` complements the existing uncancelable `wait`.
 
 ## Per-worker context
 
@@ -372,6 +382,8 @@ zig build bench-blocking-batch -Doptimize=ReleaseFast -- \
     500000 1024 64 24,25 26,27 31 9
 zig build bench-treiber-batch -Doptimize=ReleaseFast -- \
     250000 64 24,25,26,27 31 9
+zig build bench-semaphore-batch -Doptimize=ReleaseFast -- \
+    1000000 64 24 26 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -444,6 +456,11 @@ in [the BlockingQueue batch report](docs/validation/2026-11-07-blocking-batch/RE
 slice publication/removal. Its LIFO semantics, mixed concurrency checks and
 fixed-CPU evidence are recorded in
 [the Treiber batch report](docs/validation/2026-11-07-treiber-batch/README.md).
+
+`bench-semaphore-batch` compares per-permit locking with multi-permit
+coordination between fixed producer/consumer CPUs. Mixed-width waiter safety,
+WaitGroup batching and throughput evidence are recorded in
+[the coordination batch report](docs/validation/2026-11-07-coordination-batch/README.md).
 
 `bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
 alternate which path runs first, print raw paired samples, and report the

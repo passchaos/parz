@@ -218,6 +218,17 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_treiber_batch.addArgs(args);
     b.step("bench-treiber-batch", "Compare scalar and batch TreiberStack transfers on fixed CPUs").dependOn(&run_treiber_batch.step);
 
+    const semaphore_batch_mod = b.createModule(.{
+        .root_source_file = b.path("bench/semaphore_batch.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const semaphore_batch = b.addExecutable(.{ .name = "parz-semaphore-batch", .root_module = semaphore_batch_mod });
+    const run_semaphore_batch = b.addRunArtifact(semaphore_batch);
+    if (b.args) |args| run_semaphore_batch.addArgs(args);
+    b.step("bench-semaphore-batch", "Compare scalar and batch semaphore transfers on fixed CPUs").dependOn(&run_semaphore_batch.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);
