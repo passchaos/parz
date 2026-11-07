@@ -1,0 +1,27 @@
+$ taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 1 31 1024
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+measurement repetitions=1024 unit=ns_per_call
+sample=0 serial_ns=1465 parallel_ns=3033 speedup=0.483 repetitions=1024 unit=ns_per_call
+sample=1 serial_ns=1479 parallel_ns=2983 speedup=0.496 repetitions=1024 unit=ns_per_call
+sample=2 serial_ns=1460 parallel_ns=2968 speedup=0.492 repetitions=1024 unit=ns_per_call
+sample=3 serial_ns=1414 parallel_ns=2978 speedup=0.475 repetitions=1024 unit=ns_per_call
+sample=4 serial_ns=1389 parallel_ns=2878 speedup=0.483 repetitions=1024 unit=ns_per_call
+sample=5 serial_ns=1410 parallel_ns=2867 speedup=0.492 repetitions=1024 unit=ns_per_call
+sample=6 serial_ns=1392 parallel_ns=2880 speedup=0.483 repetitions=1024 unit=ns_per_call
+sample=7 serial_ns=1402 parallel_ns=2885 speedup=0.486 repetitions=1024 unit=ns_per_call
+sample=8 serial_ns=1383 parallel_ns=2834 speedup=0.488 repetitions=1024 unit=ns_per_call
+micro callback=plain serial_ns=1410 parallel_ns=2885 speedup=0.489 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1328 parallel_ns=3033 speedup=0.438 repetitions=1024 unit=ns_per_call
+sample=1 serial_ns=1331 parallel_ns=3040 speedup=0.438 repetitions=1024 unit=ns_per_call
+sample=2 serial_ns=1347 parallel_ns=3034 speedup=0.444 repetitions=1024 unit=ns_per_call
+sample=3 serial_ns=1345 parallel_ns=3086 speedup=0.436 repetitions=1024 unit=ns_per_call
+sample=4 serial_ns=1330 parallel_ns=3033 speedup=0.439 repetitions=1024 unit=ns_per_call
+sample=5 serial_ns=1349 parallel_ns=3040 speedup=0.444 repetitions=1024 unit=ns_per_call
+sample=6 serial_ns=1345 parallel_ns=3040 speedup=0.442 repetitions=1024 unit=ns_per_call
+sample=7 serial_ns=1350 parallel_ns=3047 speedup=0.443 repetitions=1024 unit=ns_per_call
+sample=8 serial_ns=1347 parallel_ns=3039 speedup=0.443 repetitions=1024 unit=ns_per_call
+micro callback=error-union serial_ns=1345 parallel_ns=3040 speedup=0.442 statistic=median
+
+exit_code=0

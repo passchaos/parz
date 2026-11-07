@@ -112,6 +112,8 @@ pub fn main(init: std.process.Init) !void {
     const node_count = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 100_000;
     const lanes = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 0;
     const caller_cpu = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else null;
+    const repetitions = if (args.next()) |arg| try std.fmt.parseInt(usize, arg, 10) else 1;
+    if (repetitions == 0) return error.InvalidRepetitions;
     if (node_count == 0) return;
     const nodes = try buildTree(allocator, node_count);
     defer allocator.free(nodes);
@@ -135,9 +137,10 @@ pub fn main(init: std.process.Init) !void {
 
     var run = Run{ .node = &nodes[0], .caller = caller };
     std.debug.print("micro nodes={d} workers={d} checksum={d} callback=plain\n", .{ node_count, pool.spawned_background, node_count });
-    const plain = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.plain);
+    std.debug.print("measurement repetitions={d} unit=ns_per_call\n", .{repetitions});
+    const plain = try timing.pairedRepeated(i64, allocator, io, 9, repetitions, @intCast(node_count), &run, Run.serial, Run.plain);
     std.debug.print("micro callback=plain serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n", .{ plain.serial_ns, plain.parallel_ns, plain.speedup() });
     std.debug.print("micro nodes={d} workers={d} checksum={d} callback=error-union\n", .{ node_count, pool.spawned_background, node_count });
-    const fallible = try timing.paired(i64, allocator, io, 9, @intCast(node_count), &run, Run.serial, Run.fallible);
+    const fallible = try timing.pairedRepeated(i64, allocator, io, 9, repetitions, @intCast(node_count), &run, Run.serial, Run.fallible);
     std.debug.print("micro callback=error-union serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median\n", .{ fallible.serial_ns, fallible.parallel_ns, fallible.speedup() });
 }

@@ -1042,6 +1042,44 @@ test "pool applies automatic numa policy" {
     try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else 1), pool.spawned_background);
 }
 
+test "future: nested begin preserves outstanding local work on registered and temporary lanes" {
+    const F = Future(void, usize, usize);
+    const Run = struct {
+        fn leaf(_: *Task(void), input: usize) usize {
+            return input * 3 + 1;
+        }
+    };
+    for (0..5) |workers| {
+        var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+            .max_execute_states = 16,
+        });
+        defer pool.deinit();
+        try pool.start();
+        const caller = pool.claimCaller().?;
+        defer pool.releaseCaller(caller);
+        var temporary = Worker(void){ .pool = &pool, .ctx = {} };
+        for ([_]*Worker(void){ caller, &temporary }) |owner| {
+            for (0..10) |index| {
+                var task = owner.begin();
+                var parent: F = undefined;
+                parent.initFork(&task, Run.leaf, index * 17 + 3);
+                var nested = owner.begin();
+                var child: F = undefined;
+                child.initFork(&nested, Run.leaf, index * 7 + 1);
+                const child_value = child.joinOrCall(&nested, Run.leaf);
+                const parent_value = parent.joinOrCall(&task, Run.leaf);
+                try std.testing.expectEqual((index * 7 + 1) * 3 + 1, child_value);
+                try std.testing.expectEqual((index * 17 + 3) * 3 + 1, parent_value);
+                try std.testing.expect(owner.job_head.isTail());
+                try std.testing.expectEqual(&owner.job_head, owner.local_tail);
+            }
+        }
+    }
+}
+
 test "future: pending and error-union joins preserve caller fallback across lanes" {
     const F = Future(void, u64, anyerror!u64);
     const Exec = struct {

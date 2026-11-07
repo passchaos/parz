@@ -1,0 +1,75 @@
+{
+  "baseline_commit": "d2e1212cae05fd0a2403275665bee133aa31a300",
+  "zig_version": "0.16.0",
+  "loadavg": "13.82 13.97 12.06 11/2206 1129841",
+  "source_sha256": {
+    "snapshot": {
+      "core.zig": "2f7e7ed3fb7d813f5fb09dfc3005e54eccebf8a9ea5088c9858cc608dd4be530",
+      "job.zig": "800445cf120a9ab308c62353fa73fc9ff249d19c0425e99baef52debd2394112"
+    },
+    "checks": {
+      "core.zig": "2f7e7ed3fb7d813f5fb09dfc3005e54eccebf8a9ea5088c9858cc608dd4be530",
+      "job.zig": "9df1d2f6be5bd584e716a7e27799242b6ef5927095955f643e4be19b2559970e"
+    },
+    "aligned-baseline": {
+      "core.zig": "c9c6998499b8780626ac0eabed454ca9be9538979f50c0f1d546e0693a42c4fd",
+      "job.zig": "da81f161deb375c05271deb4f2338f2ed34648b01a8480532eda95b34e0ec1cd"
+    },
+    "aligned-checks": {
+      "core.zig": "c9c6998499b8780626ac0eabed454ca9be9538979f50c0f1d546e0693a42c4fd",
+      "job.zig": "9df1d2f6be5bd584e716a7e27799242b6ef5927095955f643e4be19b2559970e"
+    },
+    "deferred-outlined": {
+      "core.zig": "45163b9135b4ad7726ed28bbaae29dfb7b62273f45316a97ec8a1653be0d48cb",
+      "job.zig": "4470f502143d24fba329bf73c1662bc377e38ab1ed6500e832ba3a51b60f4b47"
+    },
+    "deferred-aligned": {
+      "core.zig": "5f946e575d2942aa77dfbdc8d68ae97edab195a5390c59a9e1168e717b93be95",
+      "job.zig": "4470f502143d24fba329bf73c1662bc377e38ab1ed6500e832ba3a51b60f4b47"
+    },
+    "dirty-pop": {
+      "core.zig": "45163b9135b4ad7726ed28bbaae29dfb7b62273f45316a97ec8a1653be0d48cb",
+      "job.zig": "2c19c33a7754358632fa03a07147d8c5a2880bd029b52aca28d0ac9655d1ed28"
+    }
+  },
+  "benchmark_sources_sha256": {
+    "micro.zig": "d1a8126f2eb0e485fd82648e5bfe5d8b3deae59705384f97d1462b8e611637fc",
+    "timing.zig": "3ded6fc1fc878795e451280a123c6f3b177595adc0cf7c065eb6136874061257",
+    "tree_sum.zig": "d3e315383704bdece5d055b3d8b501c2f814949b8c37ef98d5077e36463683f1"
+  },
+  "binary_sha256": {
+    "aligned-baseline-micro": "f544f2c3aa5e61fd6abef47e0c2a5231b632784a2b1579bb7f9a9c1e4ea33cf0",
+    "local-tree_sum": "006047525fd19a650e549ca8b6e3cbb063a8b4aa3efc0d9a8c2eaa091b2e0f09",
+    "aligned-baseline-tree_sum": "6a58885d6e8f1fe7899d84a5aeb0fe322b6855ee3c656e7df1d5fb2d818772e1",
+    "checks-micro": "43c64fd4a1b07485cf3526e5ce9449e9f0116bd1810caf0949b166bbaf1ac1f7",
+    "baseline-tree_sum": "9327410ecf18e602a465129d4b4b0d716e3ae716bfef73793f6ca77e218f5270",
+    "deferred-aligned-tree_sum": "04fffeed5b05dcaea8cbd8d2000c0f1ba12e844aec84236ec9aba686b6a4af69",
+    "snapshot-micro": "b2d6d8b5473689068c42d047ed6c450d2749c2da1d0e0fa42d5620f546e026ab",
+    "deferred-outlined-tree_sum": "63bb8d4ce1295d9c371a8d960e16c1b05201c5d6d888be812123ea1e9901f008",
+    "dirty-pop-micro": "778f949d607a5cc95ec03ef77319088b6a64d8250900c7fb466fd451b344cc1a",
+    "deferred-micro": "380e69bdda3a31b3ef77272d07ff7fb9d5427c05cf45feb0aaa6aeda6dda822d",
+    "aligned-checks-micro": "95d9cb8aa11cc74114d84d7ac2cafa483f894c86ec7ef6907ee12b96e19f094d",
+    "baseline-micro": "1a9e9a1a9e6e9678e192472da5e7ae0e3caa2ad998b94a6cd3c4b4ab69d1cf10",
+    "checks-tree_sum": "deccdf83052f371574c1c99a5aa1d660d360d840e3e1ed01c29f4cd0eb7b317d",
+    "deferred-aligned-micro": "7646014a63c3933d3789879a7feb71ff7e31bbf50d3b533ba93465458045d385",
+    "baseline-micro-repeated": "bdb785cd296660eff337fac8e2cb1170c9c180afed2f8453c78d75ed50e384a6",
+    "snapshot-tree_sum": "b6bbf9e167e7f7bd8b3b1ecbcd55f67044245df7bbe400261e59fa30c8c5d5c3",
+    "dirty-pop-tree_sum": "7937f82eb3229b89ddfe51105baf8fc8198e845c5bf8f9f28ed20519846c6edb",
+    "local-micro": "a268edb7abc2f18335d576adc317eda8a3032dd603e0d9ee12d84dba76629c0a",
+    "checks-micro-repeated": "31b44c4832a80f179975f531202a0e63d723664599725ea9bbf686f1f2f6eab7",
+    "aligned-checks-tree_sum": "491c3d2b58eb2a4fe4ce150c75f6215bc9c2feac45849264dcd321ddbb5390a7",
+    "deferred-tree_sum": "e6d3f37ab2dc3e643ea953e883a20167f286fd39a562b70f0d9d71457c305e6d",
+    "deferred-outlined-micro": "632a99bec286058c9437b8621ef48f827e0fb4ad89dbe55cae8469a315879602"
+  },
+  "placements": {
+    "E": "caller 31, workers 24..30",
+    "P": "caller 14, workers 0,2,4,6,8,10,12"
+  },
+  "production_scheduler_restored": true,
+  "final_source_sha256": {
+    "src/core.zig": "adbfcaff6a8f73406c1a3dbead7e8c2ab32479b9db8e5eec4ca1e8cc07dce68d",
+    "src/job.zig": "da81f161deb375c05271deb4f2338f2ed34648b01a8480532eda95b34e0ec1cd",
+    "bench/micro.zig": "d1a8126f2eb0e485fd82648e5bfe5d8b3deae59705384f97d1462b8e611637fc",
+    "bench/timing.zig": "3ded6fc1fc878795e451280a123c6f3b177595adc0cf7c065eb6136874061257"
+  }
+}

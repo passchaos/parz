@@ -1,0 +1,3 @@
+$ zig test src/root.zig -target x86_64-windows-gnu -OReleaseSafe --test-no-exec -femit-bin=/tmp/parz-local-links-x86_64-windows-gnu
+
+exit_code=0

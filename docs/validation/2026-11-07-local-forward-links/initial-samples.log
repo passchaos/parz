@@ -1,0 +1,630 @@
+round=0 variant=baseline bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1893 parallel_ns=3374 speedup=0.561
+sample=1 serial_ns=1616 parallel_ns=3519 speedup=0.459
+sample=2 serial_ns=1598 parallel_ns=3319 speedup=0.481
+sample=3 serial_ns=1498 parallel_ns=3306 speedup=0.453
+sample=4 serial_ns=1533 parallel_ns=3248 speedup=0.472
+sample=5 serial_ns=1443 parallel_ns=3397 speedup=0.425
+sample=6 serial_ns=1494 parallel_ns=3270 speedup=0.457
+sample=7 serial_ns=1431 parallel_ns=3283 speedup=0.436
+sample=8 serial_ns=1444 parallel_ns=3258 speedup=0.443
+micro callback=plain serial_ns=1498 parallel_ns=3306 speedup=0.453 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1496 parallel_ns=3252 speedup=0.460
+sample=1 serial_ns=1478 parallel_ns=3279 speedup=0.451
+sample=2 serial_ns=1471 parallel_ns=3197 speedup=0.460
+sample=3 serial_ns=1427 parallel_ns=3202 speedup=0.446
+sample=4 serial_ns=1449 parallel_ns=3189 speedup=0.454
+sample=5 serial_ns=1422 parallel_ns=3174 speedup=0.448
+sample=6 serial_ns=1427 parallel_ns=3165 speedup=0.451
+sample=7 serial_ns=1417 parallel_ns=3167 speedup=0.447
+sample=8 serial_ns=1447 parallel_ns=3162 speedup=0.458
+micro callback=error-union serial_ns=1447 parallel_ns=3189 speedup=0.454 statistic=median
+round=0 variant=baseline bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1825 parallel_ns=3134 speedup=0.582
+sample=1 serial_ns=1619 parallel_ns=3201 speedup=0.506
+sample=2 serial_ns=1541 parallel_ns=3067 speedup=0.502
+sample=3 serial_ns=1448 parallel_ns=3105 speedup=0.466
+sample=4 serial_ns=1453 parallel_ns=3031 speedup=0.479
+sample=5 serial_ns=1442 parallel_ns=3071 speedup=0.470
+sample=6 serial_ns=1465 parallel_ns=3059 speedup=0.479
+sample=7 serial_ns=1462 parallel_ns=3046 speedup=0.480
+sample=8 serial_ns=1452 parallel_ns=3081 speedup=0.471
+tree_sum nodes=1000 workers=7 serial_ns=1462 parallel_ns=3071 speedup=0.476 statistic=median
+round=0 variant=baseline bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=171498 parallel_ns=149398 speedup=1.148
+sample=1 serial_ns=174068 parallel_ns=226991 speedup=0.767
+sample=2 serial_ns=162832 parallel_ns=153437 speedup=1.061
+sample=3 serial_ns=165525 parallel_ns=133931 speedup=1.236
+sample=4 serial_ns=168200 parallel_ns=165880 speedup=1.014
+sample=5 serial_ns=165165 parallel_ns=135499 speedup=1.219
+sample=6 serial_ns=163552 parallel_ns=170242 speedup=0.961
+sample=7 serial_ns=166632 parallel_ns=143947 speedup=1.158
+sample=8 serial_ns=164674 parallel_ns=184145 speedup=0.894
+tree_sum nodes=100000 workers=7 serial_ns=165525 parallel_ns=153437 speedup=1.079 statistic=median
+round=0 variant=baseline bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=2082294 parallel_ns=790793 speedup=2.633
+sample=1 serial_ns=1900417 parallel_ns=845438 speedup=2.248
+sample=2 serial_ns=1964635 parallel_ns=758604 speedup=2.590
+sample=3 serial_ns=1780170 parallel_ns=731792 speedup=2.433
+sample=4 serial_ns=1889857 parallel_ns=778013 speedup=2.429
+sample=5 serial_ns=1992775 parallel_ns=829706 speedup=2.402
+sample=6 serial_ns=1867603 parallel_ns=790353 speedup=2.363
+sample=7 serial_ns=1754799 parallel_ns=701089 speedup=2.503
+sample=8 serial_ns=1839545 parallel_ns=772112 speedup=2.382
+tree_sum nodes=1000000 workers=7 serial_ns=1889857 parallel_ns=778013 speedup=2.429 statistic=median
+round=0 variant=local bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1900 parallel_ns=3137 speedup=0.606
+sample=1 serial_ns=1593 parallel_ns=3013 speedup=0.529
+sample=2 serial_ns=1568 parallel_ns=2946 speedup=0.532
+sample=3 serial_ns=1506 parallel_ns=2907 speedup=0.518
+sample=4 serial_ns=1464 parallel_ns=2902 speedup=0.504
+sample=5 serial_ns=1450 parallel_ns=2905 speedup=0.499
+sample=6 serial_ns=1494 parallel_ns=2953 speedup=0.506
+sample=7 serial_ns=1486 parallel_ns=2973 speedup=0.500
+sample=8 serial_ns=1507 parallel_ns=2989 speedup=0.504
+micro callback=plain serial_ns=1506 parallel_ns=2953 speedup=0.510 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1489 parallel_ns=3385 speedup=0.440
+sample=1 serial_ns=1493 parallel_ns=3393 speedup=0.440
+sample=2 serial_ns=1519 parallel_ns=3242 speedup=0.469
+sample=3 serial_ns=1464 parallel_ns=3269 speedup=0.448
+sample=4 serial_ns=1473 parallel_ns=3236 speedup=0.455
+sample=5 serial_ns=1443 parallel_ns=3168 speedup=0.455
+sample=6 serial_ns=1485 parallel_ns=3171 speedup=0.468
+sample=7 serial_ns=1426 parallel_ns=3208 speedup=0.445
+sample=8 serial_ns=1492 parallel_ns=3223 speedup=0.463
+micro callback=error-union serial_ns=1485 parallel_ns=3236 speedup=0.459 statistic=median
+round=0 variant=local bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1753 parallel_ns=3374 speedup=0.520
+sample=1 serial_ns=1464 parallel_ns=3327 speedup=0.440
+sample=2 serial_ns=1512 parallel_ns=3290 speedup=0.460
+sample=3 serial_ns=1491 parallel_ns=3379 speedup=0.441
+sample=4 serial_ns=1543 parallel_ns=3376 speedup=0.457
+sample=5 serial_ns=1502 parallel_ns=3290 speedup=0.457
+sample=6 serial_ns=1485 parallel_ns=3267 speedup=0.455
+sample=7 serial_ns=1485 parallel_ns=3277 speedup=0.453
+sample=8 serial_ns=1474 parallel_ns=3194 speedup=0.461
+tree_sum nodes=1000 workers=7 serial_ns=1491 parallel_ns=3290 speedup=0.453 statistic=median
+round=0 variant=local bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=173680 parallel_ns=136124 speedup=1.276
+sample=1 serial_ns=177484 parallel_ns=129829 speedup=1.367
+sample=2 serial_ns=161576 parallel_ns=141773 speedup=1.140
+sample=3 serial_ns=160587 parallel_ns=131781 speedup=1.219
+sample=4 serial_ns=161000 parallel_ns=178496 speedup=0.902
+sample=5 serial_ns=159623 parallel_ns=132300 speedup=1.207
+sample=6 serial_ns=161125 parallel_ns=177308 speedup=0.909
+sample=7 serial_ns=161026 parallel_ns=134800 speedup=1.195
+sample=8 serial_ns=163759 parallel_ns=176550 speedup=0.928
+tree_sum nodes=100000 workers=7 serial_ns=161125 parallel_ns=136124 speedup=1.184 statistic=median
+round=0 variant=local bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1960239 parallel_ns=796816 speedup=2.460
+sample=1 serial_ns=1749457 parallel_ns=791486 speedup=2.210
+sample=2 serial_ns=1804990 parallel_ns=759459 speedup=2.377
+sample=3 serial_ns=1788054 parallel_ns=874555 speedup=2.045
+sample=4 serial_ns=1841425 parallel_ns=766048 speedup=2.404
+sample=5 serial_ns=1763826 parallel_ns=829558 speedup=2.126
+sample=6 serial_ns=1798471 parallel_ns=884664 speedup=2.033
+sample=7 serial_ns=1793352 parallel_ns=755786 speedup=2.373
+sample=8 serial_ns=1826515 parallel_ns=803381 speedup=2.274
+tree_sum nodes=1000000 workers=7 serial_ns=1798471 parallel_ns=796816 speedup=2.257 statistic=median
+round=1 variant=local bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1891 parallel_ns=3024 speedup=0.625
+sample=1 serial_ns=1552 parallel_ns=3057 speedup=0.508
+sample=2 serial_ns=1590 parallel_ns=2971 speedup=0.535
+sample=3 serial_ns=1502 parallel_ns=2970 speedup=0.506
+sample=4 serial_ns=1524 parallel_ns=2975 speedup=0.512
+sample=5 serial_ns=1500 parallel_ns=3012 speedup=0.498
+sample=6 serial_ns=1461 parallel_ns=2940 speedup=0.497
+sample=7 serial_ns=1465 parallel_ns=2933 speedup=0.499
+sample=8 serial_ns=1460 parallel_ns=2963 speedup=0.493
+micro callback=plain serial_ns=1502 parallel_ns=2971 speedup=0.506 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1450 parallel_ns=3211 speedup=0.452
+sample=1 serial_ns=1465 parallel_ns=3232 speedup=0.453
+sample=2 serial_ns=1480 parallel_ns=3238 speedup=0.457
+sample=3 serial_ns=1458 parallel_ns=3193 speedup=0.457
+sample=4 serial_ns=1469 parallel_ns=3255 speedup=0.451
+sample=5 serial_ns=1451 parallel_ns=3232 speedup=0.449
+sample=6 serial_ns=1459 parallel_ns=3189 speedup=0.458
+sample=7 serial_ns=1464 parallel_ns=3314 speedup=0.442
+sample=8 serial_ns=1475 parallel_ns=3312 speedup=0.445
+micro callback=error-union serial_ns=1464 parallel_ns=3232 speedup=0.453 statistic=median
+round=1 variant=local bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1644 parallel_ns=3134 speedup=0.525
+sample=1 serial_ns=1387 parallel_ns=3193 speedup=0.434
+sample=2 serial_ns=1463 parallel_ns=3285 speedup=0.445
+sample=3 serial_ns=1465 parallel_ns=3332 speedup=0.440
+sample=4 serial_ns=1535 parallel_ns=3409 speedup=0.450
+sample=5 serial_ns=1455 parallel_ns=3327 speedup=0.437
+sample=6 serial_ns=1493 parallel_ns=3277 speedup=0.456
+sample=7 serial_ns=1456 parallel_ns=3283 speedup=0.443
+sample=8 serial_ns=1490 parallel_ns=3284 speedup=0.454
+tree_sum nodes=1000 workers=7 serial_ns=1465 parallel_ns=3284 speedup=0.446 statistic=median
+round=1 variant=local bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=172592 parallel_ns=170909 speedup=1.010
+sample=1 serial_ns=170293 parallel_ns=135389 speedup=1.258
+sample=2 serial_ns=163456 parallel_ns=188247 speedup=0.868
+sample=3 serial_ns=162335 parallel_ns=133727 speedup=1.214
+sample=4 serial_ns=160887 parallel_ns=173942 speedup=0.925
+sample=5 serial_ns=162092 parallel_ns=133630 speedup=1.213
+sample=6 serial_ns=160923 parallel_ns=176136 speedup=0.914
+sample=7 serial_ns=163711 parallel_ns=137409 speedup=1.191
+sample=8 serial_ns=161212 parallel_ns=170761 speedup=0.944
+tree_sum nodes=100000 workers=7 serial_ns=162335 parallel_ns=170761 speedup=0.951 statistic=median
+round=1 variant=local bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1975161 parallel_ns=741855 speedup=2.662
+sample=1 serial_ns=1844644 parallel_ns=735518 speedup=2.508
+sample=2 serial_ns=1844881 parallel_ns=793152 speedup=2.326
+sample=3 serial_ns=1795273 parallel_ns=800415 speedup=2.243
+sample=4 serial_ns=1892902 parallel_ns=772673 speedup=2.450
+sample=5 serial_ns=1912990 parallel_ns=816259 speedup=2.344
+sample=6 serial_ns=1827043 parallel_ns=983891 speedup=1.857
+sample=7 serial_ns=1838116 parallel_ns=907629 speedup=2.025
+sample=8 serial_ns=1793764 parallel_ns=775528 speedup=2.313
+tree_sum nodes=1000000 workers=7 serial_ns=1844644 parallel_ns=793152 speedup=2.326 statistic=median
+round=1 variant=baseline bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1864 parallel_ns=3558 speedup=0.524
+sample=1 serial_ns=1586 parallel_ns=3470 speedup=0.457
+sample=2 serial_ns=1556 parallel_ns=3386 speedup=0.460
+sample=3 serial_ns=1535 parallel_ns=3339 speedup=0.460
+sample=4 serial_ns=1540 parallel_ns=3330 speedup=0.462
+sample=5 serial_ns=1498 parallel_ns=3386 speedup=0.442
+sample=6 serial_ns=1500 parallel_ns=3387 speedup=0.443
+sample=7 serial_ns=1494 parallel_ns=3388 speedup=0.441
+sample=8 serial_ns=1531 parallel_ns=3340 speedup=0.458
+micro callback=plain serial_ns=1535 parallel_ns=3386 speedup=0.453 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1520 parallel_ns=3319 speedup=0.458
+sample=1 serial_ns=1521 parallel_ns=3386 speedup=0.449
+sample=2 serial_ns=1532 parallel_ns=3275 speedup=0.468
+sample=3 serial_ns=1485 parallel_ns=3285 speedup=0.452
+sample=4 serial_ns=1500 parallel_ns=3273 speedup=0.458
+sample=5 serial_ns=1497 parallel_ns=3273 speedup=0.457
+sample=6 serial_ns=1507 parallel_ns=3266 speedup=0.461
+sample=7 serial_ns=1499 parallel_ns=3263 speedup=0.459
+sample=8 serial_ns=1503 parallel_ns=3254 speedup=0.462
+micro callback=error-union serial_ns=1503 parallel_ns=3273 speedup=0.459 statistic=median
+round=1 variant=baseline bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1780 parallel_ns=3277 speedup=0.543
+sample=1 serial_ns=1582 parallel_ns=3241 speedup=0.488
+sample=2 serial_ns=1479 parallel_ns=3188 speedup=0.464
+sample=3 serial_ns=1488 parallel_ns=3194 speedup=0.466
+sample=4 serial_ns=1457 parallel_ns=3170 speedup=0.460
+sample=5 serial_ns=1449 parallel_ns=3139 speedup=0.462
+sample=6 serial_ns=1463 parallel_ns=3162 speedup=0.463
+sample=7 serial_ns=1468 parallel_ns=3185 speedup=0.461
+sample=8 serial_ns=1465 parallel_ns=3183 speedup=0.460
+tree_sum nodes=1000 workers=7 serial_ns=1468 parallel_ns=3185 speedup=0.461 statistic=median
+round=1 variant=baseline bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=170952 parallel_ns=173990 speedup=0.983
+sample=1 serial_ns=164040 parallel_ns=134239 speedup=1.222
+sample=2 serial_ns=162823 parallel_ns=171094 speedup=0.952
+sample=3 serial_ns=160052 parallel_ns=133465 speedup=1.199
+sample=4 serial_ns=160401 parallel_ns=177202 speedup=0.905
+sample=5 serial_ns=162595 parallel_ns=136067 speedup=1.195
+sample=6 serial_ns=160829 parallel_ns=125526 speedup=1.281
+sample=7 serial_ns=161767 parallel_ns=136281 speedup=1.187
+sample=8 serial_ns=160963 parallel_ns=177571 speedup=0.906
+tree_sum nodes=100000 workers=7 serial_ns=161767 parallel_ns=136281 speedup=1.187 statistic=median
+round=1 variant=baseline bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1876884 parallel_ns=841872 speedup=2.229
+sample=1 serial_ns=1917205 parallel_ns=815036 speedup=2.352
+sample=2 serial_ns=1857419 parallel_ns=761996 speedup=2.438
+sample=3 serial_ns=1807256 parallel_ns=798705 speedup=2.263
+sample=4 serial_ns=1879169 parallel_ns=827822 speedup=2.270
+sample=5 serial_ns=1815459 parallel_ns=771049 speedup=2.355
+sample=6 serial_ns=1817718 parallel_ns=766738 speedup=2.371
+sample=7 serial_ns=1718567 parallel_ns=777450 speedup=2.211
+sample=8 serial_ns=1758444 parallel_ns=737776 speedup=2.383
+tree_sum nodes=1000000 workers=7 serial_ns=1817718 parallel_ns=777450 speedup=2.338 statistic=median
+round=2 variant=baseline bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1827 parallel_ns=3369 speedup=0.542
+sample=1 serial_ns=1516 parallel_ns=3345 speedup=0.453
+sample=2 serial_ns=1552 parallel_ns=3275 speedup=0.474
+sample=3 serial_ns=1471 parallel_ns=3329 speedup=0.442
+sample=4 serial_ns=1460 parallel_ns=3258 speedup=0.448
+sample=5 serial_ns=1475 parallel_ns=3313 speedup=0.445
+sample=6 serial_ns=1495 parallel_ns=3339 speedup=0.448
+sample=7 serial_ns=1467 parallel_ns=3351 speedup=0.438
+sample=8 serial_ns=1504 parallel_ns=3390 speedup=0.444
+micro callback=plain serial_ns=1495 parallel_ns=3339 speedup=0.448 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1431 parallel_ns=3231 speedup=0.443
+sample=1 serial_ns=1454 parallel_ns=3229 speedup=0.450
+sample=2 serial_ns=1456 parallel_ns=3193 speedup=0.456
+sample=3 serial_ns=1485 parallel_ns=3243 speedup=0.458
+sample=4 serial_ns=1477 parallel_ns=3196 speedup=0.462
+sample=5 serial_ns=1470 parallel_ns=3198 speedup=0.460
+sample=6 serial_ns=1478 parallel_ns=3180 speedup=0.465
+sample=7 serial_ns=1493 parallel_ns=3233 speedup=0.462
+sample=8 serial_ns=1480 parallel_ns=3285 speedup=0.451
+micro callback=error-union serial_ns=1477 parallel_ns=3229 speedup=0.457 statistic=median
+round=2 variant=baseline bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1730 parallel_ns=3101 speedup=0.558
+sample=1 serial_ns=1461 parallel_ns=3261 speedup=0.448
+sample=2 serial_ns=1503 parallel_ns=3132 speedup=0.480
+sample=3 serial_ns=1443 parallel_ns=3201 speedup=0.451
+sample=4 serial_ns=1466 parallel_ns=3242 speedup=0.452
+sample=5 serial_ns=1429 parallel_ns=3212 speedup=0.445
+sample=6 serial_ns=1465 parallel_ns=3079 speedup=0.476
+sample=7 serial_ns=1394 parallel_ns=3126 speedup=0.446
+sample=8 serial_ns=1582 parallel_ns=3163 speedup=0.500
+tree_sum nodes=1000 workers=7 serial_ns=1465 parallel_ns=3163 speedup=0.463 statistic=median
+round=2 variant=baseline bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=169129 parallel_ns=178965 speedup=0.945
+sample=1 serial_ns=166145 parallel_ns=131552 speedup=1.263
+sample=2 serial_ns=160472 parallel_ns=156653 speedup=1.024
+sample=3 serial_ns=160549 parallel_ns=168432 speedup=0.953
+sample=4 serial_ns=160345 parallel_ns=180967 speedup=0.886
+sample=5 serial_ns=162130 parallel_ns=133509 speedup=1.214
+sample=6 serial_ns=159020 parallel_ns=177338 speedup=0.897
+sample=7 serial_ns=161207 parallel_ns=135618 speedup=1.189
+sample=8 serial_ns=159644 parallel_ns=192392 speedup=0.830
+tree_sum nodes=100000 workers=7 serial_ns=160549 parallel_ns=168432 speedup=0.953 statistic=median
+round=2 variant=baseline bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1869800 parallel_ns=715969 speedup=2.612
+sample=1 serial_ns=1929771 parallel_ns=736813 speedup=2.619
+sample=2 serial_ns=1875065 parallel_ns=715030 speedup=2.622
+sample=3 serial_ns=1778410 parallel_ns=740367 speedup=2.402
+sample=4 serial_ns=1804769 parallel_ns=834884 speedup=2.162
+sample=5 serial_ns=1771397 parallel_ns=757247 speedup=2.339
+sample=6 serial_ns=1771073 parallel_ns=778966 speedup=2.274
+sample=7 serial_ns=1781411 parallel_ns=762393 speedup=2.337
+sample=8 serial_ns=1762879 parallel_ns=885711 speedup=1.990
+tree_sum nodes=1000000 workers=7 serial_ns=1781411 parallel_ns=757247 speedup=2.352 statistic=median
+round=2 variant=local bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1841 parallel_ns=2952 speedup=0.624
+sample=1 serial_ns=1540 parallel_ns=2962 speedup=0.520
+sample=2 serial_ns=1487 parallel_ns=2888 speedup=0.515
+sample=3 serial_ns=1504 parallel_ns=3005 speedup=0.500
+sample=4 serial_ns=1510 parallel_ns=2968 speedup=0.509
+sample=5 serial_ns=1497 parallel_ns=3016 speedup=0.496
+sample=6 serial_ns=1493 parallel_ns=2961 speedup=0.504
+sample=7 serial_ns=1477 parallel_ns=2994 speedup=0.493
+sample=8 serial_ns=1500 parallel_ns=2962 speedup=0.506
+micro callback=plain serial_ns=1500 parallel_ns=2962 speedup=0.506 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1519 parallel_ns=3295 speedup=0.461
+sample=1 serial_ns=1463 parallel_ns=3355 speedup=0.436
+sample=2 serial_ns=1512 parallel_ns=3247 speedup=0.466
+sample=3 serial_ns=1426 parallel_ns=3224 speedup=0.442
+sample=4 serial_ns=1470 parallel_ns=3215 speedup=0.457
+sample=5 serial_ns=1433 parallel_ns=3232 speedup=0.443
+sample=6 serial_ns=1477 parallel_ns=3202 speedup=0.461
+sample=7 serial_ns=1416 parallel_ns=3176 speedup=0.446
+sample=8 serial_ns=1464 parallel_ns=3171 speedup=0.462
+micro callback=error-union serial_ns=1464 parallel_ns=3224 speedup=0.454 statistic=median
+round=2 variant=local bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1701 parallel_ns=3270 speedup=0.520
+sample=1 serial_ns=1427 parallel_ns=3294 speedup=0.433
+sample=2 serial_ns=1408 parallel_ns=3213 speedup=0.438
+sample=3 serial_ns=1394 parallel_ns=3254 speedup=0.428
+sample=4 serial_ns=1484 parallel_ns=3265 speedup=0.455
+sample=5 serial_ns=1406 parallel_ns=3195 speedup=0.440
+sample=6 serial_ns=1401 parallel_ns=3210 speedup=0.436
+sample=7 serial_ns=1402 parallel_ns=3183 speedup=0.440
+sample=8 serial_ns=1403 parallel_ns=3220 speedup=0.436
+tree_sum nodes=1000 workers=7 serial_ns=1406 parallel_ns=3220 speedup=0.437 statistic=median
+round=2 variant=local bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=179975 parallel_ns=159025 speedup=1.132
+sample=1 serial_ns=160927 parallel_ns=135145 speedup=1.191
+sample=2 serial_ns=160652 parallel_ns=179725 speedup=0.894
+sample=3 serial_ns=162620 parallel_ns=132364 speedup=1.229
+sample=4 serial_ns=160496 parallel_ns=176887 speedup=0.907
+sample=5 serial_ns=160572 parallel_ns=135726 speedup=1.183
+sample=6 serial_ns=162909 parallel_ns=178711 speedup=0.912
+sample=7 serial_ns=165204 parallel_ns=131505 speedup=1.256
+sample=8 serial_ns=165419 parallel_ns=167792 speedup=0.986
+tree_sum nodes=100000 workers=7 serial_ns=162620 parallel_ns=159025 speedup=1.023 statistic=median
+round=2 variant=local bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1881782 parallel_ns=828017 speedup=2.273
+sample=1 serial_ns=1747288 parallel_ns=798406 speedup=2.188
+sample=2 serial_ns=2104894 parallel_ns=903400 speedup=2.330
+sample=3 serial_ns=1799028 parallel_ns=994580 speedup=1.809
+sample=4 serial_ns=1829642 parallel_ns=902110 speedup=2.028
+sample=5 serial_ns=1713861 parallel_ns=747673 speedup=2.292
+sample=6 serial_ns=1720859 parallel_ns=831641 speedup=2.069
+sample=7 serial_ns=1729292 parallel_ns=824610 speedup=2.097
+sample=8 serial_ns=1813898 parallel_ns=850165 speedup=2.134
+tree_sum nodes=1000000 workers=7 serial_ns=1799028 parallel_ns=831641 speedup=2.163 statistic=median
+round=3 variant=local bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1795 parallel_ns=2904 speedup=0.618
+sample=1 serial_ns=1493 parallel_ns=2910 speedup=0.513
+sample=2 serial_ns=1505 parallel_ns=2882 speedup=0.522
+sample=3 serial_ns=1503 parallel_ns=2888 speedup=0.520
+sample=4 serial_ns=1542 parallel_ns=2865 speedup=0.538
+sample=5 serial_ns=1447 parallel_ns=2894 speedup=0.500
+sample=6 serial_ns=1466 parallel_ns=2861 speedup=0.512
+sample=7 serial_ns=1451 parallel_ns=2867 speedup=0.506
+sample=8 serial_ns=1463 parallel_ns=2899 speedup=0.505
+micro callback=plain serial_ns=1493 parallel_ns=2888 speedup=0.517 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1464 parallel_ns=3200 speedup=0.458
+sample=1 serial_ns=1450 parallel_ns=3223 speedup=0.450
+sample=2 serial_ns=1486 parallel_ns=3209 speedup=0.463
+sample=3 serial_ns=1461 parallel_ns=3236 speedup=0.451
+sample=4 serial_ns=1489 parallel_ns=3189 speedup=0.467
+sample=5 serial_ns=1461 parallel_ns=3208 speedup=0.455
+sample=6 serial_ns=1469 parallel_ns=3190 speedup=0.461
+sample=7 serial_ns=1449 parallel_ns=3207 speedup=0.452
+sample=8 serial_ns=1476 parallel_ns=3206 speedup=0.460
+micro callback=error-union serial_ns=1464 parallel_ns=3207 speedup=0.457 statistic=median
+round=3 variant=local bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1747 parallel_ns=3389 speedup=0.515
+sample=1 serial_ns=1477 parallel_ns=3435 speedup=0.430
+sample=2 serial_ns=1458 parallel_ns=3253 speedup=0.448
+sample=3 serial_ns=1463 parallel_ns=3212 speedup=0.455
+sample=4 serial_ns=1433 parallel_ns=3268 speedup=0.438
+sample=5 serial_ns=1414 parallel_ns=3205 speedup=0.441
+sample=6 serial_ns=1435 parallel_ns=3203 speedup=0.448
+sample=7 serial_ns=1429 parallel_ns=3181 speedup=0.449
+sample=8 serial_ns=1438 parallel_ns=3209 speedup=0.448
+tree_sum nodes=1000 workers=7 serial_ns=1438 parallel_ns=3212 speedup=0.448 statistic=median
+round=3 variant=local bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=175333 parallel_ns=122859 speedup=1.427
+sample=1 serial_ns=160700 parallel_ns=134327 speedup=1.196
+sample=2 serial_ns=156865 parallel_ns=177790 speedup=0.882
+sample=3 serial_ns=162949 parallel_ns=135480 speedup=1.203
+sample=4 serial_ns=160179 parallel_ns=172712 speedup=0.927
+sample=5 serial_ns=159501 parallel_ns=134220 speedup=1.188
+sample=6 serial_ns=159721 parallel_ns=166145 speedup=0.961
+sample=7 serial_ns=160522 parallel_ns=161657 speedup=0.993
+sample=8 serial_ns=160021 parallel_ns=177740 speedup=0.900
+tree_sum nodes=100000 workers=7 serial_ns=160179 parallel_ns=161657 speedup=0.991 statistic=median
+round=3 variant=local bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1740585 parallel_ns=795952 speedup=2.187
+sample=1 serial_ns=1742062 parallel_ns=818912 speedup=2.127
+sample=2 serial_ns=1744011 parallel_ns=926049 speedup=1.883
+sample=3 serial_ns=1758557 parallel_ns=844511 speedup=2.082
+sample=4 serial_ns=1697453 parallel_ns=795795 speedup=2.133
+sample=5 serial_ns=1681250 parallel_ns=739887 speedup=2.272
+sample=6 serial_ns=1716948 parallel_ns=842901 speedup=2.037
+sample=7 serial_ns=1769508 parallel_ns=761516 speedup=2.324
+sample=8 serial_ns=1746921 parallel_ns=750867 speedup=2.327
+tree_sum nodes=1000000 workers=7 serial_ns=1742062 parallel_ns=795952 speedup=2.189 statistic=median
+round=3 variant=baseline bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1764 parallel_ns=3544 speedup=0.498
+sample=1 serial_ns=1600 parallel_ns=3500 speedup=0.457
+sample=2 serial_ns=1565 parallel_ns=3388 speedup=0.462
+sample=3 serial_ns=1516 parallel_ns=3429 speedup=0.442
+sample=4 serial_ns=1524 parallel_ns=3375 speedup=0.452
+sample=5 serial_ns=1488 parallel_ns=3313 speedup=0.449
+sample=6 serial_ns=1515 parallel_ns=3305 speedup=0.458
+sample=7 serial_ns=1485 parallel_ns=3272 speedup=0.454
+sample=8 serial_ns=1528 parallel_ns=3303 speedup=0.463
+micro callback=plain serial_ns=1524 parallel_ns=3375 speedup=0.452 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1475 parallel_ns=3224 speedup=0.458
+sample=1 serial_ns=1471 parallel_ns=3388 speedup=0.434
+sample=2 serial_ns=1523 parallel_ns=3282 speedup=0.464
+sample=3 serial_ns=1437 parallel_ns=3272 speedup=0.439
+sample=4 serial_ns=1487 parallel_ns=3241 speedup=0.459
+sample=5 serial_ns=1454 parallel_ns=3227 speedup=0.451
+sample=6 serial_ns=1465 parallel_ns=3258 speedup=0.450
+sample=7 serial_ns=1483 parallel_ns=3366 speedup=0.441
+sample=8 serial_ns=1499 parallel_ns=3318 speedup=0.452
+micro callback=error-union serial_ns=1475 parallel_ns=3272 speedup=0.451 statistic=median
+round=3 variant=baseline bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1739 parallel_ns=3173 speedup=0.548
+sample=1 serial_ns=1429 parallel_ns=3153 speedup=0.453
+sample=2 serial_ns=1484 parallel_ns=3140 speedup=0.473
+sample=3 serial_ns=1480 parallel_ns=3138 speedup=0.472
+sample=4 serial_ns=1508 parallel_ns=4916 speedup=0.307
+sample=5 serial_ns=1516 parallel_ns=3267 speedup=0.464
+sample=6 serial_ns=1464 parallel_ns=3136 speedup=0.467
+sample=7 serial_ns=1449 parallel_ns=3131 speedup=0.463
+sample=8 serial_ns=1458 parallel_ns=3142 speedup=0.464
+tree_sum nodes=1000 workers=7 serial_ns=1480 parallel_ns=3142 speedup=0.471 statistic=median
+round=3 variant=baseline bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=173129 parallel_ns=168282 speedup=1.029
+sample=1 serial_ns=170014 parallel_ns=132260 speedup=1.285
+sample=2 serial_ns=162674 parallel_ns=169060 speedup=0.962
+sample=3 serial_ns=162518 parallel_ns=134188 speedup=1.211
+sample=4 serial_ns=162983 parallel_ns=173284 speedup=0.941
+sample=5 serial_ns=163663 parallel_ns=136469 speedup=1.199
+sample=6 serial_ns=163544 parallel_ns=167522 speedup=0.976
+sample=7 serial_ns=162985 parallel_ns=139280 speedup=1.170
+sample=8 serial_ns=162360 parallel_ns=176155 speedup=0.922
+tree_sum nodes=100000 workers=7 serial_ns=162985 parallel_ns=167522 speedup=0.973 statistic=median
+round=3 variant=baseline bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1841492 parallel_ns=891783 speedup=2.065
+sample=1 serial_ns=1764240 parallel_ns=744425 speedup=2.370
+sample=2 serial_ns=1799137 parallel_ns=760213 speedup=2.367
+sample=3 serial_ns=1775590 parallel_ns=788276 speedup=2.252
+sample=4 serial_ns=1753752 parallel_ns=704569 speedup=2.489
+sample=5 serial_ns=1749506 parallel_ns=813402 speedup=2.151
+sample=6 serial_ns=1717436 parallel_ns=723173 speedup=2.375
+sample=7 serial_ns=1728322 parallel_ns=764680 speedup=2.260
+sample=8 serial_ns=1758175 parallel_ns=738293 speedup=2.381
+tree_sum nodes=1000000 workers=7 serial_ns=1758175 parallel_ns=760213 speedup=2.313 statistic=median
+round=4 variant=baseline bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1832 parallel_ns=3338 speedup=0.549
+sample=1 serial_ns=1646 parallel_ns=3560 speedup=0.462
+sample=2 serial_ns=1524 parallel_ns=3332 speedup=0.457
+sample=3 serial_ns=1472 parallel_ns=3313 speedup=0.444
+sample=4 serial_ns=1451 parallel_ns=3259 speedup=0.445
+sample=5 serial_ns=1453 parallel_ns=3254 speedup=0.447
+sample=6 serial_ns=1456 parallel_ns=3268 speedup=0.446
+sample=7 serial_ns=1481 parallel_ns=3346 speedup=0.443
+sample=8 serial_ns=1492 parallel_ns=3333 speedup=0.448
+micro callback=plain serial_ns=1481 parallel_ns=3332 speedup=0.444 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1498 parallel_ns=3266 speedup=0.459
+sample=1 serial_ns=1449 parallel_ns=3301 speedup=0.439
+sample=2 serial_ns=1474 parallel_ns=3210 speedup=0.459
+sample=3 serial_ns=1443 parallel_ns=3198 speedup=0.451
+sample=4 serial_ns=1465 parallel_ns=3187 speedup=0.460
+sample=5 serial_ns=1478 parallel_ns=3200 speedup=0.462
+sample=6 serial_ns=1497 parallel_ns=3284 speedup=0.456
+sample=7 serial_ns=1491 parallel_ns=3256 speedup=0.458
+sample=8 serial_ns=1496 parallel_ns=3266 speedup=0.458
+micro callback=error-union serial_ns=1478 parallel_ns=3256 speedup=0.454 statistic=median
+round=4 variant=baseline bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1700 parallel_ns=3503 speedup=0.485
+sample=1 serial_ns=1514 parallel_ns=3086 speedup=0.491
+sample=2 serial_ns=1416 parallel_ns=2994 speedup=0.473
+sample=3 serial_ns=1380 parallel_ns=3041 speedup=0.454
+sample=4 serial_ns=1440 parallel_ns=3122 speedup=0.461
+sample=5 serial_ns=1403 parallel_ns=3095 speedup=0.453
+sample=6 serial_ns=1426 parallel_ns=3068 speedup=0.465
+sample=7 serial_ns=1421 parallel_ns=3106 speedup=0.458
+sample=8 serial_ns=1420 parallel_ns=3073 speedup=0.462
+tree_sum nodes=1000 workers=7 serial_ns=1421 parallel_ns=3086 speedup=0.460 statistic=median
+round=4 variant=baseline bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=169627 parallel_ns=176215 speedup=0.963
+sample=1 serial_ns=165433 parallel_ns=131519 speedup=1.258
+sample=2 serial_ns=163478 parallel_ns=173005 speedup=0.945
+sample=3 serial_ns=159773 parallel_ns=133713 speedup=1.195
+sample=4 serial_ns=159924 parallel_ns=178124 speedup=0.898
+sample=5 serial_ns=161629 parallel_ns=142933 speedup=1.131
+sample=6 serial_ns=160158 parallel_ns=112052 speedup=1.429
+sample=7 serial_ns=160134 parallel_ns=135063 speedup=1.186
+sample=8 serial_ns=162228 parallel_ns=176296 speedup=0.920
+tree_sum nodes=100000 workers=7 serial_ns=161629 parallel_ns=142933 speedup=1.131 statistic=median
+round=4 variant=baseline bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=2001222 parallel_ns=801648 speedup=2.496
+sample=1 serial_ns=1839966 parallel_ns=770970 speedup=2.387
+sample=2 serial_ns=1869073 parallel_ns=748438 speedup=2.497
+sample=3 serial_ns=1808795 parallel_ns=705421 speedup=2.564
+sample=4 serial_ns=1827101 parallel_ns=778589 speedup=2.347
+sample=5 serial_ns=1802307 parallel_ns=733473 speedup=2.457
+sample=6 serial_ns=1864839 parallel_ns=752234 speedup=2.479
+sample=7 serial_ns=1754713 parallel_ns=758588 speedup=2.313
+sample=8 serial_ns=1789340 parallel_ns=752815 speedup=2.377
+tree_sum nodes=1000000 workers=7 serial_ns=1827101 parallel_ns=752815 speedup=2.427 statistic=median
+round=4 variant=local bench=micro args=['1000', '1', '31']
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+sample=0 serial_ns=1625 parallel_ns=2869 speedup=0.566
+sample=1 serial_ns=1475 parallel_ns=2908 speedup=0.507
+sample=2 serial_ns=1534 parallel_ns=2938 speedup=0.522
+sample=3 serial_ns=1494 parallel_ns=2904 speedup=0.514
+sample=4 serial_ns=1446 parallel_ns=2859 speedup=0.506
+sample=5 serial_ns=1452 parallel_ns=2894 speedup=0.502
+sample=6 serial_ns=1463 parallel_ns=2940 speedup=0.498
+sample=7 serial_ns=1489 parallel_ns=2946 speedup=0.505
+sample=8 serial_ns=1496 parallel_ns=2949 speedup=0.507
+micro callback=plain serial_ns=1489 parallel_ns=2908 speedup=0.512 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1487 parallel_ns=3201 speedup=0.465
+sample=1 serial_ns=1451 parallel_ns=3233 speedup=0.449
+sample=2 serial_ns=1505 parallel_ns=3232 speedup=0.466
+sample=3 serial_ns=1454 parallel_ns=3249 speedup=0.448
+sample=4 serial_ns=1475 parallel_ns=3189 speedup=0.463
+sample=5 serial_ns=1443 parallel_ns=3200 speedup=0.451
+sample=6 serial_ns=1476 parallel_ns=3206 speedup=0.460
+sample=7 serial_ns=1443 parallel_ns=3220 speedup=0.448
+sample=8 serial_ns=1459 parallel_ns=3195 speedup=0.457
+micro callback=error-union serial_ns=1459 parallel_ns=3206 speedup=0.455 statistic=median
+round=4 variant=local bench=tree_sum args=['1000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1684 parallel_ns=3320 speedup=0.507
+sample=1 serial_ns=1464 parallel_ns=3341 speedup=0.438
+sample=2 serial_ns=1474 parallel_ns=3269 speedup=0.451
+sample=3 serial_ns=1447 parallel_ns=3274 speedup=0.442
+sample=4 serial_ns=1489 parallel_ns=5110 speedup=0.291
+sample=5 serial_ns=1423 parallel_ns=3286 speedup=0.433
+sample=6 serial_ns=1432 parallel_ns=3197 speedup=0.448
+sample=7 serial_ns=1409 parallel_ns=3193 speedup=0.441
+sample=8 serial_ns=1450 parallel_ns=3237 speedup=0.448
+tree_sum nodes=1000 workers=7 serial_ns=1450 parallel_ns=3274 speedup=0.443 statistic=median
+round=4 variant=local bench=tree_sum args=['100000', 'heartbeat', 'observe', '31']
+tree_sum nodes=100000 workers=7 checksum=100000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=169415 parallel_ns=169307 speedup=1.001
+sample=1 serial_ns=163091 parallel_ns=123691 speedup=1.319
+sample=2 serial_ns=160173 parallel_ns=175339 speedup=0.914
+sample=3 serial_ns=159374 parallel_ns=133497 speedup=1.194
+sample=4 serial_ns=162628 parallel_ns=179234 speedup=0.907
+sample=5 serial_ns=159270 parallel_ns=134461 speedup=1.185
+sample=6 serial_ns=160432 parallel_ns=179125 speedup=0.896
+sample=7 serial_ns=159772 parallel_ns=138372 speedup=1.155
+sample=8 serial_ns=160987 parallel_ns=173999 speedup=0.925
+tree_sum nodes=100000 workers=7 serial_ns=160432 parallel_ns=169307 speedup=0.948 statistic=median
+round=4 variant=local bench=tree_sum args=['1000000', 'heartbeat', 'observe', '31']
+tree_sum nodes=1000000 workers=7 checksum=1000000
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1781441 parallel_ns=699996 speedup=2.545
+sample=1 serial_ns=1784821 parallel_ns=841059 speedup=2.122
+sample=2 serial_ns=1763969 parallel_ns=834232 speedup=2.114
+sample=3 serial_ns=1677046 parallel_ns=809926 speedup=2.071
+sample=4 serial_ns=1679996 parallel_ns=763167 speedup=2.201
+sample=5 serial_ns=1768245 parallel_ns=768907 speedup=2.300
+sample=6 serial_ns=1732903 parallel_ns=733333 speedup=2.363
+sample=7 serial_ns=1696566 parallel_ns=993952 speedup=1.707
+sample=8 serial_ns=1761363 parallel_ns=857400 speedup=2.054
+tree_sum nodes=1000000 workers=7 serial_ns=1761363 parallel_ns=809926 speedup=2.175 statistic=median

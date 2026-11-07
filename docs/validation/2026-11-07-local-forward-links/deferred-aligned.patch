@@ -1,0 +1,234 @@
+--- a/src/job.zig
++++ b/src/job.zig
+@@ -26,0 +27,3 @@
++// A local tail with stale forward links. Its low bit is clear, so state()
++// still identifies it as queued_local. Never dereference this marker.
++const local_dirty: *anyopaque = @ptrFromInt(2);
+@@ -41 +44,2 @@
+-    /// Queued: next job. Executing: *ExecuteState with the low bit set.
++    /// Queued: next job, or local_dirty for a local tail whose forward links
++    /// need rebuilding. Executing: *ExecuteState with the low bit set.
+@@ -73 +77 @@
+-        return self.next_or_null == null;
++        return self.next_or_null == null or self.next_or_null == local_dirty;
+@@ -100,0 +105,59 @@
++    }
++
++    /// Owner-only append. Forward links are built only when sharing or a
++    /// non-tail join needs them; recursive local forks never write the prior
++    /// tail. No atomics, locks or allocation occur here.
++    pub inline fn pushLocal(self: *Job, tail: **Job, handler: Handler) void {
++        std.debug.assert(self.handler == null);
++        const prev = tail.*;
++        self.handler = handler;
++        self.prev_or_null = @ptrCast(prev);
++        self.next_or_null = local_dirty;
++        tail.* = self;
++    }
++
++    /// Materialize forward links once per unchanged local list. The caller
++    /// owns every node. Sharing retains the local tail, so it also retains
++    /// this cache marker; prepared non-tail removals keep the cache valid.
++    pub noinline fn prepareLocal(sentinel: *Job, tail: *Job) void {
++        if (tail == sentinel) {
++            sentinel.next_or_null = null;
++            return;
++        }
++        if (tail.next_or_null != local_dirty) {
++            std.debug.assert(tail.next_or_null == null);
++            return;
++        }
++        var next: ?*anyopaque = null;
++        var job = tail;
++        while (job != sentinel) {
++            std.debug.assert(job.handler != null);
++            const prev: *Job = @ptrCast(@alignCast(job.prev_or_null.?));
++            job.next_or_null = next;
++            next = @ptrCast(job);
++            job = prev;
++        }
++        sentinel.next_or_null = next;
++    }
++
++    /// Owner-only tail removal. Invalidate cached forward links on the new
++    /// tail, keeping recursive joins constant-time and free of atomics.
++    pub inline fn popLocalTail(self: *Job, tail: **Job, prev: *Job) void {
++        std.debug.assert(self.handler != null);
++        std.debug.assert(tail.* == self);
++        std.debug.assert(self.prev_or_null == @as(?*anyopaque, @ptrCast(prev)));
++        std.debug.assert(self.next_or_null == local_dirty or self.next_or_null == null);
++        prev.next_or_null = local_dirty;
++        tail.* = prev;
++    }
++
++    /// Remove a non-tail local node after prepareLocal. Successive ordered
++    /// joins remain constant-time until another push or tail pop invalidates
++    /// the forward links. Shared nodes continue to use remove under the mutex.
++    pub fn removeLocalPrepared(self: *Job, tail: *Job) void {
++        std.debug.assert(self.handler != null);
++        std.debug.assert(tail != self and tail.next_or_null == null);
++        const prev: *Job = @ptrCast(@alignCast(self.prev_or_null.?));
++        const next: *Job = @ptrCast(@alignCast(self.next_or_null.?));
++        prev.next_or_null = @ptrCast(next);
++        next.prev_or_null = @ptrCast(prev);
+@@ -225,0 +289,80 @@
++test "job list: deferred links preserve mixed local and shared FIFO order" {
++    var sentinel = Job.head();
++    var tail: *Job = &sentinel;
++    var shared = Job.head();
++    var shared_tail: *Job = &shared;
++    var jobs: [32]Job = undefined;
++    var busy: [32]bool = @splat(false);
++    var local_order: [32]usize = undefined;
++    var shared_order: [32]usize = undefined;
++    var local_count: usize = 0;
++    var shared_count: usize = 0;
++    var random = std.Random.DefaultPrng.init(0xdefe77ed);
++    var state = ExecuteState{ .io = std.testing.io };
++    for (0..3000) |_| {
++        const operation = random.random().uintLessThan(usize, 5);
++        if (operation == 0 and local_count + shared_count < jobs.len) {
++            const id = std.mem.indexOfScalar(bool, &busy, false).?;
++            jobs[id] = Job.pending();
++            jobs[id].pushLocal(&tail, noop);
++            busy[id] = true;
++            local_order[local_count] = id;
++            local_count += 1;
++        } else if (operation == 1 and local_count > 0) {
++            const id = local_order[local_count - 1];
++            const prev = if (local_count == 1) &sentinel else &jobs[local_order[local_count - 2]];
++            jobs[id].popLocalTail(&tail, prev);
++            local_count -= 1;
++            busy[id] = false;
++        } else if (operation == 2 and local_count > 1) {
++            const index = random.random().uintLessThan(usize, local_count - 1);
++            const id = local_order[index];
++            Job.prepareLocal(&sentinel, tail);
++            try std.testing.expectEqual(local_count, count(&sentinel));
++            jobs[id].removeLocalPrepared(tail);
++            local_count -= 1;
++            std.mem.copyForwards(usize, local_order[index..local_count], local_order[index + 1 ..][0 .. local_count - index]);
++            busy[id] = false;
++        } else if (operation == 3 and local_count > 1) {
++            Job.prepareLocal(&sentinel, tail);
++            const offered = sentinel.shift().?;
++            try std.testing.expectEqual(&jobs[local_order[0]], offered);
++            offered.pushShared(&shared_tail);
++            shared_order[shared_count] = local_order[0];
++            shared_count += 1;
++            local_count -= 1;
++            std.mem.copyForwards(usize, local_order[0..local_count], local_order[1..][0..local_count]);
++        } else if (operation == 4 and shared_count > 0) {
++            const job = Job.popHead(&shared, &shared_tail).?;
++            try std.testing.expectEqual(&jobs[shared_order[0]], job);
++            job.setExecuteState(&state);
++            try std.testing.expectEqual(JobState.executing, job.state());
++            try std.testing.expectEqual(&state, job.getExecuteState());
++            busy[shared_order[0]] = false;
++            shared_count -= 1;
++            std.mem.copyForwards(usize, shared_order[0..shared_count], shared_order[1..][0..shared_count]);
++        }
++        var cursor = tail;
++        var remaining = local_count;
++        while (remaining > 0) {
++            remaining -= 1;
++            try std.testing.expectEqual(&jobs[local_order[remaining]], cursor);
++            try std.testing.expectEqual(JobState.queued_local, cursor.state());
++            cursor = @ptrCast(@alignCast(cursor.prev_or_null.?));
++        }
++        try std.testing.expectEqual(&sentinel, cursor);
++        try std.testing.expectEqual(shared_count, count(&shared));
++        if (local_count == 0) try std.testing.expect(sentinel.isTail());
++    }
++    Job.prepareLocal(&sentinel, tail);
++    try std.testing.expectEqual(local_count, count(&sentinel));
++    while (local_count > 0) {
++        const id = local_order[local_count - 1];
++        const prev = if (local_count == 1) &sentinel else &jobs[local_order[local_count - 2]];
++        jobs[id].popLocalTail(&tail, prev);
++        local_count -= 1;
++    }
++    try std.testing.expectEqual(&sentinel, tail);
++    try std.testing.expect(sentinel.isTail());
++}
++
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -205,0 +206 @@
++                w.local_initialized = true;
+@@ -215,0 +217 @@
++                w.local_initialized = true;
+@@ -304,0 +307 @@
++                    w.local_initialized = true;
+@@ -321,0 +325 @@
++            w.local_initialized = true;
+@@ -346,0 +351,2 @@
++
++            Job.prepareLocal(&owner.job_head, owner.local_tail);
+@@ -531,0 +538 @@
++        local_initialized: bool = false,
+@@ -541 +548,4 @@
+-            if (self.job_head.isTail()) self.local_tail = &self.job_head;
++            if (!self.local_initialized) {
++                self.local_tail = &self.job_head;
++                self.local_initialized = true;
++            }
+@@ -558 +568 @@
+-            if (self.job_head.isTail()) return;
++            if (self.local_tail == &self.job_head) return;
+@@ -598 +608 @@
+-) R {
++) align(64) R {
+@@ -661 +671 @@
+-            self.job.push(&task.worker.local_tail, Handler.run);
++            self.job.pushLocal(&task.worker.local_tail, Handler.run);
+@@ -692 +702 @@
+-                self.job.popWithPrev(
++                self.job.popLocalTail(
+@@ -704 +714,2 @@
+-                        self.job.remove(&task.worker.local_tail);
++                        Job.prepareLocal(&task.worker.job_head, task.worker.local_tail);
++                        self.job.removeLocalPrepared(task.worker.local_tail);
+@@ -714 +725,2 @@
+-                    self.job.remove(&task.worker.local_tail);
++                    Job.prepareLocal(&task.worker.job_head, task.worker.local_tail);
++                    self.job.removeLocalPrepared(task.worker.local_tail);
+@@ -1042,0 +1055,38 @@
++}
++
++test "future: nested begin preserves outstanding local work on registered and temporary lanes" {
++    const F = Future(void, usize, usize);
++    const Run = struct {
++        fn leaf(_: *Task(void), input: usize) usize {
++            return input * 3 + 1;
++        }
++    };
++    for (0..5) |workers| {
++        var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
++            .workers = workers,
++            .max_workers = workers,
++            .max_callers = 1,
++            .max_execute_states = 16,
++        });
++        defer pool.deinit();
++        try pool.start();
++        const caller = pool.claimCaller().?;
++        defer pool.releaseCaller(caller);
++        var temporary = Worker(void){ .pool = &pool, .ctx = {} };
++        for ([_]*Worker(void){ caller, &temporary }) |owner| {
++            for (0..10) |index| {
++                var task = owner.begin();
++                var parent: F = undefined;
++                parent.initFork(&task, Run.leaf, index * 17 + 3);
++                var nested = owner.begin();
++                var child: F = undefined;
++                child.initFork(&nested, Run.leaf, index * 7 + 1);
++                const child_value = child.joinOrCall(&nested, Run.leaf);
++                const parent_value = parent.joinOrCall(&task, Run.leaf);
++                try std.testing.expectEqual((index * 7 + 1) * 3 + 1, child_value);
++                try std.testing.expectEqual((index * 17 + 3) * 3 + 1, parent_value);
++                try std.testing.expect(owner.job_head.isTail());
++                try std.testing.expectEqual(&owner.job_head, owner.local_tail);
++            }
++        }
++    }

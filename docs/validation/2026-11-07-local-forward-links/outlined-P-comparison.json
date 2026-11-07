@@ -1,0 +1,602 @@
+[
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 1958,
+    "parallel_ns": 3835,
+    "speedup": 0.511
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1912,
+    "parallel_ns": 3793,
+    "speedup": 0.504
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 2141,
+    "parallel_ns": 4234,
+    "speedup": 0.506
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "100000",
+    "serial_ns": 169313,
+    "parallel_ns": 185999,
+    "speedup": 0.91
+  },
+  {
+    "round": 0,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 2057202,
+    "parallel_ns": 836498,
+    "speedup": 2.459
+  },
+  {
+    "round": 0,
+    "variant": "deferred-outlined",
+    "workload": "plain",
+    "serial_ns": 1820,
+    "parallel_ns": 3564,
+    "speedup": 0.511
+  },
+  {
+    "round": 0,
+    "variant": "deferred-outlined",
+    "workload": "error-union",
+    "serial_ns": 1953,
+    "parallel_ns": 3680,
+    "speedup": 0.531
+  },
+  {
+    "round": 0,
+    "variant": "deferred-outlined",
+    "workload": "1000",
+    "serial_ns": 1827,
+    "parallel_ns": 3522,
+    "speedup": 0.519
+  },
+  {
+    "round": 0,
+    "variant": "deferred-outlined",
+    "workload": "100000",
+    "serial_ns": 195007,
+    "parallel_ns": 174395,
+    "speedup": 1.118
+  },
+  {
+    "round": 0,
+    "variant": "deferred-outlined",
+    "workload": "1000000",
+    "serial_ns": 1965880,
+    "parallel_ns": 819558,
+    "speedup": 2.399
+  },
+  {
+    "round": 0,
+    "variant": "deferred-aligned",
+    "workload": "plain",
+    "serial_ns": 1987,
+    "parallel_ns": 3942,
+    "speedup": 0.504
+  },
+  {
+    "round": 0,
+    "variant": "deferred-aligned",
+    "workload": "error-union",
+    "serial_ns": 1891,
+    "parallel_ns": 3637,
+    "speedup": 0.52
+  },
+  {
+    "round": 0,
+    "variant": "deferred-aligned",
+    "workload": "1000",
+    "serial_ns": 1683,
+    "parallel_ns": 3561,
+    "speedup": 0.473
+  },
+  {
+    "round": 0,
+    "variant": "deferred-aligned",
+    "workload": "100000",
+    "serial_ns": 211765,
+    "parallel_ns": 140416,
+    "speedup": 1.508
+  },
+  {
+    "round": 0,
+    "variant": "deferred-aligned",
+    "workload": "1000000",
+    "serial_ns": 2032336,
+    "parallel_ns": 756262,
+    "speedup": 2.687
+  },
+  {
+    "round": 1,
+    "variant": "deferred-aligned",
+    "workload": "plain",
+    "serial_ns": 1898,
+    "parallel_ns": 3297,
+    "speedup": 0.576
+  },
+  {
+    "round": 1,
+    "variant": "deferred-aligned",
+    "workload": "error-union",
+    "serial_ns": 1895,
+    "parallel_ns": 3809,
+    "speedup": 0.498
+  },
+  {
+    "round": 1,
+    "variant": "deferred-aligned",
+    "workload": "1000",
+    "serial_ns": 1764,
+    "parallel_ns": 3536,
+    "speedup": 0.499
+  },
+  {
+    "round": 1,
+    "variant": "deferred-aligned",
+    "workload": "100000",
+    "serial_ns": 182159,
+    "parallel_ns": 150882,
+    "speedup": 1.207
+  },
+  {
+    "round": 1,
+    "variant": "deferred-aligned",
+    "workload": "1000000",
+    "serial_ns": 2026260,
+    "parallel_ns": 776301,
+    "speedup": 2.61
+  },
+  {
+    "round": 1,
+    "variant": "deferred-outlined",
+    "workload": "plain",
+    "serial_ns": 1858,
+    "parallel_ns": 3438,
+    "speedup": 0.54
+  },
+  {
+    "round": 1,
+    "variant": "deferred-outlined",
+    "workload": "error-union",
+    "serial_ns": 1807,
+    "parallel_ns": 3732,
+    "speedup": 0.484
+  },
+  {
+    "round": 1,
+    "variant": "deferred-outlined",
+    "workload": "1000",
+    "serial_ns": 2230,
+    "parallel_ns": 3731,
+    "speedup": 0.598
+  },
+  {
+    "round": 1,
+    "variant": "deferred-outlined",
+    "workload": "100000",
+    "serial_ns": 203010,
+    "parallel_ns": 179362,
+    "speedup": 1.132
+  },
+  {
+    "round": 1,
+    "variant": "deferred-outlined",
+    "workload": "1000000",
+    "serial_ns": 1959563,
+    "parallel_ns": 838221,
+    "speedup": 2.338
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 1821,
+    "parallel_ns": 3659,
+    "speedup": 0.498
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1897,
+    "parallel_ns": 3884,
+    "speedup": 0.488
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 2282,
+    "parallel_ns": 4057,
+    "speedup": 0.562
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "100000",
+    "serial_ns": 213376,
+    "parallel_ns": 174245,
+    "speedup": 1.225
+  },
+  {
+    "round": 1,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 1996221,
+    "parallel_ns": 849610,
+    "speedup": 2.35
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 2014,
+    "parallel_ns": 3907,
+    "speedup": 0.515
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1880,
+    "parallel_ns": 3804,
+    "speedup": 0.494
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 2169,
+    "parallel_ns": 4322,
+    "speedup": 0.502
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "100000",
+    "serial_ns": 200380,
+    "parallel_ns": 194817,
+    "speedup": 1.029
+  },
+  {
+    "round": 2,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 2022642,
+    "parallel_ns": 912968,
+    "speedup": 2.215
+  },
+  {
+    "round": 2,
+    "variant": "deferred-outlined",
+    "workload": "plain",
+    "serial_ns": 1993,
+    "parallel_ns": 3533,
+    "speedup": 0.564
+  },
+  {
+    "round": 2,
+    "variant": "deferred-outlined",
+    "workload": "error-union",
+    "serial_ns": 1970,
+    "parallel_ns": 3825,
+    "speedup": 0.515
+  },
+  {
+    "round": 2,
+    "variant": "deferred-outlined",
+    "workload": "1000",
+    "serial_ns": 2157,
+    "parallel_ns": 3824,
+    "speedup": 0.564
+  },
+  {
+    "round": 2,
+    "variant": "deferred-outlined",
+    "workload": "100000",
+    "serial_ns": 220907,
+    "parallel_ns": 185037,
+    "speedup": 1.194
+  },
+  {
+    "round": 2,
+    "variant": "deferred-outlined",
+    "workload": "1000000",
+    "serial_ns": 2059418,
+    "parallel_ns": 823932,
+    "speedup": 2.499
+  },
+  {
+    "round": 2,
+    "variant": "deferred-aligned",
+    "workload": "plain",
+    "serial_ns": 1972,
+    "parallel_ns": 3244,
+    "speedup": 0.608
+  },
+  {
+    "round": 2,
+    "variant": "deferred-aligned",
+    "workload": "error-union",
+    "serial_ns": 1878,
+    "parallel_ns": 3861,
+    "speedup": 0.486
+  },
+  {
+    "round": 2,
+    "variant": "deferred-aligned",
+    "workload": "1000",
+    "serial_ns": 2209,
+    "parallel_ns": 3827,
+    "speedup": 0.577
+  },
+  {
+    "round": 2,
+    "variant": "deferred-aligned",
+    "workload": "100000",
+    "serial_ns": 207244,
+    "parallel_ns": 180091,
+    "speedup": 1.151
+  },
+  {
+    "round": 2,
+    "variant": "deferred-aligned",
+    "workload": "1000000",
+    "serial_ns": 2072677,
+    "parallel_ns": 845209,
+    "speedup": 2.452
+  },
+  {
+    "round": 3,
+    "variant": "deferred-aligned",
+    "workload": "plain",
+    "serial_ns": 1921,
+    "parallel_ns": 3390,
+    "speedup": 0.567
+  },
+  {
+    "round": 3,
+    "variant": "deferred-aligned",
+    "workload": "error-union",
+    "serial_ns": 1996,
+    "parallel_ns": 3747,
+    "speedup": 0.533
+  },
+  {
+    "round": 3,
+    "variant": "deferred-aligned",
+    "workload": "1000",
+    "serial_ns": 2197,
+    "parallel_ns": 3808,
+    "speedup": 0.577
+  },
+  {
+    "round": 3,
+    "variant": "deferred-aligned",
+    "workload": "100000",
+    "serial_ns": 179358,
+    "parallel_ns": 156712,
+    "speedup": 1.145
+  },
+  {
+    "round": 3,
+    "variant": "deferred-aligned",
+    "workload": "1000000",
+    "serial_ns": 2025595,
+    "parallel_ns": 787441,
+    "speedup": 2.572
+  },
+  {
+    "round": 3,
+    "variant": "deferred-outlined",
+    "workload": "plain",
+    "serial_ns": 1903,
+    "parallel_ns": 3498,
+    "speedup": 0.544
+  },
+  {
+    "round": 3,
+    "variant": "deferred-outlined",
+    "workload": "error-union",
+    "serial_ns": 1917,
+    "parallel_ns": 3755,
+    "speedup": 0.511
+  },
+  {
+    "round": 3,
+    "variant": "deferred-outlined",
+    "workload": "1000",
+    "serial_ns": 1734,
+    "parallel_ns": 3605,
+    "speedup": 0.481
+  },
+  {
+    "round": 3,
+    "variant": "deferred-outlined",
+    "workload": "100000",
+    "serial_ns": 206773,
+    "parallel_ns": 188932,
+    "speedup": 1.094
+  },
+  {
+    "round": 3,
+    "variant": "deferred-outlined",
+    "workload": "1000000",
+    "serial_ns": 2068908,
+    "parallel_ns": 772273,
+    "speedup": 2.679
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 1924,
+    "parallel_ns": 3777,
+    "speedup": 0.509
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1850,
+    "parallel_ns": 3892,
+    "speedup": 0.475
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 1774,
+    "parallel_ns": 3566,
+    "speedup": 0.497
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "workload": "100000",
+    "serial_ns": 188494,
+    "parallel_ns": 164360,
+    "speedup": 1.147
+  },
+  {
+    "round": 3,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 2068940,
+    "parallel_ns": 816161,
+    "speedup": 2.535
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "workload": "plain",
+    "serial_ns": 1988,
+    "parallel_ns": 4142,
+    "speedup": 0.48
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "workload": "error-union",
+    "serial_ns": 1908,
+    "parallel_ns": 3822,
+    "speedup": 0.499
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "workload": "1000",
+    "serial_ns": 2113,
+    "parallel_ns": 4231,
+    "speedup": 0.499
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "workload": "100000",
+    "serial_ns": 170509,
+    "parallel_ns": 156987,
+    "speedup": 1.086
+  },
+  {
+    "round": 4,
+    "variant": "baseline",
+    "workload": "1000000",
+    "serial_ns": 2065007,
+    "parallel_ns": 849243,
+    "speedup": 2.432
+  },
+  {
+    "round": 4,
+    "variant": "deferred-outlined",
+    "workload": "plain",
+    "serial_ns": 1854,
+    "parallel_ns": 3733,
+    "speedup": 0.497
+  },
+  {
+    "round": 4,
+    "variant": "deferred-outlined",
+    "workload": "error-union",
+    "serial_ns": 1943,
+    "parallel_ns": 3654,
+    "speedup": 0.532
+  },
+  {
+    "round": 4,
+    "variant": "deferred-outlined",
+    "workload": "1000",
+    "serial_ns": 2093,
+    "parallel_ns": 3663,
+    "speedup": 0.571
+  },
+  {
+    "round": 4,
+    "variant": "deferred-outlined",
+    "workload": "100000",
+    "serial_ns": 193669,
+    "parallel_ns": 170584,
+    "speedup": 1.135
+  },
+  {
+    "round": 4,
+    "variant": "deferred-outlined",
+    "workload": "1000000",
+    "serial_ns": 2081293,
+    "parallel_ns": 837301,
+    "speedup": 2.486
+  },
+  {
+    "round": 4,
+    "variant": "deferred-aligned",
+    "workload": "plain",
+    "serial_ns": 1925,
+    "parallel_ns": 3486,
+    "speedup": 0.552
+  },
+  {
+    "round": 4,
+    "variant": "deferred-aligned",
+    "workload": "error-union",
+    "serial_ns": 1992,
+    "parallel_ns": 3635,
+    "speedup": 0.548
+  },
+  {
+    "round": 4,
+    "variant": "deferred-aligned",
+    "workload": "1000",
+    "serial_ns": 2000,
+    "parallel_ns": 3754,
+    "speedup": 0.533
+  },
+  {
+    "round": 4,
+    "variant": "deferred-aligned",
+    "workload": "100000",
+    "serial_ns": 203167,
+    "parallel_ns": 173619,
+    "speedup": 1.17
+  },
+  {
+    "round": 4,
+    "variant": "deferred-aligned",
+    "workload": "1000000",
+    "serial_ns": 1911670,
+    "parallel_ns": 785163,
+    "speedup": 2.435
+  }
+]

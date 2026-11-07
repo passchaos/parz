@@ -265,6 +265,7 @@ zig build bench-compute -- 1000000
 zig build bench-compute -- 1000000 pin   # exercise pin_workers
 zig build bench-micro
 zig build bench-micro -- 1000 8       # paired callback-shape overhead
+taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 1 31 1024
 zig build bench-irregular -- 200000 8 9 mixed
 taskset -c 0,2,4,6,8,10,12,14 zig build bench-irregular \
     -Doptimize=ReleaseFast -- 200000 8 9 skewed
@@ -322,6 +323,14 @@ lanes 0 selects the automatic worker count and lanes 1 exercises caller
 fallback. `mixed` uses fixed pseudo-random work per node; `skewed` makes the
 entire left subtree 32 times more expensive per node than the right subtree.
 Use a fixed CPU set with `taskset` for comparisons.
+
+`bench-micro` accepts an optional repetition count after the caller CPU.
+The default is one. Larger counts time repeated calls and report nanoseconds
+per call; every result is checked, and a compiler memory barrier prevents
+read-only serial callbacks from being moved outside the repetition loop.
+This diagnostic helps assess tiny callback costs alongside the single-call
+tree gate. [Local-link experiments](docs/validation/2026-11-07-local-forward-links/README.md)
+record the rejected scheduling changes and all raw measurements.
 
 The explicit parity gate rejects a slowdown greater than about 11% after
 checksum validation and paired measurement:

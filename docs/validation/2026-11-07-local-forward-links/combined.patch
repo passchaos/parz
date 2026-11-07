@@ -1,0 +1,18 @@
+--- a/src/job.zig
++++ b/src/job.zig
+@@ -95,0 +96 @@
++        const prev = tail.*;
+@@ -97,2 +98 @@
+-        tail.*.next_or_null = @ptrCast(self);
+-        self.prev_or_null = @ptrCast(tail.*);
++        self.prev_or_null = @ptrCast(prev);
+@@ -99,0 +100 @@
++        prev.next_or_null = @ptrCast(self);
+@@ -129 +130,4 @@
+-        std.debug.assert(self.state() == .queued_local);
++        // The owner already proved this is its local tail. Plain checks keep
++        // generic state's acquire loads out of the local-only operation,
++        // including builds that elide assertion checks but retain atomics.
++        std.debug.assert(self.handler != null);
+@@ -131,0 +136 @@
++        std.debug.assert(self.next_or_null == null);

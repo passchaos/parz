@@ -1,0 +1,27 @@
+$ taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 1 31
+placement caller_cpu=31 worker_cpus={  }
+micro nodes=1000 workers=0 checksum=1000 callback=plain
+measurement repetitions=1 unit=ns_per_call
+sample=0 serial_ns=2007 parallel_ns=3135 speedup=0.640
+sample=1 serial_ns=1630 parallel_ns=3085 speedup=0.528
+sample=2 serial_ns=1604 parallel_ns=3068 speedup=0.523
+sample=3 serial_ns=1554 parallel_ns=3020 speedup=0.515
+sample=4 serial_ns=1538 parallel_ns=3047 speedup=0.505
+sample=5 serial_ns=1522 parallel_ns=3045 speedup=0.500
+sample=6 serial_ns=1508 parallel_ns=3040 speedup=0.496
+sample=7 serial_ns=1483 parallel_ns=3054 speedup=0.486
+sample=8 serial_ns=1504 parallel_ns=3048 speedup=0.493
+micro callback=plain serial_ns=1538 parallel_ns=3048 speedup=0.505 statistic=median
+micro nodes=1000 workers=0 checksum=1000 callback=error-union
+sample=0 serial_ns=1580 parallel_ns=3281 speedup=0.482
+sample=1 serial_ns=1525 parallel_ns=3378 speedup=0.451
+sample=2 serial_ns=1605 parallel_ns=3235 speedup=0.496
+sample=3 serial_ns=1482 parallel_ns=3248 speedup=0.456
+sample=4 serial_ns=1535 parallel_ns=3194 speedup=0.481
+sample=5 serial_ns=1489 parallel_ns=3222 speedup=0.462
+sample=6 serial_ns=1478 parallel_ns=3196 speedup=0.462
+sample=7 serial_ns=1419 parallel_ns=3233 speedup=0.439
+sample=8 serial_ns=1471 parallel_ns=3193 speedup=0.461
+micro callback=error-union serial_ns=1489 parallel_ns=3233 speedup=0.461 statistic=median
+
+exit_code=0

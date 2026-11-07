@@ -1,0 +1,3 @@
+$ zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics -OReleaseSafe --test-no-exec -femit-bin=/tmp/parz-local-links-wasm32-wasi
+
+exit_code=0

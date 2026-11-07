@@ -1,0 +1,5 @@
+--- a/src/core.zig
++++ b/src/core.zig
+@@ -598 +598 @@
+-) R {
++) align(64) R {

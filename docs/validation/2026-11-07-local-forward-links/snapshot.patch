@@ -1,0 +1,10 @@
+--- a/src/job.zig
++++ b/src/job.zig
+@@ -95,0 +96 @@
++        const prev = tail.*;
+@@ -97,2 +98 @@
+-        tail.*.next_or_null = @ptrCast(self);
+-        self.prev_or_null = @ptrCast(tail.*);
++        self.prev_or_null = @ptrCast(prev);
+@@ -99,0 +100 @@
++        prev.next_or_null = @ptrCast(self);
