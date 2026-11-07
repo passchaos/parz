@@ -248,6 +248,11 @@ defer queue.deinit();
 try queue.put(io, message);       // waits while full
 const next = try queue.get(io);   // waits while empty
 
+// Batch forms wait for at least one transferable element, then return the
+// explicit partial-progress count.
+const written = try queue.putSlice(io, pending);
+const read = try queue.getSlice(io, received);
+
 var group = parz.sync.WaitGroup{};
 group.add(io, workers);
 // each worker:
@@ -257,6 +262,12 @@ group.wait(io);
 
 `MpscQueue` and `ShardedMpscQueue` are non-blocking (`tryPush`/`tryPop`);
 `BlockingQueue` is the multi-consumer blocking option.
+
+`BlockingQueue` also supports `tryPutSlice`/`tryGetSlice` and cancelable
+`putSlice`/`getSlice`. Each operation copies at most two ring segments while
+holding the mutex once. Non-blocking forms return immediately; blocking forms
+wait for at least one slot/value and then return the transferred prefix, so a
+caller always knows its progress. Unused output suffixes remain untouched.
 
 `ShardedMpscQueue` also exposes `tryPushSlice(shard, values)` and
 `tryPopSlice(output)`. Producers publish a prefix through their private SPSC
@@ -351,6 +362,8 @@ zig build bench-spsc-batch -Doptimize=ReleaseFast -- 3000000 1024 64 24 26 9
 zig build bench-mpsc-batch -Doptimize=ReleaseFast -- 750000 1024 64 24,25,26,27 31 9
 zig build bench-sharded-mpsc-batch -Doptimize=ReleaseFast -- \
     750000 1024 64 24,25,26,27 31 9
+zig build bench-blocking-batch -Doptimize=ReleaseFast -- \
+    500000 1024 64 24,25 26,27 31 9
 # bench-spsc arguments: items capacity producer_cpu consumer_cpu rounds (Linux)
 zig build bench                      # all benchmarks
 
@@ -413,6 +426,11 @@ Measured results and correctness checks are recorded in
 checksum validation for four private SPSC shards. Its API semantics, batch
 controls and throughput evidence are recorded in
 [the sharded MPSC batch report](docs/validation/2026-11-07-sharded-mpsc-batch/README.md).
+
+`bench-blocking-batch` compares scalar and slice operations for two producers
+and two consumers, with thread startup outside timing and every output checked
+afterward. Results and cancellation/partial-progress semantics are documented
+in [the BlockingQueue batch report](docs/validation/2026-11-07-blocking-batch/README.md).
 
 `bench-tree-sum` and `bench-irregular` warm up both paths, verify every run,
 alternate which path runs first, print raw paired samples, and report the

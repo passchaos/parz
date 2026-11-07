@@ -196,6 +196,17 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_sharded_batch.addArgs(args);
     b.step("bench-sharded-mpsc-batch", "Compare scalar and batch sharded MPSC transfers on fixed CPUs").dependOn(&run_sharded_batch.step);
 
+    const blocking_batch_mod = b.createModule(.{
+        .root_source_file = b.path("bench/blocking_batch.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const blocking_batch = b.addExecutable(.{ .name = "parz-blocking-batch", .root_module = blocking_batch_mod });
+    const run_blocking_batch = b.addRunArtifact(blocking_batch);
+    if (b.args) |args| run_blocking_batch.addArgs(args);
+    b.step("bench-blocking-batch", "Compare scalar and batch BlockingQueue transfers on fixed CPUs").dependOn(&run_blocking_batch.step);
+
     const bench_step = b.step("bench", "Run all parz benchmarks");
     bench_step.dependOn(bench_tree_sum_step);
     bench_step.dependOn(bench_for_step);
