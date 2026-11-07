@@ -286,6 +286,17 @@ pub fn parallelFoldInfallible(
             return acc;
         }
     };
+    const ExecValue = struct {
+        fn exec(t: *Tm, input: Input) T {
+            const runner = input.runner;
+            var acc = runner.identity;
+            var i = input.chunk.start;
+            while (i < input.chunk.end) : (i += 1) {
+                acc = combine(acc, map(t.worker, runner.shared.*, i));
+            }
+            return acc;
+        }
+    };
 
     var runner = Runner{
         .shared = &shared,
@@ -303,6 +314,9 @@ pub fn parallelFoldInfallible(
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    if (options.cancel == null) {
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, identity, ExecValue.exec, combine);
+    }
     return dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, identity, Exec.exec, combine);
 }
 
@@ -371,6 +385,31 @@ noinline fn dispatchFold(
     try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
     var total = identity;
     for (results) |result| total = combine(total, try result);
+    return total;
+}
+
+/// Without callback errors or cancellation, store only values and use the
+/// plain-return chunk callback. Allocation errors still propagate to callers.
+noinline fn dispatchFoldValue(
+    pool: anytype,
+    task: anytype,
+    comptime T: type,
+    comptime Input: type,
+    runner: anytype,
+    count: usize,
+    chunks: usize,
+    lanes: usize,
+    identity: T,
+    comptime exec: anytype,
+    comptime combine: anytype,
+) anyerror!T {
+    var fallback = std.heap.stackFallback(4096, pool.allocator);
+    const allocator = fallback.get();
+    const results = try allocator.alloc(T, chunks);
+    defer allocator.free(results);
+    try runLanes(pool, task, Input, runner, count, lanes, results, allocator, exec);
+    var total = identity;
+    for (results) |result| total = combine(total, result);
     return total;
 }
 
@@ -1237,6 +1276,152 @@ test "parallelFold is deterministic across worker counts" {
                 Add.combine,
             );
             try std.testing.expectEqual(expected, total);
+        }
+    }
+}
+
+test "uncancelled infallible fold fits 256 u64 results and lane futures on the stack" {
+    const Run = struct {
+        fn map(_: *core.Worker(void), _: void, index: usize) u64 {
+            return index;
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    for (0..5) |workers| {
+        for ([_]usize{ 0, 16 }) |states| {
+            var failing = std.testing.FailingAllocator.init(std.testing.allocator, .{});
+            var pool = try core.Pool(void).init(failing.allocator(), std.testing.io, .{
+                .workers = workers,
+                .max_workers = workers,
+                .max_callers = 1,
+                .max_execute_states = states,
+            });
+            defer pool.deinit();
+            try pool.start();
+            const allocated = failing.alloc_index;
+            failing.fail_index = allocated;
+            for (0..3) |_| {
+                const result = try parallelFoldInfallible(&pool, u64, {}, 4096, .{
+                    .min_chunk = 1,
+                    .max_chunks = 256,
+                    .chunks_per_worker = 256,
+                    .serial_threshold = 0,
+                }, 0, Run.map, Run.add);
+                try std.testing.expectEqual(@as(u64, 8386560), result);
+                try std.testing.expectEqual(allocated, failing.alloc_index);
+                try std.testing.expect(!failing.has_induced_failure);
+                const caller = pool.claimCaller().?;
+                pool.releaseCaller(caller);
+            }
+        }
+    }
+}
+
+test "infallible value dispatch allocation failures release caller before callbacks" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const Packet = struct { words: [8]u64 = @splat(0) };
+    const Run = struct {
+        fn map(_: *core.Worker(void), calls: *std.atomic.Value(usize), index: usize) u64 {
+            _ = calls.fetchAdd(1, .monotonic);
+            return index;
+        }
+        fn packet(w: *core.Worker(void), calls: *std.atomic.Value(usize), index: usize) Packet {
+            return .{ .words = @splat(map(w, calls, index)) };
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+        fn combine(a: Packet, b: Packet) Packet {
+            var result: Packet = undefined;
+            for (&result.words, a.words, b.words) |*out, left, right| out.* = left + right;
+            return result;
+        }
+    };
+    var failing = std.testing.FailingAllocator.init(std.testing.allocator, .{});
+    var pool = try core.Pool(void).init(failing.allocator(), std.testing.io, .{
+        .workers = 1,
+        .max_workers = 1,
+        .max_callers = 1,
+    });
+    defer pool.deinit();
+    try pool.start();
+    if (pool.parallelWorkerCount() < 2) return error.SkipZigTest;
+    failing.fail_index = failing.alloc_index;
+    var calls = std.atomic.Value(usize).init(0);
+    try std.testing.expectError(error.OutOfMemory, parallelFoldInfallible(&pool, u64, &calls, 4096, .{
+        .min_chunk = 1,
+        .max_chunks = 1024,
+        .chunks_per_worker = 1024,
+        .serial_threshold = 0,
+    }, 0, Run.map, Run.add));
+    try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
+    const caller = pool.claimCaller().?;
+    pool.releaseCaller(caller);
+    // The value array fits exactly; allocation of lane futures must fail.
+    try std.testing.expectError(error.OutOfMemory, parallelFoldInfallible(&pool, Packet, &calls, 64, .{
+        .min_chunk = 1,
+        .max_chunks = 64,
+        .chunks_per_worker = 64,
+        .serial_threshold = 0,
+    }, .{}, Run.packet, Run.combine));
+    try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
+    const again = pool.claimCaller().?;
+    pool.releaseCaller(again);
+    failing.fail_index = std.math.maxInt(usize);
+    const result = try parallelFoldInfallible(&pool, Packet, &calls, 64, .{
+        .min_chunk = 1,
+        .max_chunks = 64,
+        .chunks_per_worker = 64,
+        .serial_threshold = 0,
+    }, .{}, Run.packet, Run.combine);
+    try std.testing.expectEqual(@as(usize, 64), calls.load(.monotonic));
+    for (result.words) |word| try std.testing.expectEqual(@as(u64, 2016), word);
+}
+
+test "infallible value and cancellable folds preserve noncommutative order across lanes" {
+    const Sequence = struct {
+        hash: u64 = 0,
+        power: u64 = 1,
+    };
+    const base: u64 = 0x100000001b3;
+    const Run = struct {
+        fn map(_: *core.Worker(void), _: void, index: usize) Sequence {
+            return .{ .hash = index + 1, .power = base };
+        }
+        fn combine(a: Sequence, b: Sequence) Sequence {
+            return .{ .hash = a.hash *% b.power +% b.hash, .power = a.power *% b.power };
+        }
+    };
+    var expected = Sequence{};
+    for (0..641) |index| {
+        expected.hash = expected.hash *% base +% (index + 1);
+        expected.power *%= base;
+    }
+    for (0..5) |workers| {
+        var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+        });
+        defer pool.deinit();
+        try pool.start();
+        var token = CancelToken{};
+        for (1..6) |cap| {
+            for (0..3) |_| {
+                for ([_]?*CancelToken{ null, &token }) |cancel| {
+                    const result = try parallelFoldInfallible(&pool, Sequence, {}, 641, .{
+                        .min_chunk = 3,
+                        .max_chunks = 73,
+                        .chunks_per_worker = 17,
+                        .max_workers = cap,
+                        .serial_threshold = 0,
+                        .cancel = cancel,
+                    }, .{}, Run.map, Run.combine);
+                    try std.testing.expectEqual(expected, result);
+                }
+            }
         }
     }
 }

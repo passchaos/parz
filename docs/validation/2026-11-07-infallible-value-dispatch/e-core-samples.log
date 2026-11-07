@@ -1,0 +1,2000 @@
+round=0 variant=baseline case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1590 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=25349 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=1156 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=28330 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=19076 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1122 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22116 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=1122 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1122 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=22606 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=1115 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=22320 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=20030 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1106 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=23107 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=1110 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1126 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=22273 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=1113 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=21874 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=25532 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1126 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=21809 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=1107 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1149 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=25021 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=1112 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=23405 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=20253 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1125 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=40902 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=1109 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1149 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=19608 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=1111 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=22754 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1122 parallel_ns=22606 speedup=0.050 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=1115 parallel_ns=22320 speedup=0.050 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=baseline case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=405071 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=83016 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=390986 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=75674 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=79490 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=384913 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=77146 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=373930 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=307101 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=73049 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=365269 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=71905 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=80853 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=358615 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=76893 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=360248 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=314567 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=79874 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=353610 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=76724 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=74008 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=368521 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=77296 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=347443 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=302190 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=80039 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=347165 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=70741 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=70596 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=342554 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=73116 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=342858 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=301669 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=78393 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=337104 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=73969 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=342858 parallel_ns=77296 speedup=4.436 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=358615 parallel_ns=74008 speedup=4.846 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=baseline case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7372214 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=964976 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=7369125 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=971884 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=943297 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7229560 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1016779 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=7169751 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7169672 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=943618 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=7164813 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=950606 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=944430 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7156513 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=951816 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=7158638 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7162046 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=971267 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=7162948 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=969230 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=982860 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7165606 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=961570 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=7164125 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7172887 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=914528 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=7169858 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=922789 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=916216 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7161494 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=932785 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=7167402 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7166752 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=953183 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=7171088 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=918432 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7167402 parallel_ns=953183 speedup=7.519 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=7165606 parallel_ns=944430 speedup=7.587 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=baseline case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109302619 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14132490 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=109343391 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14109296 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14091550 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109366790 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14173850 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=109287298 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109271283 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14117660 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=109242908 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14115578 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14157854 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109297514 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14125531 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=109279918 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109287333 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14103017 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=109290212 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14111356 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14096355 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109264082 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14109725 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=109293667 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109297922 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14098581 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=109278986 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14102849 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14097134 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109308782 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14100389 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=109299053 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109284705 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14119150 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=109243644 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14341991 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109287333 parallel_ns=14117660 speedup=7.741 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=109290212 parallel_ns=14109296 speedup=7.746 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=baseline case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1233 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=2055 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1107 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1991 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1929 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1091 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1917 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1092 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1079 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1899 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1927 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1934 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1094 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1950 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1096 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1899 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1967 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1925 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1936 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1098 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1121 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1906 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1093 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1926 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1924 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1095 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1912 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1097 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1900 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1089 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1918 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1096 parallel_ns=1912 speedup=0.573 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1095 parallel_ns=1927 speedup=0.568 allocations=0 allocated_bytes=0 statistic=median
+round=0 variant=value case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1323 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=21021 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1109 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=23983 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=24811 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1126 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22226 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1069 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1092 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=20608 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=22540 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=19295 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1090 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=24174 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1110 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1120 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=23428 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=22988 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=21081 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1087 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=23978 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1058 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1099 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=21563 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1053 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=23413 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=23962 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1060 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=21927 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1095 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=19498 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1060 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=20988 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1095 parallel_ns=21927 speedup=0.050 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1082 parallel_ns=22988 speedup=0.047 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=value case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=416333 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=80721 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=381796 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=80381 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=80482 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=386197 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=72855 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=356192 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=293890 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=71210 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=359257 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=76913 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=74945 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=348060 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=69394 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=342874 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=295439 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=65696 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=341973 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=73810 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=68962 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=338052 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=72419 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=333983 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=350049 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=77913 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=333791 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=69065 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=71155 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=346253 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=72352 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=331901 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=303888 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=69654 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=334272 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=71899 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=333983 parallel_ns=72352 speedup=4.616 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=346253 parallel_ns=73810 speedup=4.691 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=value case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7367571 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=935879 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=7338302 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=918875 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=918408 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7164778 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=913565 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=7168004 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7165158 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=925579 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=7165654 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=944723 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=933503 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7168454 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=937527 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=7156829 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7162370 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=939733 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=7163367 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=962083 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=956315 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7161179 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=959751 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=7167060 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7171534 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=951371 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=7166070 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=925994 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=915321 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7174094 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=915944 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=7161045 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7155177 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=932829 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=7170192 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=938523 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7165158 parallel_ns=935879 speedup=7.656 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=7166070 parallel_ns=933503 speedup=7.677 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=value case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109324046 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14093549 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=109280603 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14248861 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14100555 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109296177 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14297087 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=109299159 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109322020 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14096476 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=109304371 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14102511 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14109996 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109315988 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14106924 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=109292178 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109261888 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14116348 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=109309636 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14096198 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14085269 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109309807 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14194123 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=109267984 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109275596 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14108059 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=109287285 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14106678 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14120049 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109318279 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14097466 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=109366492 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109326886 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14097237 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=109327188 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14104824 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109299159 parallel_ns=14106924 speedup=7.748 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=109309636 parallel_ns=14104824 speedup=7.750 allocations=1 allocated_bytes=256 statistic=median
+round=0 variant=value case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1245 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1284 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1088 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=2034 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1970 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1232 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1078 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1181 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1950 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1931 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1084 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1195 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1078 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1190 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1084 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1989 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1926 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1205 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1085 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1096 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1216 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1950 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1934 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1084 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1182 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1081 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1124 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1206 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1105 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1940 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1085 parallel_ns=1205 speedup=0.900 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1084 parallel_ns=1950 speedup=0.556 allocations=0 allocated_bytes=0 statistic=median
+round=1 variant=value case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1300 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=22961 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1164 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=24734 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=21503 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1070 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22168 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1057 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1056 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=22148 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1062 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=21076 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=20826 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1063 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=19006 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1070 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1067 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=22494 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1105 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=24866 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=24055 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1072 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=19341 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1061 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1090 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=18789 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1059 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=21587 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=24208 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1073 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=20555 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1075 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1067 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=21737 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1069 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=21074 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1067 parallel_ns=21737 speedup=0.049 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1070 parallel_ns=21587 speedup=0.050 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=value case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=407632 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=82085 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=377873 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=77166 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=78948 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=366225 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=73109 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=356557 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=299273 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=69380 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=356278 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=70826 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=76226 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=359242 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=77703 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=362000 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=301382 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=75648 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=349686 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=81836 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=71363 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=340660 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=64872 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=335988 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=299723 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=78769 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=335308 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=68200 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=74802 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=335599 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=69426 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=345856 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=293770 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=69379 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=335857 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=74689 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=335988 parallel_ns=73109 speedup=4.596 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=349686 parallel_ns=74802 speedup=4.675 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=value case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7316376 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=952755 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=7312319 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1009585 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=983205 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7210970 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=933875 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=7158234 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7167504 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=966874 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=7156676 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=961618 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=961651 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7163880 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=959370 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=7163447 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7169914 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1024608 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=7161675 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1011713 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=1000645 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7167941 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1006074 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=7151887 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7159416 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1011790 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=7157367 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1012909 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=941881 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7159824 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1013810 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=7160523 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7158346 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=960202 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=7170447 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=961174 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7160523 parallel_ns=966874 speedup=7.406 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=7163880 parallel_ns=983205 speedup=7.286 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=value case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109323768 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14176872 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=109308504 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14114374 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14110049 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109261460 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14104110 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=109272712 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109313875 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14093273 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=109247614 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14113390 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14097428 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109259376 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14109011 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=109260121 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109286430 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14115866 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=109269600 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14117101 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14117273 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109289620 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14097547 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=109265358 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109292433 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14128654 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=109261761 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14101059 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14102970 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109287623 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14093958 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=109251813 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109295699 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14119800 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=109291806 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14103234 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109286430 parallel_ns=14109011 speedup=7.746 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=109269600 parallel_ns=14110049 speedup=7.744 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=value case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1219 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1302 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1098 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=2043 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=2008 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1248 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1089 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1198 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1958 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1971 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1076 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1187 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1077 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1056 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1182 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1052 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1898 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1891 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1061 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1172 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1057 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1055 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1177 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1054 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1899 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1879 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1199 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1055 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1082 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1172 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1052 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1903 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1077 parallel_ns=1187 speedup=0.907 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1076 parallel_ns=1903 speedup=0.565 allocations=0 allocated_bytes=0 statistic=median
+round=1 variant=baseline case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1332 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=20735 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=1073 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=26060 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=22047 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1110 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22350 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=1117 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1085 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=23222 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=1079 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=22752 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=22175 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1091 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=22027 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=1087 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1064 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=21356 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=1095 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=21541 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=22844 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1108 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=21385 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=1069 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1058 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=19401 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=21227 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=24527 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1118 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=17800 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=1106 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1068 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=23048 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=1074 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=21639 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1085 parallel_ns=21385 speedup=0.051 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=1091 parallel_ns=22175 speedup=0.049 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=baseline case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=413494 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=82853 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=388868 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=78529 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=73596 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=411141 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=72122 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=418393 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=304365 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=78271 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=363402 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=81874 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=72023 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=355249 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=78779 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=369076 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=305285 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=74399 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=340066 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=68544 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=69063 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=348250 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=71842 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=356973 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=314193 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=79897 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=360834 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=82006 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=68515 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=333314 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=68767 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=336121 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=292500 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=73591 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=329507 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=73630 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=336121 parallel_ns=74399 speedup=4.518 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=355249 parallel_ns=73596 speedup=4.827 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=baseline case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7174935 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=916541 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=7170199 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=952374 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=998524 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7165402 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=951090 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=7165362 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7161497 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=976026 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=7156164 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=977114 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=935225 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7158667 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=993034 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=7153902 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7162810 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1014424 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=7162901 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=972395 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=963095 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7168622 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1045051 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=7168517 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7164087 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=948379 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=7166980 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=939567 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=935682 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7157943 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=940852 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=7160011 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7163996 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=963117 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=7161249 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=970073 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7163996 parallel_ns=963117 speedup=7.438 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=7162901 parallel_ns=963095 speedup=7.437 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=baseline case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109322803 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14111524 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=109281320 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14095484 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14099538 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109292547 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14100436 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=109316378 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109262217 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14091403 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=109227083 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14124785 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14089296 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109363954 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14123166 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=109338638 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109369155 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14115023 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=109332792 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14114441 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14131239 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109332188 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14195206 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=109340522 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109330341 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14125624 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=109389725 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14145102 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14107012 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109365281 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14321681 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=109319490 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109340899 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14126563 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=109374910 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14107816 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109330341 parallel_ns=14123166 speedup=7.741 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=109332792 parallel_ns=14107816 speedup=7.750 allocations=1 allocated_bytes=256 statistic=median
+round=1 variant=baseline case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1164 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=2002 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1105 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1981 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1934 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1084 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1908 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1084 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1081 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1916 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1079 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1948 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1961 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1088 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1930 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1119 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1907 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1958 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1921 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1085 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1917 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1086 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1928 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1083 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1957 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1933 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1078 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1937 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1080 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1054 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1863 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1050 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1923 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1084 parallel_ns=1917 speedup=0.565 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1083 parallel_ns=1948 speedup=0.556 allocations=0 allocated_bytes=0 statistic=median
+round=2 variant=baseline case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1271 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=20106 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=1108 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=23455 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=25096 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1133 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=21984 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=1069 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1080 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=20867 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=1110 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=22166 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=22004 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1130 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=23716 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=1070 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1095 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=19748 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=1085 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=18613 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=21024 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=19314 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=1073 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1063 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=21859 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=1060 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=23915 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=26766 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1075 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=20285 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=1067 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1089 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=20067 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=1079 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=21712 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1073 parallel_ns=20285 speedup=0.053 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=1085 parallel_ns=22166 speedup=0.049 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=baseline case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=414319 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=88198 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=385569 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=87408 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=74769 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=388224 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=80915 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=379375 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=313011 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=81775 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=377979 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=74957 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=70665 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=367502 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=72079 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=364655 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=314998 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=76599 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=359076 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=181846 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=78292 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=355961 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=75341 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=345299 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=325856 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=77576 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=341773 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=72977 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=74060 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=345383 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=72624 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=332433 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=294734 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=74031 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=329939 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=73103 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=332433 parallel_ns=76599 speedup=4.340 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=359076 parallel_ns=74769 speedup=4.802 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=baseline case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7302988 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1030634 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=7168264 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=944724 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=923718 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7176507 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=955729 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=7160786 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7166635 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=961241 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=7171067 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=944692 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=964385 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7177862 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=937557 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=7170352 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7161955 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=918427 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=7162724 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=916273 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=936481 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7164767 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=951373 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=7166529 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7169916 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=967774 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=7162732 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=953081 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=940557 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7164595 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=949687 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=7166804 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7160765 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=959962 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=7162766 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=960908 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7166635 parallel_ns=955729 speedup=7.499 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=7164767 parallel_ns=944692 speedup=7.584 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=baseline case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109343704 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14116010 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=109368178 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14119269 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14102781 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109384856 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14123907 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=109343169 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109347688 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14129710 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=109380457 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14110889 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14130452 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109352750 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14104201 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=109370532 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109361529 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14128515 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=109387528 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14109030 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14109773 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109372004 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14125208 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=109353179 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109396080 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14105499 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=109375905 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=16759913 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=21539193 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109345000 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14100410 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=109345623 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109382194 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=22507322 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=109353536 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14114759 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109353179 parallel_ns=14123907 speedup=7.742 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=109372004 parallel_ns=14114759 speedup=7.749 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=baseline case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1279 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1935 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1078 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1923 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1914 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1058 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1893 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1052 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1052 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1841 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1061 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1897 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1890 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1066 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1847 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1074 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1061 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1867 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1076 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1883 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1925 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1857 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1064 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1070 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1849 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1064 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1876 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1881 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1062 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1856 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1095 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1055 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1858 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1069 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1873 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1064 parallel_ns=1857 speedup=0.573 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1066 parallel_ns=1890 speedup=0.564 allocations=0 allocated_bytes=0 statistic=median
+round=2 variant=value case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1387 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=20394 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1095 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=25746 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=22563 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1099 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22778 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1096 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1097 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=19653 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1083 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=22824 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=22313 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1095 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=22130 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1103 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1092 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=23254 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=23208 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=20742 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1101 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=25250 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1086 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1121 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=20613 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1087 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=26485 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=22883 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1107 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=21509 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1082 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1090 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=20786 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=23242 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1096 parallel_ns=21509 speedup=0.051 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1095 parallel_ns=22883 speedup=0.048 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=value case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=418301 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=85020 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=377821 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=80392 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=71238 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=380376 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=82505 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=361646 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=305620 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=76820 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=361261 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=79501 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=74215 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=400618 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=75851 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=351093 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=299871 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=77740 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=362542 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=77911 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=68432 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=353090 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=82454 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=349385 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=301261 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=74338 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=343536 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=78166 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=73494 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=335764 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=73186 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=329854 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=300642 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=69961 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=331969 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=70790 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=329854 parallel_ns=76820 speedup=4.294 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=361261 parallel_ns=74215 speedup=4.868 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=value case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7356060 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=937836 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=7289172 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=922282 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=917408 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7178563 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=917522 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=7161243 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7158602 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=916464 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=7159163 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=946391 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=939415 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7171228 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=947748 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=7156801 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7159542 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=942328 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=7169577 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=939694 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=950913 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7163282 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=962115 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=7174086 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7171662 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=939124 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=7162185 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=955599 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=941791 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7164914 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=938539 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=7158856 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7172169 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=945903 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=7170585 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=956124 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7161243 parallel_ns=939124 speedup=7.625 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=7169577 parallel_ns=941791 speedup=7.613 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=value case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109316237 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14190181 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=109357639 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14161476 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14158599 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109334527 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14096862 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=109375397 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109343542 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14112298 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=109376348 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14104935 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14181268 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109323350 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14105146 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=109291712 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109320995 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14091662 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=109291137 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14112689 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14095519 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109304411 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14100458 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=109311541 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109275691 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14094905 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=109299914 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14093071 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14109391 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109307984 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14093867 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=109289319 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109272723 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14097601 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=109312228 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14094488 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109311541 parallel_ns=14097601 speedup=7.754 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=109312228 parallel_ns=14109391 speedup=7.747 allocations=1 allocated_bytes=256 statistic=median
+round=2 variant=value case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1211 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1282 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1090 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=2070 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1952 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1092 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1258 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1087 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1085 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1193 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1963 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1948 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1209 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1110 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1091 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1197 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1077 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1957 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1925 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1086 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1207 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1091 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1098 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1189 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1085 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1980 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1922 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1083 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1183 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1080 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1117 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1184 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1077 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1942 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1091 parallel_ns=1197 speedup=0.911 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1085 parallel_ns=1952 speedup=0.556 allocations=0 allocated_bytes=0 statistic=median
+round=3 variant=value case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1734 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=25424 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1180 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=17813 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=23911 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1118 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=21516 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1098 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=21003 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1062 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=24114 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=21830 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1212 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=22163 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1058 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1097 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=24030 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1081 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=18894 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=21916 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1065 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=22927 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1062 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1097 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=18160 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1098 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=21997 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14965 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1056 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=22173 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1085 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1092 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=23986 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=22186 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1092 parallel_ns=22173 speedup=0.049 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1081 parallel_ns=21916 speedup=0.049 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=value case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=407663 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=76912 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=371799 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=73053 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=68954 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=372017 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=75364 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=358292 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=293458 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=76715 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=355171 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=77609 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=69446 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=353514 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=130256 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=340427 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=296194 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=76062 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=363901 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=67777 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=73389 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=341267 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=70062 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=345333 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=299074 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=68304 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=339667 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=76899 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=66357 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=349661 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=65085 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=338370 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=296232 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=68564 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=335883 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=66214 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=338370 parallel_ns=75364 speedup=4.490 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=353514 parallel_ns=69446 speedup=5.090 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=value case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7355963 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=938196 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=7346242 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=921828 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=933447 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7149305 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=930020 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=7170597 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7160847 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=945656 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=7160912 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1036529 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=957260 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7161587 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=967753 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=7170584 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7162287 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=955153 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=7167028 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=959262 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=938101 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7160990 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=967636 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=7156376 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7157394 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=969464 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=7169832 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=968588 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=985998 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7167215 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=925399 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=7165201 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7171581 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=918390 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=7157698 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=915283 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7165201 parallel_ns=945656 speedup=7.577 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=7161587 parallel_ns=957260 speedup=7.481 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=value case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109267162 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14116754 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=109259665 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14107971 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14123482 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109273778 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14232839 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=109313546 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109299192 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14103562 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=109293127 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14106410 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14102956 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109297729 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=15198917 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=109348933 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109345438 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=15448163 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=109341209 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14111849 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14132237 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109329645 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14098158 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=109379035 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109355600 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14108506 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=109381020 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14103241 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14116448 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109337646 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14116394 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=109346396 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109403475 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14107919 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=109362307 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=15249068 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109346396 parallel_ns=14116394 speedup=7.746 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=109329645 parallel_ns=14111849 speedup=7.747 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=value case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1221 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1364 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1104 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=2061 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1937 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1095 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1243 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1094 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1081 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1231 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1093 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1998 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1964 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1128 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1265 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1125 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1096 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1194 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1090 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1975 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1925 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1089 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1190 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1094 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1204 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1094 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1934 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1930 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1093 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1243 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1099 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1118 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1246 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1097 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1969 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1096 parallel_ns=1243 speedup=0.882 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1094 parallel_ns=1964 speedup=0.557 allocations=0 allocated_bytes=0 statistic=median
+round=3 variant=baseline case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1231 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=24098 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=1173 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=26798 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=19165 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1204 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=17814 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=1065 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1110 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=26155 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=23832 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=22126 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=25777 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=1113 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1127 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=23476 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=1084 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=23501 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=19189 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1074 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=22206 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=1057 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1064 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=20328 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=1065 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=18511 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=22313 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1099 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=22810 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=1059 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1065 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=18745 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=25405 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1065 parallel_ns=22810 speedup=0.047 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=1082 parallel_ns=22313 speedup=0.048 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=baseline case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=416222 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=80078 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=375514 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=78156 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=81409 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=375468 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=78647 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=370310 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=300391 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=71937 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=350913 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=69690 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=73775 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=343043 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=67925 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=347586 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=298712 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=77394 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=342564 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=80572 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=82766 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=333961 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=73836 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=338754 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=354722 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=82879 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=336554 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=72222 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=76552 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=344144 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=73131 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=340138 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=298432 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=82686 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=333918 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=68036 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=340138 parallel_ns=77394 speedup=4.395 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=343043 parallel_ns=76552 speedup=4.481 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=baseline case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7294495 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=948049 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=7320775 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=989007 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=924422 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7164129 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1045005 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=7165879 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7165516 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=968765 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=7163273 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=970912 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=974308 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7176437 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=945533 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=7169518 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7162540 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1251378 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=7158376 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=935222 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=953694 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7168498 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1027324 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=7167466 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7163293 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=930214 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=7164663 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1188287 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=1163650 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7157088 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=936490 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=7160786 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7157978 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1080975 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=7157201 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=945429 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7165516 parallel_ns=968765 speedup=7.397 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=7164129 parallel_ns=970912 speedup=7.379 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=baseline case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109363528 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14113546 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=109315712 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14118652 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14110519 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109364789 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14101821 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=109336516 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109350026 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=15125543 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=109356663 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14662500 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14100394 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109337065 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14262349 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=109382594 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109329531 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=21239085 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=109362522 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14102350 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14115779 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109368058 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14098455 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=109374948 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109340666 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14112272 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=109305588 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14567500 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14099644 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109415831 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14110814 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=109345889 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109361128 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14156716 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=109351970 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14099938 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109350026 parallel_ns=14113546 speedup=7.748 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=109356663 parallel_ns=14110519 speedup=7.750 allocations=1 allocated_bytes=256 statistic=median
+round=3 variant=baseline case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1239 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1981 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1099 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1972 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1941 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1083 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1944 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1085 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1103 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1963 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1951 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1935 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1090 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1895 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1093 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1089 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1921 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1087 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1935 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1960 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1902 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1124 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1094 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1900 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1093 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1931 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1953 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1085 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1895 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1119 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1090 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1907 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1093 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1932 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1094 parallel_ns=1907 speedup=0.574 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1093 parallel_ns=1941 speedup=0.563 allocations=0 allocated_bytes=0 statistic=median
+round=4 variant=baseline case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1149 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=17268 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=1074 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=21198 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=16699 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1074 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=20316 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=1065 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1091 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=19729 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=1063 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=15142 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=18092 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1067 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=17144 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=1060 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1080 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=18971 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=1059 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=17310 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=15088 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1056 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=18527 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=1057 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1055 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14379 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=1056 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=17342 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=19108 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1330 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=21803 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=1087 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1065 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=20339 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=1111 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=24185 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1065 parallel_ns=18971 speedup=0.056 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=1067 parallel_ns=17342 speedup=0.062 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=baseline case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=404679 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=83452 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=385893 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=77597 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=82533 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=375193 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=71376 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=358295 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=298394 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=76012 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=364792 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=74668 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=76920 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=356513 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=77293 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=353279 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=293721 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=72462 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=346590 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=72260 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=79481 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=343840 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=70884 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=344533 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=298485 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=69209 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=337262 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=67885 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=69967 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=339959 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=69255 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=332481 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=293227 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=73551 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=337128 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=68740 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=332481 parallel_ns=72462 speedup=4.588 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=346590 parallel_ns=74668 speedup=4.642 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=baseline case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7355936 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=920233 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=7312282 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=925452 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=916575 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7184300 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=942008 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=7175726 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7167103 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=915611 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=7179416 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=939730 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=961499 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7163597 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=971930 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=7156087 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7158557 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=948253 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=7162675 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=948847 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=956128 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7168757 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=950508 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=7160722 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7161481 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=943148 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=7169624 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=943402 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=957631 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7166371 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=937775 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=7163766 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7162476 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=973775 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=7161762 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=952570 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7162476 parallel_ns=943148 speedup=7.594 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=7168757 parallel_ns=948847 speedup=7.555 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=baseline case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109374440 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=14262835 allocations=1 allocated_bytes=256
+sample=0 path=2 ns=109360668 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14423542 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14109303 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109334159 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=14241124 allocations=1 allocated_bytes=256
+sample=1 path=0 ns=109305214 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109313825 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14170187 allocations=1 allocated_bytes=256
+sample=2 path=2 ns=109270974 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14091982 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14091389 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109328935 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14572403 allocations=1 allocated_bytes=256
+sample=3 path=0 ns=109320601 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109329158 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=15169137 allocations=1 allocated_bytes=256
+sample=4 path=2 ns=109342363 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14104966 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14117889 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109350256 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14120758 allocations=1 allocated_bytes=256
+sample=5 path=0 ns=109327658 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109337391 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=14094981 allocations=1 allocated_bytes=256
+sample=6 path=2 ns=109360877 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14165211 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14103642 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109285962 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14550448 allocations=1 allocated_bytes=256
+sample=7 path=0 ns=109350150 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109337544 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14120273 allocations=1 allocated_bytes=256
+sample=8 path=2 ns=109338662 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14106223 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109329158 parallel_ns=14241124 speedup=7.677 allocations=1 allocated_bytes=256 statistic=median
+infallible-fold cancel=token serial_ns=109338662 parallel_ns=14106223 speedup=7.751 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=baseline case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1196 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1956 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1077 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=1912 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1901 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1054 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1869 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1060 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1072 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1888 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1939 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1931 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1073 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1893 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1078 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1094 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1901 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1079 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1955 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1926 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1895 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1077 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1125 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1911 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1952 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1917 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1076 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1901 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1081 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1097 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1937 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1996 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1081 parallel_ns=1901 speedup=0.569 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1079 parallel_ns=1931 speedup=0.559 allocations=0 allocated_bytes=0 statistic=median
+round=4 variant=value case=small-scan
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1268 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=23696 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1218 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=16212 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=15330 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1229 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=16095 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1083 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1091 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=19806 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1254 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=25953 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=23492 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=1236 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=24202 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1071 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1108 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=19088 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1086 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=21191 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=21511 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=1140 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=23134 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1063 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1057 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=21397 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1055 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=22563 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=21695 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=1063 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=20854 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1129 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1114 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=18467 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1055 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=22035 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1091 parallel_ns=20854 speedup=0.052 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1140 parallel_ns=21695 speedup=0.053 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=value case=large-scan
+infallible-fold workload=scan count=1000003 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003
+sample=0 path=0 ns=405629 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=80945 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=370955 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=74188 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=75680 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=367766 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=78210 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=358576 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=293534 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=76022 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=357653 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=74035 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=74264 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=349484 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=68795 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=345385 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=299059 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=89797 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=337356 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=75758 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=66787 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=362913 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=75529 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=337827 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=298693 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=78198 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=345653 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=70985 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=67946 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=335354 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=73603 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=336332 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=295679 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=76377 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=331324 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=69794 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=336332 parallel_ns=76377 speedup=4.404 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=349484 parallel_ns=74035 speedup=4.721 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=value case=small-compute
+infallible-fold workload=compute count=65539 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=14231594942208951428
+sample=0 path=0 ns=7328168 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=921403 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=7316564 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=922955 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=913417 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=7166385 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=914855 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=7168508 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=7156937 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=943718 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=7168072 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=938592 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=933865 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=7176357 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=942335 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=7177203 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=7174353 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=919833 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=7161599 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=916184 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=913056 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=7164239 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=912047 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=7168792 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=7162436 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1063638 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=7159717 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=945142 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=1051077 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=7166676 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1082165 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=7169528 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=7162006 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1002223 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=7163371 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=943302 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=7168792 parallel_ns=942335 speedup=7.607 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=7166385 parallel_ns=933865 speedup=7.674 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=value case=large-compute
+infallible-fold workload=compute count=1000003 workers=7 min_chunk=1024 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=18021988935566487715
+sample=0 path=0 ns=109319191 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=15470918 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=109331736 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=14289616 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=14145185 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=109357425 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=15202881 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=109349811 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=109296457 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=14098682 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=109307591 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=14106732 allocations=1 allocated_bytes=256
+sample=3 path=3 ns=14089181 allocations=1 allocated_bytes=256
+sample=3 path=2 ns=109268858 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=14230190 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=109305184 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=109294276 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=14259536 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=109300225 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=14110773 allocations=1 allocated_bytes=256
+sample=5 path=3 ns=14106396 allocations=1 allocated_bytes=256
+sample=5 path=2 ns=109330558 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=14100489 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=109319342 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=109287744 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=15814965 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=109226091 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=14205117 allocations=1 allocated_bytes=256
+sample=7 path=3 ns=14101832 allocations=1 allocated_bytes=256
+sample=7 path=2 ns=109242872 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=14286659 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=109224033 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=109205166 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=14175301 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=109228264 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=14094367 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=109296457 parallel_ns=14259536 speedup=7.665 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=109300225 parallel_ns=14106732 speedup=7.748 allocations=1 allocated_bytes=256 statistic=median
+round=4 variant=value case=zero-worker
+infallible-fold workload=scan count=4096 workers=0 min_chunk=1 chunks_per_worker=256 caller_cpu=31 worker_cpus={  } checksum=8386560
+sample=0 path=0 ns=1218 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=1283 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1096 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=2077 allocations=0 allocated_bytes=0
+sample=1 path=3 ns=1970 allocations=0 allocated_bytes=0
+sample=1 path=2 ns=1090 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=1236 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1088 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1096 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=1199 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1082 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=1973 allocations=0 allocated_bytes=0
+sample=3 path=3 ns=1950 allocations=0 allocated_bytes=0
+sample=3 path=2 ns=1078 allocations=0 allocated_bytes=0
+sample=3 path=1 ns=1191 allocations=0 allocated_bytes=0
+sample=3 path=0 ns=1074 allocations=0 allocated_bytes=0
+sample=4 path=0 ns=1091 allocations=0 allocated_bytes=0
+sample=4 path=1 ns=1205 allocations=0 allocated_bytes=0
+sample=4 path=2 ns=1111 allocations=0 allocated_bytes=0
+sample=4 path=3 ns=1966 allocations=0 allocated_bytes=0
+sample=5 path=3 ns=1922 allocations=0 allocated_bytes=0
+sample=5 path=2 ns=1108 allocations=0 allocated_bytes=0
+sample=5 path=1 ns=1199 allocations=0 allocated_bytes=0
+sample=5 path=0 ns=1080 allocations=0 allocated_bytes=0
+sample=6 path=0 ns=1126 allocations=0 allocated_bytes=0
+sample=6 path=1 ns=1191 allocations=0 allocated_bytes=0
+sample=6 path=2 ns=1080 allocations=0 allocated_bytes=0
+sample=6 path=3 ns=1953 allocations=0 allocated_bytes=0
+sample=7 path=3 ns=1961 allocations=0 allocated_bytes=0
+sample=7 path=2 ns=1078 allocations=0 allocated_bytes=0
+sample=7 path=1 ns=1236 allocations=0 allocated_bytes=0
+sample=7 path=0 ns=1079 allocations=0 allocated_bytes=0
+sample=8 path=0 ns=1119 allocations=0 allocated_bytes=0
+sample=8 path=1 ns=1208 allocations=0 allocated_bytes=0
+sample=8 path=2 ns=1111 allocations=0 allocated_bytes=0
+sample=8 path=3 ns=1956 allocations=0 allocated_bytes=0
+infallible-fold cancel=none serial_ns=1091 parallel_ns=1205 speedup=0.905 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1090 parallel_ns=1961 speedup=0.556 allocations=0 allocated_bytes=0 statistic=median

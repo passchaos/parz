@@ -1,0 +1,7 @@
+$ zig build test -j2 --summary all
+Build Summary: 5/5 steps succeeded; 78/78 tests passed
+test success
++- run test 75 pass (75 total) 781ms MaxRSS:7M
+|  +- compile test Debug native success 529ms MaxRSS:176M
++- run test 3 pass (3 total) 13ms MaxRSS:5M
+   +- compile test Debug native success 373ms MaxRSS:153M

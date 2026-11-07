@@ -106,6 +106,17 @@ pub fn build(b: *std.Build) void {
     const bench_compute_step = b.step("bench-compute", "Run the CPU-bound parallel fold benchmark");
     bench_compute_step.dependOn(&run_compute.step);
 
+    const infallible_mod = b.createModule(.{
+        .root_source_file = b.path("bench/infallible_fold.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "parz", .module = parz_mod }},
+    });
+    const infallible_bench = b.addExecutable(.{ .name = "parz-infallible-fold", .root_module = infallible_mod });
+    const run_infallible = b.addRunArtifact(infallible_bench);
+    if (b.args) |args| run_infallible.addArgs(args);
+    b.step("bench-infallible-fold", "Compare infallible fold paths and dispatch allocations").dependOn(&run_infallible.step);
+
     const micro_mod = b.createModule(.{
         .root_source_file = b.path("bench/micro.zig"),
         .target = target,

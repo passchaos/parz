@@ -1,0 +1,7 @@
+$ zig test --test-filter allocation-fixture -OReleaseSafe --dep parz -Mroot=/tmp/parz-infallible-fold-omyjokwa/allocation-fixture.zig -OReleaseSafe -Mparz=/tmp/parz-infallible-fold-omyjokwa/baseline/src/root.zig
+1/1 allocation-fixture.test.allocation-fixture: 256 chunks need no pool allocations...FAIL (OutOfMemory)
+0 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/e511859bff202e4e3851b4f7a93400c6/root --seed=0xa0a022a7
+
+exit_code=1

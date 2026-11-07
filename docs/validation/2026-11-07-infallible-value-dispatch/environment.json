@@ -1,0 +1,46 @@
+{
+  "captured_at_utc": "2026-11-07T04:32:20.051251+00:00",
+  "baseline_commit": "ae2f359137b5aaf8fe0be9ff3255633f97ff8845",
+  "zig_version": "0.16.0",
+  "loadavg": "6.74 6.17 8.51 4/1933 1206177",
+  "source_sha256": {
+    "src/parallel.zig": "de572076cb6e82f7e5b0394ce6bdba1cbb7357ba3d60804d08637870ba679946",
+    "bench/infallible_fold.zig": "828de22fd559b58ccfb0c0898255130685abc89da23dcebe50a6396c32c2489b"
+  },
+  "binary_sha256": {
+    "baseline": "7fd8f9ebf61e563328b6af14ff53f2f518d2f6835e9da53e5b69cd8f08898a83",
+    "value": "4cdc1c99dd097afaf94f1ecc0d6789e65f59d8608a587440892dcf3380a7a5e1"
+  },
+  "placements": {
+    "E": {
+      "caller": 31,
+      "workers": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    "P": {
+      "caller": 14,
+      "workers": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12
+      ]
+    }
+  },
+  "dispatch_storage": {
+    "buffer_bytes": 4096,
+    "u64_value_results_256_bytes": 2048,
+    "u64_error_union_results_256_bytes": 4096,
+    "eight_lane_futures_bytes": 256
+  }
+}

@@ -1,0 +1,18 @@
+$ taskset -c 24-31 zig build bench-infallible-fold -Doptimize=ReleaseFast -- scan 4096 8 31 1 64 3
+infallible-fold workload=scan count=4096 workers=7 min_chunk=1 chunks_per_worker=64 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=8386560
+sample=0 path=0 ns=1394 allocations=0 allocated_bytes=0
+sample=0 path=1 ns=22498 allocations=0 allocated_bytes=0
+sample=0 path=2 ns=1196 allocations=0 allocated_bytes=0
+sample=0 path=3 ns=27294 allocations=1 allocated_bytes=256
+sample=1 path=3 ns=24831 allocations=1 allocated_bytes=256
+sample=1 path=2 ns=1164 allocations=0 allocated_bytes=0
+sample=1 path=1 ns=22667 allocations=0 allocated_bytes=0
+sample=1 path=0 ns=1098 allocations=0 allocated_bytes=0
+sample=2 path=0 ns=1115 allocations=0 allocated_bytes=0
+sample=2 path=1 ns=23492 allocations=0 allocated_bytes=0
+sample=2 path=2 ns=1087 allocations=0 allocated_bytes=0
+sample=2 path=3 ns=24824 allocations=1 allocated_bytes=256
+infallible-fold cancel=none serial_ns=1115 parallel_ns=22667 speedup=0.049 allocations=0 allocated_bytes=0 statistic=median
+infallible-fold cancel=token serial_ns=1164 parallel_ns=24831 speedup=0.047 allocations=1 allocated_bytes=256 statistic=median
+
+exit_code=0

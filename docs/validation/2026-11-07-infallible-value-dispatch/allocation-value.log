@@ -1,0 +1,5 @@
+$ zig test --test-filter allocation-fixture -OReleaseSafe --dep parz -Mroot=/tmp/parz-infallible-fold-omyjokwa/allocation-fixture.zig -OReleaseSafe -Mparz=/home/passchaos/project-z/parz/src/root.zig
+1/1 allocation-fixture.test.allocation-fixture: 256 chunks need no pool allocations...OK
+All 1 tests passed.
+
+exit_code=0

@@ -24,6 +24,8 @@ adding parallelism to a small workload must not make it meaningfully slower.
 - `parallelFor`, `parallelForEach`, `parallelForRange`, `parallelFold`,
   `parallelFoldInfallible`, `parallelReduce` with deterministic chunk-index
   combination.
+- Uncancelled infallible folds use plain-value chunk results and callbacks,
+  reducing dispatch storage while preserving the same chunk planning.
 - `CancelToken` with cooperative cancellation checked at chunk boundaries and
   every 4096 items inside a chunk.
 - `sync` module: bounded SPSC/MPSC queues, a sharded MPSC queue with
@@ -263,6 +265,8 @@ zig build bench-tree-sum -- 1000000
 zig build bench-parallel-for -- 16000000
 zig build bench-compute -- 1000000
 zig build bench-compute -- 1000000 pin   # exercise pin_workers
+taskset -c 24-31 zig build bench-infallible-fold -Doptimize=ReleaseFast \
+    -- scan 1000003 8 31 1 64 9
 zig build bench-micro
 zig build bench-micro -- 1000 8       # paired callback-shape overhead
 taskset -c 24-31 zig build bench-micro -Doptimize=ReleaseFast -- 1000 1 31 1024
@@ -307,6 +311,12 @@ notes.
 
 Benchmarks print `serial_ns`, `parallel_ns`, and `speedup`; they verify the
 checksum before reporting.
+
+`bench-infallible-fold` compares calls without a cancellation token against
+calls with a non-cancelled token and records dispatch allocations. Arguments
+are workload (`scan` or `compute`), count, lanes, caller CPU, minimum chunk,
+chunks per worker, and rounds. [Pure-value fold evidence](docs/validation/2026-11-07-infallible-value-dispatch/README.md)
+includes fixed-CPU comparisons and the before/after allocation-failure fixture.
 
 `bench-mpsc-batch` compares scalar and slice transfers using fixed prebuilt
 input, checks per-producer FIFO as well as the checksum, and alternates both
