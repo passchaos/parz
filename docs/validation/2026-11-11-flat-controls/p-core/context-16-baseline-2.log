@@ -1,0 +1,22 @@
+sample=0 serial_ns=3 parallel_ns=1938 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=1 serial_ns=3 parallel_ns=1909 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=2 serial_ns=3 parallel_ns=1901 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=3 serial_ns=3 parallel_ns=1927 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=4 serial_ns=3 parallel_ns=1912 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=5 serial_ns=3 parallel_ns=1939 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=6 serial_ns=3 parallel_ns=1931 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=7 serial_ns=3 parallel_ns=1922 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=8 serial_ns=3 parallel_ns=2272 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=9 serial_ns=3 parallel_ns=1871 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=10 serial_ns=3 parallel_ns=1896 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=11 serial_ns=3 parallel_ns=4113 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=12 serial_ns=3 parallel_ns=3360 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=13 serial_ns=3 parallel_ns=2700 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=14 serial_ns=3 parallel_ns=1973 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=15 serial_ns=3 parallel_ns=1955 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=16 serial_ns=3 parallel_ns=2000 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=17 serial_ns=3 parallel_ns=2719 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=18 serial_ns=3 parallel_ns=1938 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=19 serial_ns=3 parallel_ns=1981 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=20 serial_ns=3 parallel_ns=2249 speedup=0.001 repetitions=1000 unit=ns_per_call
+flat-dispatch kind=context count=16 lanes=8 cpw=16 caller_cpu=14 worker_cpus={ 0, 2, 4, 6, 8, 10, 12 } checksum=120 allocations=1 allocated_bytes=65536 serial_ns=3 parallel_ns=1939 speedup=0.002 statistic=median repetitions=1000

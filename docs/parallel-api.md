@@ -21,6 +21,13 @@ are combined in chunk-index order.
 All APIs return `anyerror!void` or `anyerror!T` so allocation, callback, and
 cancellation failures propagate to the caller.
 
+The first argument may also be an explicitly owned `*Worker(Ctx)`. A worker
+call uses that lane directly, including its context on the serial path, and
+does not claim or release another caller slot. Inside a callback, pass the
+current worker for nested calls. Outside callbacks, claim a caller once and
+release it after all calls/futures finish; never overlap calls from different
+threads on the same worker.
+
 ## Options
 
 ```zig
@@ -32,6 +39,9 @@ pub const Options = struct {
     max_workers: usize = 0,
     serial_threshold: usize = 4096,
     cancel: ?*CancelToken = null,
+    estimated_item_ns: usize = 0,
+    min_parallel_ns: usize = 50 * std.time.ns_per_us,
+    scratch: ?*parz.ParallelScratch = null,
 };
 ```
 
@@ -46,6 +56,56 @@ pub const Options = struct {
 - `serial_threshold` — run serially below this item count. Set to `0` to force
   parallelism.
 - `cancel` — optional cooperative cancellation token.
+- `estimated_item_ns` — an explicit estimate of useful item cost; zero keeps
+  existing planning. A nonzero estimate runs serially when saturating
+  `count * estimated_item_ns < min_parallel_ns`. This guard is additional to
+  `serial_threshold`; setting that threshold to zero still forces dispatch.
+- `min_parallel_ns` — minimum estimated useful work before dispatch. Measure
+  the callback to choose an estimate and budget; the library does not sample
+  callbacks or infer cost from fallibility.
+- `scratch` — optional strict reusable dispatch buffer; see below.
+
+For lightweight scans, `.estimated_item_ns = 1` avoids the 4096-item wake-up
+boundary on the measured host. Keep the default zero estimate for unknown
+cost callbacks and tune heavy kernels independently. The item estimate is
+not a platform-independent performance guarantee.
+
+## Reusing caller context and dispatch storage
+
+```zig
+const caller = pool.claimCaller() orelse return error.NoCallerSlot;
+defer pool.releaseCaller(caller);
+var bytes: [8192]u8 = undefined;
+var scratch = parz.ParallelScratch.init(&bytes);
+var values: [8192]u64 = @splat(0);
+const Increment = struct {
+    fn run(_: *parz.Worker(void), data: []u64, index: usize) anyerror!void {
+        data[index] += 1;
+    }
+};
+try parz.parallelFor(caller, &values, values.len, .{
+    .scratch = &scratch,
+}, Increment.run);
+```
+
+All flat API shapes accept a worker. Pool calls retain independent temporary
+contexts on the serial/no-slot path, including the existing fallback index.
+Worker calls borrow the lane's existing context; no context constructor or
+destructor is invoked for that call. A nested callback must reserve/restore
+its own arena state if outer code still needs allocations in the same context.
+
+Scratch stores ordered chunk results and lane futures, and resets after all
+futures and ordered reduction finish, including errors/cancellation. There
+is no heap fallback when an explicit available buffer is too small: the call
+returns `OutOfMemory` before callbacks and releases a claimed caller slot.
+Account for both arrays, their alignment and the larger error-union result
+type when cancellation is enabled. Scratch alignment may consume a prefix.
+
+A nested call using the active outer scratch takes its own standard 4 KiB
+stack fallback, leaving outer storage intact. Independent concurrent calls
+must use separate scratch objects. Scratch and its byte buffer must remain
+at stable addresses until the call returns. Default calls still use the
+existing bounded stack/pool-allocator policy.
 
 ## Basic loops
 
@@ -91,8 +151,13 @@ use plain-value chunk results and callbacks, reducing dispatch storage while
 preserving the same chunk planning:
 
 ```zig
+const InfallibleMap = struct {
+    fn map(_: *parz.Worker(void), values: []const u64, index: usize) u64 {
+        return values[index];
+    }
+};
 const total_infallible = try parz.parallelFoldInfallible(
-    &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, Map.map, Add.combine,
+    &pool, u64, data, data.len, .{ .min_chunk = 4096 }, 0, InfallibleMap.map, Add.combine,
 );
 ```
 

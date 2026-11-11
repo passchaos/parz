@@ -1,0 +1,22 @@
+sample=0 serial_ns=3 parallel_ns=1573 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=1 serial_ns=2 parallel_ns=1732 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=2 serial_ns=3 parallel_ns=1729 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=3 serial_ns=2 parallel_ns=1750 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=4 serial_ns=3 parallel_ns=1724 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=5 serial_ns=2 parallel_ns=1751 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=6 serial_ns=3 parallel_ns=1764 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=7 serial_ns=2 parallel_ns=1749 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=8 serial_ns=3 parallel_ns=1748 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=9 serial_ns=2 parallel_ns=1749 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=10 serial_ns=3 parallel_ns=3041 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=11 serial_ns=2 parallel_ns=1635 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=12 serial_ns=3 parallel_ns=1633 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=13 serial_ns=2 parallel_ns=1668 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=14 serial_ns=3 parallel_ns=3661 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=15 serial_ns=2 parallel_ns=4283 speedup=0.000 repetitions=1000 unit=ns_per_call
+sample=16 serial_ns=3 parallel_ns=1987 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=17 serial_ns=2 parallel_ns=1657 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=18 serial_ns=3 parallel_ns=1652 speedup=0.002 repetitions=1000 unit=ns_per_call
+sample=19 serial_ns=2 parallel_ns=1644 speedup=0.001 repetitions=1000 unit=ns_per_call
+sample=20 serial_ns=3 parallel_ns=1662 speedup=0.002 repetitions=1000 unit=ns_per_call
+flat-dispatch kind=context count=16 lanes=8 cpw=16 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=120 allocations=1 allocated_bytes=65536 serial_ns=3 parallel_ns=1732 speedup=0.002 statistic=median repetitions=1000

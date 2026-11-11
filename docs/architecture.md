@@ -128,17 +128,21 @@ This keeps the fallback total without allocating in the hot path.
 A flat call (`parallelFor`, `parallelForRange`, folds) does the following:
 
 1. Return immediately for empty input.
-2. Decide whether to run serially (`serial_threshold`, or fewer planned chunks
-   than lanes). The serial path creates a temporary worker context and invokes
-   the callback once for the whole input.
-3. Claim a caller slot. If none is available, run the serial path.
+2. Decide whether to run serially (item threshold, optional estimated-work
+   guard, or fewer planned chunks than lanes). Pool calls construct a temporary
+   context; explicit Worker calls borrow that lane's existing context.
+3. Use the supplied worker or claim a caller slot. If none is available, run
+   the serial path. Borrowed workers are never released by the flat call.
 4. Plan balanced contiguous chunks and lanes.
 5. Dispatch one future per lane, then join every lane before ordered
    reduction.
 6. Check cancellation before successful completion.
 
 Dispatch storage uses a 4 KiB stack fallback buffer; overflow goes to the
-pool's allocator. No per-item allocation occurs.
+pool's allocator. Optional caller-owned `ParallelScratch` provides strict
+reusable storage for results/futures; nested use takes a separate bounded
+stack fallback. No per-item allocation occurs. See the
+[parallel API guide](parallel-api.md) for capacity and ownership rules.
 
 ### Chunk planning
 

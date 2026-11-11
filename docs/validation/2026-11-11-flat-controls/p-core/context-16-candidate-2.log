@@ -1,0 +1,22 @@
+sample=0 serial_ns=3 parallel_ns=8 speedup=0.375 repetitions=1000 unit=ns_per_call
+sample=1 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+sample=2 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=3 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+sample=4 serial_ns=3 parallel_ns=8 speedup=0.375 repetitions=1000 unit=ns_per_call
+sample=5 serial_ns=3 parallel_ns=8 speedup=0.375 repetitions=1000 unit=ns_per_call
+sample=6 serial_ns=3 parallel_ns=8 speedup=0.375 repetitions=1000 unit=ns_per_call
+sample=7 serial_ns=3 parallel_ns=8 speedup=0.375 repetitions=1000 unit=ns_per_call
+sample=8 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=9 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=10 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+sample=11 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=12 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+sample=13 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=14 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=15 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+sample=16 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=17 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=18 serial_ns=4 parallel_ns=10 speedup=0.400 repetitions=1000 unit=ns_per_call
+sample=19 serial_ns=3 parallel_ns=10 speedup=0.300 repetitions=1000 unit=ns_per_call
+sample=20 serial_ns=3 parallel_ns=9 speedup=0.333 repetitions=1000 unit=ns_per_call
+flat-dispatch kind=context count=16 lanes=8 cpw=16 caller_cpu=14 worker_cpus={ 0, 2, 4, 6, 8, 10, 12 } checksum=120 allocations=0 allocated_bytes=0 serial_ns=3 parallel_ns=9 speedup=0.333 statistic=median repetitions=1000

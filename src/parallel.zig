@@ -9,6 +9,9 @@ const std = @import("std");
 const builtin = @import("builtin");
 const core = @import("core.zig");
 const CancelToken = @import("cancel.zig").CancelToken;
+const executor_mod = @import("parallel/executor.zig");
+pub const Scratch = @import("parallel/scratch.zig").Scratch;
+const ScratchLease = @import("parallel/scratch.zig").Lease;
 
 const cancel_block = 4096;
 
@@ -58,6 +61,15 @@ pub const Options = struct {
     /// entry/exit and successful completion; index loops also check every
     /// 4096 items. Range callbacks may check the token within their own work.
     cancel: ?*CancelToken = null,
+    /// Estimated useful nanoseconds per item. Zero leaves existing item-count
+    /// planning unchanged; a nonzero estimate adds a minimum-work guard.
+    /// serial_threshold=0 still explicitly forces dispatch.
+    estimated_item_ns: usize = 0,
+    min_parallel_ns: usize = 50 * std.time.ns_per_us,
+    /// Strict caller-owned dispatch buffer. Insufficient capacity returns
+    /// OutOfMemory before callbacks. Nested use gets an independent stack
+    /// fallback; concurrent calls require separate scratch objects.
+    scratch: ?*Scratch = null,
 };
 
 // ---------------------------------------------------------------------------
@@ -66,12 +78,13 @@ pub const Options = struct {
 
 /// Parallel loop over `[0, count)`.
 pub fn parallelFor(
-    pool: anytype,
+    executor: anytype,
     shared: anytype,
     count: usize,
     options: Options,
     comptime run: anytype,
 ) anyerror!void {
+    const pool = executor_mod.getPool(executor);
     const P = @TypeOf(pool.*);
     const W = P.WorkerType;
     const Shared = @TypeOf(shared);
@@ -95,29 +108,30 @@ pub fn parallelFor(
     };
 
     var runner = IndexRunner{ .shared = &shared, .cancel = options.cancel };
-    return parallelForRange(pool, &runner, count, options, IndexRunner.range);
+    return parallelForRange(executor, &runner, count, options, IndexRunner.range);
 }
 
 /// Parallel loop over a slice. The callback receives the slice and an index.
 pub fn parallelForEach(
-    pool: anytype,
+    executor: anytype,
     slice: anytype,
     options: Options,
     comptime run: anytype,
 ) anyerror!void {
-    return parallelFor(pool, slice, slice.len, options, run);
+    return parallelFor(executor, slice, slice.len, options, run);
 }
 
 /// Parallel loop over a row-major `rows x cols` grid. The callback receives
 /// `(row, col)` and every cell is visited exactly once.
 pub fn parallelFor2D(
-    pool: anytype,
+    executor: anytype,
     shared: anytype,
     rows: usize,
     cols: usize,
     options: Options,
     comptime run: anytype,
 ) anyerror!void {
+    const pool = executor_mod.getPool(executor);
     if (rows == 0 or cols == 0) return;
     const total = std.math.mul(usize, rows, cols) catch return error.Overflow;
 
@@ -156,17 +170,18 @@ pub fn parallelFor2D(
         .cols = cols,
         .cancel = options.cancel,
     };
-    return parallelForRange(pool, &runner, total, options, Runner.range);
+    return parallelForRange(executor, &runner, total, options, Runner.range);
 }
 
 /// Parallel loop over half-open ranges. The callback receives one chunk.
 pub fn parallelForRange(
-    pool: anytype,
+    executor: anytype,
     shared: anytype,
     count: usize,
     options: Options,
     comptime run: anytype,
 ) anyerror!void {
+    const pool = executor_mod.getPool(executor);
     if (count == 0) return;
 
     const P = @TypeOf(pool.*);
@@ -191,17 +206,17 @@ pub fn parallelForRange(
 
     var runner = Runner{ .shared = &shared, .cancel = options.cancel };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialRange(pool, shared, count, options.cancel, run);
+        return serialRange(executor, shared, count, options.cancel, run);
     }
-    const caller = pool.claimCaller() orelse {
-        return serialRange(pool, shared, count, options.cancel, run);
-    };
-    defer pool.releaseCaller(caller);
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+        return serialRange(executor, shared, count, options.cancel, run);
+    });
+    defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
     var task = caller.begin();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    try dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, options.schedule, Exec.exec);
+    try dispatchRange(pool, &task, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, Exec.exec);
     try checkCancel(options.cancel);
 }
 
@@ -209,7 +224,7 @@ pub fn parallelForRange(
 /// once per nonempty chunk and may fail. It can use a direct inner loop while
 /// parz retains chunk-index result and error ordering.
 pub fn parallelFoldRange(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -218,6 +233,7 @@ pub fn parallelFoldRange(
     comptime map_range: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const pool = executor_mod.getPool(executor);
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
@@ -243,17 +259,17 @@ pub fn parallelFoldRange(
 
     var runner = Runner{ .shared = &shared, .cancel = options.cancel };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFoldRange(pool, T, shared, count, options.cancel, identity, map_range, combine);
+        return serialFoldRange(executor, T, shared, count, options.cancel, identity, map_range, combine);
     }
-    const caller = pool.claimCaller() orelse {
-        return serialFoldRange(pool, T, shared, count, options.cancel, identity, map_range, combine);
-    };
-    defer pool.releaseCaller(caller);
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+        return serialFoldRange(executor, T, shared, count, options.cancel, identity, map_range, combine);
+    });
+    defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
     var task = caller.begin();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
@@ -261,7 +277,7 @@ pub fn parallelFoldRange(
 /// Infallible range fold. Without a cancellation token, both the range
 /// callback and dispatch results use plain values.
 pub fn parallelFoldRangeInfallible(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -270,6 +286,7 @@ pub fn parallelFoldRangeInfallible(
     comptime map_range: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const pool = executor_mod.getPool(executor);
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
@@ -300,20 +317,20 @@ pub fn parallelFoldRangeInfallible(
 
     var runner = Runner{ .shared = &shared, .cancel = options.cancel };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFoldRangeInfallible(pool, T, shared, count, options.cancel, identity, map_range, combine);
+        return serialFoldRangeInfallible(executor, T, shared, count, options.cancel, identity, map_range, combine);
     }
-    const caller = pool.claimCaller() orelse {
-        return serialFoldRangeInfallible(pool, T, shared, count, options.cancel, identity, map_range, combine);
-    };
-    defer pool.releaseCaller(caller);
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+        return serialFoldRangeInfallible(executor, T, shared, count, options.cancel, identity, map_range, combine);
+    });
+    defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
     var task = caller.begin();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
     if (options.cancel == null) {
-        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, ExecValue.exec, combine);
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, ExecValue.exec, combine);
     }
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
@@ -321,7 +338,7 @@ pub fn parallelFoldRangeInfallible(
 /// Deterministic ordered fold. Each chunk accumulates with `combine`; the
 /// caller then combines chunk results in index order. `map` may fail.
 pub fn parallelFold(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -330,6 +347,7 @@ pub fn parallelFold(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const pool = executor_mod.getPool(executor);
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
@@ -368,17 +386,17 @@ pub fn parallelFold(
         .cancel = options.cancel,
     };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFold(pool, T, shared, count, options.cancel, identity, map, combine);
+        return serialFold(executor, T, shared, count, options.cancel, identity, map, combine);
     }
-    const caller = pool.claimCaller() orelse {
-        return serialFold(pool, T, shared, count, options.cancel, identity, map, combine);
-    };
-    defer pool.releaseCaller(caller);
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+        return serialFold(executor, T, shared, count, options.cancel, identity, map, combine);
+    });
+    defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
     var task = caller.begin();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, Exec.exec, combine);
     // Dispatch has already selected any chunk error in index order. Only
     // successful reduction reaches this final cancellation checkpoint.
     try checkCancel(options.cancel);
@@ -388,7 +406,7 @@ pub fn parallelFold(
 /// Deterministic ordered fold for an infallible `map`. The chunk loop has no
 /// per-item error-union check.
 pub fn parallelFoldInfallible(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -397,6 +415,7 @@ pub fn parallelFoldInfallible(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const pool = executor_mod.getPool(executor);
     if (count == 0) return identity;
 
     const P = @TypeOf(pool.*);
@@ -446,26 +465,26 @@ pub fn parallelFoldInfallible(
         .cancel = options.cancel,
     };
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
-        return serialFoldInfallible(pool, T, shared, count, options.cancel, identity, map, combine);
+        return serialFoldInfallible(executor, T, shared, count, options.cancel, identity, map, combine);
     }
-    const caller = pool.claimCaller() orelse {
-        return serialFoldInfallible(pool, T, shared, count, options.cancel, identity, map, combine);
-    };
-    defer pool.releaseCaller(caller);
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+        return serialFoldInfallible(executor, T, shared, count, options.cancel, identity, map, combine);
+    });
+    defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
     var task = caller.begin();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
     if (options.cancel == null) {
-        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, ExecValue.exec, combine);
+        return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, ExecValue.exec, combine);
     }
-    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, identity, Exec.exec, combine);
+    const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, Exec.exec, combine);
     try checkCancel(options.cancel);
     return result;
 }
 
 pub fn parallelReduce(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -474,11 +493,11 @@ pub fn parallelReduce(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    return parallelFold(pool, T, shared, count, options, identity, map, combine);
+    return parallelFold(executor, T, shared, count, options, identity, map, combine);
 }
 
 pub fn parallelReduceInfallible(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -487,7 +506,7 @@ pub fn parallelReduceInfallible(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    return parallelFoldInfallible(pool, T, shared, count, options, identity, map, combine);
+    return parallelFoldInfallible(executor, T, shared, count, options, identity, map, combine);
 }
 
 // ---------------------------------------------------------------------------
@@ -504,10 +523,13 @@ noinline fn dispatchRange(
     chunks: usize,
     lanes: usize,
     schedule: Schedule,
+    scratch: ?*Scratch,
     comptime exec: anytype,
 ) anyerror!void {
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    const allocator = fallback.get();
+    var lease = ScratchLease.init(scratch, fallback.get());
+    defer lease.deinit();
+    const allocator = lease.allocator;
     const results = try allocator.alloc(anyerror!void, chunks);
     defer allocator.free(results);
     try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
@@ -524,12 +546,15 @@ noinline fn dispatchFold(
     chunks: usize,
     lanes: usize,
     schedule: Schedule,
+    scratch: ?*Scratch,
     identity: T,
     comptime exec: anytype,
     comptime combine: anytype,
 ) anyerror!T {
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    const allocator = fallback.get();
+    var lease = ScratchLease.init(scratch, fallback.get());
+    defer lease.deinit();
+    const allocator = lease.allocator;
     const results = try allocator.alloc(anyerror!T, chunks);
     defer allocator.free(results);
     try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
@@ -550,12 +575,15 @@ noinline fn dispatchFoldValue(
     chunks: usize,
     lanes: usize,
     schedule: Schedule,
+    scratch: ?*Scratch,
     identity: T,
     comptime exec: anytype,
     comptime combine: anytype,
 ) anyerror!T {
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    const allocator = fallback.get();
+    var lease = ScratchLease.init(scratch, fallback.get());
+    defer lease.deinit();
+    const allocator = lease.allocator;
     const results = try allocator.alloc(T, chunks);
     defer allocator.free(results);
     try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
@@ -754,8 +782,22 @@ fn plannedChunkCount(count: usize, options: Options, worker_count: usize) usize 
 fn shouldRunSerial(count: usize, options: Options, worker_count: usize) bool {
     if (options.serial_threshold == 0) return false;
     if (count < options.serial_threshold) return true;
+    if (options.estimated_item_ns != 0 and
+        count *| options.estimated_item_ns < options.min_parallel_ns) return true;
     return plannedChunkCount(count, options, worker_count) <
         plannedLaneCount(options, worker_count);
+}
+
+test "cost estimate adds a saturating work guard without changing explicit dispatch" {
+    for (1..6) |workers| {
+        try std.testing.expect(shouldRunSerial(4096, .{ .estimated_item_ns = 1 }, workers));
+        try std.testing.expect(shouldRunSerial(8192, .{ .estimated_item_ns = 1 }, workers));
+        try std.testing.expect(!shouldRunSerial(65536, .{ .estimated_item_ns = 1 }, workers));
+        try std.testing.expect(!shouldRunSerial(8192, .{ .estimated_item_ns = 100 }, workers));
+        try std.testing.expect(!shouldRunSerial(8192, .{}, workers));
+        try std.testing.expect(!shouldRunSerial(8192, .{ .estimated_item_ns = std.math.maxInt(usize) }, workers));
+        try std.testing.expect(!shouldRunSerial(16, .{ .estimated_item_ns = 1, .serial_threshold = 0 }, workers));
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -763,24 +805,23 @@ fn shouldRunSerial(count: usize, options: Options, worker_count: usize) bool {
 // ---------------------------------------------------------------------------
 
 fn serialRange(
-    pool: anytype,
+    executor: anytype,
     shared: anytype,
     count: usize,
     cancel: ?*CancelToken,
     comptime run: anytype,
 ) anyerror!void {
-    const P = @TypeOf(pool.*);
-    const W = P.WorkerType;
     try checkCancel(cancel);
-    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
-    defer pool.destroyTempContext(&temp.ctx);
+    var lane = try executor_mod.SerialLane(@TypeOf(executor)).init(executor);
+    defer lane.deinit();
+    const worker = lane.worker();
     try checkCancel(cancel);
-    try run(&temp, shared, .{ .start = 0, .end = count });
+    try run(worker, shared, .{ .start = 0, .end = count });
     try checkCancel(cancel);
 }
 
 fn serialFold(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -789,18 +830,17 @@ fn serialFold(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    const P = @TypeOf(pool.*);
-    const W = P.WorkerType;
     try checkCancel(cancel);
-    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
-    defer pool.destroyTempContext(&temp.ctx);
+    var lane = try executor_mod.SerialLane(@TypeOf(executor)).init(executor);
+    defer lane.deinit();
+    const worker = lane.worker();
     var total = identity;
     var i: usize = 0;
     while (i < count) {
         try checkCancel(cancel);
         const block_end = @min(i +| cancel_block, count);
         while (i < block_end) : (i += 1) {
-            total = combine(total, try map(&temp, shared, i));
+            total = combine(total, try map(worker, shared, i));
         }
     }
     try checkCancel(cancel);
@@ -808,7 +848,7 @@ fn serialFold(
 }
 
 fn serialFoldInfallible(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -817,18 +857,17 @@ fn serialFoldInfallible(
     comptime map: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    const P = @TypeOf(pool.*);
-    const W = P.WorkerType;
     try checkCancel(cancel);
-    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
-    defer pool.destroyTempContext(&temp.ctx);
+    var lane = try executor_mod.SerialLane(@TypeOf(executor)).init(executor);
+    defer lane.deinit();
+    const worker = lane.worker();
     var total = identity;
     var i: usize = 0;
     while (i < count) {
         try checkCancel(cancel);
         const block_end = @min(i +| cancel_block, count);
         while (i < block_end) : (i += 1) {
-            total = combine(total, map(&temp, shared, i));
+            total = combine(total, map(worker, shared, i));
         }
     }
     try checkCancel(cancel);
@@ -836,7 +875,7 @@ fn serialFoldInfallible(
 }
 
 fn serialFoldRange(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -845,19 +884,18 @@ fn serialFoldRange(
     comptime map_range: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    const P = @TypeOf(pool.*);
-    const W = P.WorkerType;
     try checkCancel(cancel);
-    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
-    defer pool.destroyTempContext(&temp.ctx);
+    var lane = try executor_mod.SerialLane(@TypeOf(executor)).init(executor);
+    defer lane.deinit();
+    const worker = lane.worker();
     try checkCancel(cancel);
-    const value = try map_range(&temp, shared, .{ .start = 0, .end = count });
+    const value = try map_range(worker, shared, .{ .start = 0, .end = count });
     try checkCancel(cancel);
     return combine(identity, value);
 }
 
 fn serialFoldRangeInfallible(
-    pool: anytype,
+    executor: anytype,
     comptime T: type,
     shared: anytype,
     count: usize,
@@ -866,13 +904,12 @@ fn serialFoldRangeInfallible(
     comptime map_range: anytype,
     comptime combine: anytype,
 ) anyerror!T {
-    const P = @TypeOf(pool.*);
-    const W = P.WorkerType;
     try checkCancel(cancel);
-    var temp = W{ .pool = pool, .index = pool.worker_count, .active = false, .ctx = try pool.createTempContext() };
-    defer pool.destroyTempContext(&temp.ctx);
+    var lane = try executor_mod.SerialLane(@TypeOf(executor)).init(executor);
+    defer lane.deinit();
+    const worker = lane.worker();
     try checkCancel(cancel);
-    const value = map_range(&temp, shared, .{ .start = 0, .end = count });
+    const value = map_range(worker, shared, .{ .start = 0, .end = count });
     try checkCancel(cancel);
     return combine(identity, value);
 }

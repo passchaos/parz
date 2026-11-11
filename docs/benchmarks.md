@@ -223,5 +223,23 @@ passing row only supports the inputs and CPU placement measured. Set
 `PARZ_BENCH_CPUS` to fix the default check script's CPU set; otherwise it
 selects up to eight allowed physical cores and reserves the last for caller.
 
+`bench-flat-dispatch` measures the opt-in cost guard, borrowed worker context
+and strict scratch against the old core with the same harness. Arguments are
+`kind count lanes caller_cpu chunks_per_worker rounds repetitions`, where
+kind is `scan`, `cheap`, `compute`, `context`, or `scratch`:
+
+```sh
+taskset -c 24-31 zig build bench-flat-dispatch -- cheap 4096 8 31 16 21
+taskset -c 24-31 zig build bench-flat-dispatch -- context 16 8 31 16 21 1000
+taskset -c 24-31 zig build bench-flat-dispatch -- scratch 1000003 8 31 64 21
+python3 scripts/perf_gate.py --flat-only --baseline /path/to/baseline \
+  --cpus 24-31 --rounds 7 --output /tmp/parz-flat-controls
+```
+
+Allocation counts exclude input/pool initialization. The synthetic context
+constructor allocates 64 KiB; its map only scans data. Repeated context samples
+amortize clock reads. This measures context construction overhead rather than
+application scratch processing.
+
 All fixed-CPU reports and raw logs are indexed in
 [the validation index](validation/README.md).

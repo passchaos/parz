@@ -63,6 +63,7 @@ def main():
     parser.add_argument('--cpus', default=os.environ.get('PARZ_BENCH_CPUS'))
     parser.add_argument('--rounds', type=int, default=5, help='alternating process rounds')
     parser.add_argument('--parity-only', action='store_true')
+    parser.add_argument('--flat-only', action='store_true')
     parser.add_argument('--max-regression', type=float, default=0.05)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -72,7 +73,18 @@ def main():
     cpu_arg = ','.join(map(str, cpus))
     lanes, caller = str(len(cpus)), str(cpus[-1])
     cases = [('tree-1k', 'tree_sum.zig', ['1000', 'heartbeat', 'measure', caller])]
-    if not args.parity_only:
+    if args.flat_only:
+        cases = []
+    if args.flat_only or not args.parity_only:
+        for count in (4095, 4096, 8192, 65536, 1000003):
+            cases.append((f'cheap-{count}', 'flat_dispatch.zig', ['cheap', str(count), lanes, caller, '16', '21']))
+        cases.extend([
+            ('scan-1m', 'flat_dispatch.zig', ['scan', '1000003', lanes, caller, '16', '21']),
+            ('scratch-1m', 'flat_dispatch.zig', ['scratch', '1000003', lanes, caller, '64', '21']),
+            ('context-16', 'flat_dispatch.zig', ['context', '16', lanes, caller, '16', '21', '1000']),
+            ('heavy-8192', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', '21']),
+        ])
+    if not args.parity_only and not args.flat_only:
         cases.extend([
             ('tree-100k', 'tree_sum.zig', ['100000', 'heartbeat', 'measure', caller]),
             ('tree-1m', 'tree_sum.zig', ['1000000', 'heartbeat', 'measure', caller]),

@@ -123,6 +123,13 @@ pub fn build(b: *std.Build) void {
         .description = "Compare infallible fold paths and dispatch allocations",
         .optimize = .ReleaseFast,
     });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-flat-dispatch",
+        .source = "bench/flat_dispatch.zig",
+        .step = "bench-flat-dispatch",
+        .description = "Measure flat cost hints, context reuse and dispatch scratch",
+        .optimize = .ReleaseFast,
+    });
 
     const bench_micro_step = addTool(b, parz_mod, target, .{
         .name = "parz-micro",

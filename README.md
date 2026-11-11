@@ -59,6 +59,8 @@ See [docs/architecture.md](docs/architecture.md) for the full model and
 - Cooperative `CancelToken` checked at chunk entry/exit, every 4096 items in
   index loops, and before successful completion.
 - Deterministic error selection by chunk index.
+- Explicit item-cost hints for cheap workloads, worker-based calls that reuse
+  lane context, and optional caller-owned `ParallelScratch` dispatch storage.
 
 **Synchronization (`parz.sync`)**
 

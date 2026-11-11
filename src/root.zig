@@ -27,6 +27,7 @@ pub const CancelToken = cancel.CancelToken;
 pub const Chunk = parallel.Chunk;
 pub const ParallelSchedule = parallel.Schedule;
 pub const ParallelOptions = parallel.Options;
+pub const ParallelScratch = parallel.Scratch;
 pub const parallelFor = parallel.parallelFor;
 pub const parallelForEach = parallel.parallelForEach;
 pub const parallelForRange = parallel.parallelForRange;

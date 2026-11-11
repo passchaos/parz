@@ -30,6 +30,10 @@ benchmarks to verify a claim on another machine.
 
 ## Flat loops and folds
 
+- [2026-11-11 flat controls](2026-11-11-flat-controls/README.md): explicit
+  cost estimates, borrowed Worker contexts, reusable strict dispatch scratch,
+  complete correctness gates and paired E/P-core regression controls.
+
 | Report | Subject |
 |---|---|
 | [compute-grain](2026-11-07-compute-grain/README.md) | Dynamic compute grain tuning, stack-budget control, cross-library results |
