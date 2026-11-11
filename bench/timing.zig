@@ -35,6 +35,7 @@ pub fn paired(
     for (0..rounds) |round| {
         for (0..2) |path| {
             const run_serial = (path == 0) == (round % 2 == 0);
+            std.mem.doNotOptimizeAway(context);
             const start = std.Io.Clock.Timestamp.now(io, .awake);
             const result = if (run_serial) try serial(context) else try parallel(context);
             const elapsed = start.untilNow(io).raw.toNanoseconds();

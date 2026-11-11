@@ -9,6 +9,10 @@ cd "$(dirname "$0")/.."
 
 zig build test
 zig build test -Doptimize=ReleaseSafe
+# Select allowed physical cores, fix caller placement, alternate both paths,
+# and enforce the 1000-node median parity floor on the default check path.
+python3 scripts/perf_gate.py --parity-only --rounds 3 \
+    --output "${PARZ_PARITY_OUTPUT:-/tmp/parz-small-tree-parity}"
 zig test src/root.zig -fsingle-threaded -OReleaseSafe
 zig test src/root.zig -fsanitize-thread -OReleaseSafe
 zig test src/root.zig -target wasm32-wasi -mcpu=generic+atomics \

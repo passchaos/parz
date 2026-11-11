@@ -201,5 +201,27 @@ through the direct serial kernel; larger trees retain heartbeat fork/join.
 
 ## Evidence index
 
+Primary compute, flat-fold and 2D benchmarks warm both paths, alternate them,
+verify every checksum and report medians. Both 2D paths include the fill and
+the same post-fill checksum traversal. Optional arguments fix lane count,
+caller CPU and sample count:
+
+```sh
+taskset -c 24-31 zig build bench-parallel-for -- 1000003 8 31 21
+taskset -c 24-31 zig build bench-compute -- 1000000 pin 8 31 9
+taskset -c 24-31 zig build bench-2d -- 1024 1024 8 31 9
+python3 scripts/perf_gate.py --baseline /path/to/baseline --cpus 24-31 \
+  --rounds 5 --output /tmp/parz-regression
+```
+
+The regression runner compiles identical current benchmark sources against
+both core checkouts, alternates process order and saves every inner sample.
+It rejects a median parallel-time increase above the requested allowance
+(5% default, accounting for noisy hosts) and always enforces 0.9x small-tree
+parity. A failed row requires investigation and a repeated comparison; a
+passing row only supports the inputs and CPU placement measured. Set
+`PARZ_BENCH_CPUS` to fix the default check script's CPU set; otherwise it
+selects up to eight allowed physical cores and reserves the last for caller.
+
 All fixed-CPU reports and raw logs are indexed in
 [the validation index](validation/README.md).

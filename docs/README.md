@@ -11,6 +11,7 @@ Start with the [README](../README.md) for the overview and quick start.
 | [sync.md](sync.md) | SPSC/MPSC/sharded/blocking queues, Treiber stack, semaphore, wait group, batch semantics |
 | [benchmarks.md](benchmarks.md) | Build/test gates, benchmark arguments, fixed-CPU methodology, parity gate, performance snapshot |
 | [numa.md](numa.md) | Worker NUMA policy, `NumaAllocator` policies, lifetime, diagnostics |
+| [OPTIMIZATION_BACKLOG.md](OPTIMIZATION_BACKLOG.md) | Current optimization work, required gates and evidence |
 
 ## Validation evidence
 

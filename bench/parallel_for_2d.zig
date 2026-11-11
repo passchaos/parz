@@ -1,21 +1,20 @@
 const std = @import("std");
 const parz = @import("parz");
+const timing = @import("timing.zig");
+const affinity = @import("affinity.zig");
 
 const State = struct {
     out: []u64,
     cols: usize,
 };
 
-fn serialFill(state: State, rows: usize) u64 {
-    var total: u64 = 0;
+fn serialFill(state: State, rows: usize) void {
     for (0..rows) |row| {
         for (0..state.cols) |col| {
             const value = row *% state.cols +% col;
             state.out[row * state.cols + col] = value;
-            total +%= value;
         }
     }
-    return total;
 }
 
 fn parallelChecksum(state: State, rows: usize) u64 {
@@ -28,9 +27,22 @@ fn parallelChecksum(state: State, rows: usize) u64 {
     return total;
 }
 
-fn now(io: std.Io) std.Io.Clock.Timestamp {
-    return std.Io.Clock.Timestamp.now(io, .awake);
-}
+const Run = struct {
+    pool: *parz.Pool(void),
+    state: State,
+    rows: usize,
+    fn serial(self: *@This()) !u64 {
+        serialFill(self.state, self.rows);
+        return parallelChecksum(self.state, self.rows);
+    }
+    fn parallel(self: *@This()) !u64 {
+        try parz.parallelFor2D(self.pool, self.state, self.rows, self.state.cols, .{ .min_chunk = 4096 }, cell);
+        return parallelChecksum(self.state, self.rows);
+    }
+    fn cell(_: *parz.Worker(void), state: State, row: usize, col: usize) anyerror!void {
+        state.out[row * state.cols + col] = row *% state.cols +% col;
+    }
+};
 
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
@@ -50,54 +62,32 @@ pub fn main(init: std.process.Init) !void {
         try std.fmt.parseInt(usize, argv.items[2], 10)
     else
         4096;
-
-    const out = try allocator.alloc(u64, rows * cols);
+    const lanes = if (argv.items.len > 3) try std.fmt.parseInt(usize, argv.items[3], 10) else 0;
+    const cpu = if (argv.items.len > 4) try std.fmt.parseInt(usize, argv.items[4], 10) else null;
+    const rounds = if (argv.items.len > 5) try std.fmt.parseInt(usize, argv.items[5], 10) else 9;
+    const count = try std.math.mul(usize, rows, cols);
+    if (count == 0) return;
+    const out = try allocator.alloc(u64, count);
     defer allocator.free(out);
     const state = State{ .out = out, .cols = cols };
 
     var pool = try parz.Pool(void).init(allocator, io, .{
-        .workers = 0,
-        .max_workers = 64,
+        .workers = if (lanes > 1) lanes - 1 else 0,
+        .max_workers = if (lanes == 1) 0 else 64,
         .max_callers = 1,
         .max_execute_states = 4096,
         .worker_stack_size = 2 * 1024 * 1024,
+        .pin_workers = cpu != null,
     });
     defer pool.deinit();
     try pool.start();
-
-    const serial_start = now(io);
-    const serial_result = serialFill(state, rows);
-    const serial_ns = serial_start.untilNow(io).raw.toNanoseconds();
-
-    const Ctx = struct {
-        fn run(_: *parz.Worker(void), shared: State, row: usize, col: usize) anyerror!void {
-            shared.out[row * shared.cols + col] = row *% shared.cols +% col;
-        }
-    };
-
-    var parallel_result: u64 = 0;
-    var parallel_ns: i96 = std.math.maxInt(i96);
-    for (0..5) |_| {
-        const start = now(io);
-        try parz.parallelFor2D(&pool, state, rows, cols, .{
-            .min_chunk = 4096,
-            .chunks_per_worker = 16,
-        }, Ctx.run);
-        const elapsed = start.untilNow(io).raw.toNanoseconds();
-        if (elapsed < parallel_ns) parallel_ns = elapsed;
-        parallel_result = parallelChecksum(state, rows);
-    }
-
-    if (serial_result != parallel_result) {
-        std.debug.print("mismatch serial={d} parallel={d}\n", .{
-            serial_result, parallel_result,
-        });
-        return error.ChecksumMismatch;
-    }
-
-    const speedup = @as(f64, @floatFromInt(serial_ns)) / @as(f64, @floatFromInt(parallel_ns));
+    if (cpu) |selected| try affinity.pinCaller(&pool, selected);
+    if (cpu) |selected| std.debug.print("placement caller_cpu={d} worker_cpus={any}\n", .{ selected, pool.pinned_cpus[0..pool.spawned_background] });
+    var run = Run{ .pool = &pool, .state = state, .rows = rows };
+    const expected: u64 = @truncate(@as(u128, count) * (count - 1) / 2);
+    const times = try timing.paired(u64, allocator, io, rounds, expected, &run, Run.serial, Run.parallel);
     std.debug.print(
-        "parallel_for_2d rows={d} cols={d} workers={d} serial_ns={d} parallel_ns={d} speedup={d:.2}\n",
-        .{ rows, cols, pool.spawned_background, serial_ns, parallel_ns, speedup },
+        "parallel_for_2d rows={d} cols={d} workers={d} checksum={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median timing=fill+checksum\n",
+        .{ rows, cols, pool.spawned_background, expected, times.serial_ns, times.parallel_ns, times.speedup() },
     );
 }

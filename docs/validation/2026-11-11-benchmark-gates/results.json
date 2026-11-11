@@ -1,0 +1,1336 @@
+{
+  "environment": {
+    "cpus": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "caller_cpu": 31,
+    "rounds": 3,
+    "zig": "0.16.0",
+    "max_regression": 0.05,
+    "harness_hashes": {
+      "compute.zig": "77d112b4e9f10aa8688c865b97d890d0468609ae1a9ecc0e7c28e5bd9bdcb09d",
+      "parallel_for.zig": "dac4ee976ce2ba9deed8a9e430dfe1b695ea36e4f245bda0310064e56cf95f37",
+      "parallel_for_2d.zig": "e3ba8efe4614a7771b5aaa9ed366f426d6bafb217610c28f2d54af8618b0ad68",
+      "micro.zig": "d1a8126f2eb0e485fd82648e5bfe5d8b3deae59705384f97d1462b8e611637fc",
+      "tree_sum.zig": "f0af74e4eb789cfc84475ebeacb21b3e9e7ceb91b9313fd7b68ee0fda9c58c95"
+    },
+    "source_roots": {
+      "candidate": "/home/passchaos/project-z/parz",
+      "baseline": "/tmp/parz-opt-20261111/baseline"
+    }
+  },
+  "summary": [
+    {
+      "case": "compute-1m",
+      "candidate": {
+        "serial_ns": 108947735.0,
+        "parallel_ns": 14203420.0,
+        "speedup": 7.671
+      },
+      "baseline": {
+        "serial_ns": 108958996.0,
+        "parallel_ns": 14177662.0,
+        "speedup": 7.689
+      },
+      "parallel_ratio": 1.0018168016701203
+    },
+    {
+      "case": "flat-16m",
+      "candidate": {
+        "serial_ns": 16183571.0,
+        "parallel_ns": 3297894.0,
+        "speedup": 4.948
+      },
+      "baseline": {
+        "serial_ns": 16575506.0,
+        "parallel_ns": 3345767.0,
+        "speedup": 4.949
+      },
+      "parallel_ratio": 0.9856914722393998
+    },
+    {
+      "case": "flat-1m",
+      "candidate": {
+        "serial_ns": 336413.0,
+        "parallel_ns": 73669.0,
+        "speedup": 4.567
+      },
+      "baseline": {
+        "serial_ns": 336448.0,
+        "parallel_ns": 77009.0,
+        "speedup": 4.415
+      },
+      "parallel_ratio": 0.9566284460257892
+    },
+    {
+      "case": "grid",
+      "candidate": {
+        "serial_ns": 643689.0,
+        "parallel_ns": 570824.0,
+        "speedup": 1.12
+      },
+      "baseline": {
+        "serial_ns": 642851.0,
+        "parallel_ns": 571419.0,
+        "speedup": 1.125
+      },
+      "parallel_ratio": 0.9989587325587703
+    },
+    {
+      "case": "micro-error-union",
+      "candidate": {
+        "serial_ns": 1358.0,
+        "parallel_ns": 3040.0,
+        "speedup": 0.447
+      },
+      "baseline": {
+        "serial_ns": 1346.0,
+        "parallel_ns": 3037.0,
+        "speedup": 0.443
+      },
+      "parallel_ratio": 1.0009878169245967
+    },
+    {
+      "case": "micro-plain",
+      "candidate": {
+        "serial_ns": 1373.0,
+        "parallel_ns": 3115.0,
+        "speedup": 0.439
+      },
+      "baseline": {
+        "serial_ns": 1359.0,
+        "parallel_ns": 3112.0,
+        "speedup": 0.437
+      },
+      "parallel_ratio": 1.0009640102827764
+    },
+    {
+      "case": "tree-100k",
+      "candidate": {
+        "serial_ns": 162291.0,
+        "parallel_ns": 73455.0,
+        "speedup": 2.179
+      },
+      "baseline": {
+        "serial_ns": 160130.0,
+        "parallel_ns": 115735.0,
+        "speedup": 1.38
+      },
+      "parallel_ratio": 0.634682680260941
+    },
+    {
+      "case": "tree-1k",
+      "candidate": {
+        "serial_ns": 1522.0,
+        "parallel_ns": 1520.0,
+        "speedup": 0.986
+      },
+      "baseline": {
+        "serial_ns": 1486.0,
+        "parallel_ns": 1500.0,
+        "speedup": 0.989
+      },
+      "parallel_ratio": 1.0133333333333334
+    },
+    {
+      "case": "tree-1m",
+      "candidate": {
+        "serial_ns": 1768077.0,
+        "parallel_ns": 507870.0,
+        "speedup": 3.669
+      },
+      "baseline": {
+        "serial_ns": 1804518.0,
+        "parallel_ns": 496434.0,
+        "speedup": 3.635
+      },
+      "parallel_ratio": 1.0230362948549052
+    }
+  ],
+  "samples": [
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1522",
+      "parallel_ns": "1544",
+      "speedup": "0.986",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1486",
+      "parallel_ns": "1517",
+      "speedup": "0.980",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "162303",
+      "parallel_ns": "103051",
+      "speedup": "1.575",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "165506",
+      "parallel_ns": "82340",
+      "speedup": "2.010",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "2020310",
+      "parallel_ns": "550680",
+      "speedup": "3.669",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1908304",
+      "parallel_ns": "522148",
+      "speedup": "3.655",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1397",
+      "parallel_ns": "3182",
+      "speedup": "0.439",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1360",
+      "parallel_ns": "3045",
+      "speedup": "0.447",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1359",
+      "parallel_ns": "3112",
+      "speedup": "0.437",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1346",
+      "parallel_ns": "3039",
+      "speedup": "0.443",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "340817",
+      "parallel_ns": "80249",
+      "speedup": "4.247",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "336448",
+      "parallel_ns": "81475",
+      "speedup": "4.129",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "17254838",
+      "parallel_ns": "3362899",
+      "speedup": "5.131",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "16765802",
+      "parallel_ns": "3345767",
+      "speedup": "5.011",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "108985154",
+      "parallel_ns": "14209895",
+      "speedup": "7.670",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "109010625",
+      "parallel_ns": "14177662",
+      "speedup": "7.689",
+      "statistic": "median"
+    },
+    {
+      "case": "grid",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "639513",
+      "parallel_ns": "570824",
+      "speedup": "1.120",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    },
+    {
+      "case": "grid",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "645983",
+      "parallel_ns": "575018",
+      "speedup": "1.123",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1491",
+      "parallel_ns": "1499",
+      "speedup": "0.995",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1475",
+      "parallel_ns": "1502",
+      "speedup": "0.982",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "159753",
+      "parallel_ns": "115735",
+      "speedup": "1.380",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160044",
+      "parallel_ns": "73455",
+      "speedup": "2.179",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1784925",
+      "parallel_ns": "495202",
+      "speedup": "3.604",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1768077",
+      "parallel_ns": "507870",
+      "speedup": "3.481",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1396",
+      "parallel_ns": "3141",
+      "speedup": "0.444",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1342",
+      "parallel_ns": "3037",
+      "speedup": "0.442",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1340",
+      "parallel_ns": "3101",
+      "speedup": "0.432",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1358",
+      "parallel_ns": "3040",
+      "speedup": "0.447",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "339981",
+      "parallel_ns": "77009",
+      "speedup": "4.415",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "330750",
+      "parallel_ns": "69281",
+      "speedup": "4.774",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "16071374",
+      "parallel_ns": "3261311",
+      "speedup": "4.928",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "16037224",
+      "parallel_ns": "3240926",
+      "speedup": "4.948",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "108952940",
+      "parallel_ns": "14133387",
+      "speedup": "7.709",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "108947735",
+      "parallel_ns": "14203420",
+      "speedup": "7.671",
+      "statistic": "median"
+    },
+    {
+      "case": "grid",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "642851",
+      "parallel_ns": "571419",
+      "speedup": "1.125",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    },
+    {
+      "case": "grid",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "644482",
+      "parallel_ns": "575220",
+      "speedup": "1.120",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1527",
+      "parallel_ns": "1520",
+      "speedup": "1.005",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1484",
+      "parallel_ns": "1500",
+      "speedup": "0.989",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "162291",
+      "parallel_ns": "73141",
+      "speedup": "2.219",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160130",
+      "parallel_ns": "128226",
+      "speedup": "1.249",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1736407",
+      "parallel_ns": "461838",
+      "speedup": "3.760",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1804518",
+      "parallel_ns": "496434",
+      "speedup": "3.635",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1373",
+      "parallel_ns": "3115",
+      "speedup": "0.441",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1356",
+      "parallel_ns": "3031",
+      "speedup": "0.447",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-plain",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "plain",
+      "serial_ns": "1353",
+      "parallel_ns": "3109",
+      "speedup": "0.435",
+      "statistic": "median"
+    },
+    {
+      "case": "micro-error-union",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-micro.zig",
+        "1000",
+        "8",
+        "31",
+        "1000"
+      ],
+      "callback": "error-union",
+      "serial_ns": "1346",
+      "parallel_ns": "3036",
+      "speedup": "0.443",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "336413",
+      "parallel_ns": "73669",
+      "speedup": "4.567",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-1m",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "1000003",
+        "8",
+        "31",
+        "21"
+      ],
+      "count": "1000003",
+      "workers": "7",
+      "checksum": "500002500003",
+      "serial_ns": "336316",
+      "parallel_ns": "70449",
+      "speedup": "4.774",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "16183571",
+      "parallel_ns": "3297894",
+      "speedup": "4.907",
+      "statistic": "median"
+    },
+    {
+      "case": "flat-16m",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for.zig",
+        "16000003",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "16000003",
+      "workers": "7",
+      "checksum": "128000040000003",
+      "serial_ns": "16575506",
+      "parallel_ns": "3349532",
+      "speedup": "4.949",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "108932181",
+      "parallel_ns": "14171627",
+      "speedup": "7.687",
+      "statistic": "median"
+    },
+    {
+      "case": "compute-1m",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-compute.zig",
+        "1000000",
+        "pin",
+        "8",
+        "31",
+        "9"
+      ],
+      "count": "1000000",
+      "workers": "7",
+      "pinned": "true",
+      "checksum": "12485666630435346316",
+      "serial_ns": "108958996",
+      "parallel_ns": "14236388",
+      "speedup": "7.654",
+      "statistic": "median"
+    },
+    {
+      "case": "grid",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/candidate-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "643689",
+      "parallel_ns": "560090",
+      "speedup": "1.149",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    },
+    {
+      "case": "grid",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-z7_73h7c/baseline-parallel_for_2d.zig",
+        "1024",
+        "1024",
+        "8",
+        "31",
+        "9"
+      ],
+      "rows": "1024",
+      "cols": "1024",
+      "workers": "7",
+      "checksum": "549755289600",
+      "serial_ns": "636900",
+      "parallel_ns": "557280",
+      "speedup": "1.143",
+      "statistic": "median",
+      "timing": "fill+checksum"
+    }
+  ],
+  "failures": []
+}

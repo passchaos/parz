@@ -7,6 +7,10 @@ benchmarks to verify a claim on another machine.
 
 ## Scheduler and recursive fork/join
 
+- [2026-11-11 benchmark gates](2026-11-11-benchmark-gates/README.md): paired
+  primary benchmarks, symmetric 2D timing, default small-tree check and
+  unchanged-core noise calibration.
+
 | Report | Subject |
 |---|---|
 | [boundaries](2026-11-07-boundaries/README.md) | Balanced nonempty chunks, `min_chunk`, overflow-safe planning, saturating cancellation blocks |
