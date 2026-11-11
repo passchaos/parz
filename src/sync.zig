@@ -24,6 +24,7 @@ pub const MpscQueue = mpsc.MpscQueue;
 pub const ShardedMpscQueue = sharded_mpsc.ShardedMpscQueue;
 pub const BlockingQueue = blocking_queue.BlockingQueue;
 pub const TreiberStack = treiber_stack.TreiberStack;
+pub const UncountedTreiberStack = treiber_stack.UncountedTreiberStack;
 pub const Semaphore = coordination.Semaphore;
 pub const WaitGroup = coordination.WaitGroup;
 

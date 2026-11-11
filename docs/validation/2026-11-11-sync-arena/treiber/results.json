@@ -1,0 +1,1891 @@
+{
+  "cpus": "24-31",
+  "rounds": 7,
+  "summary": [
+    {
+      "case": "treiber-batch-batch",
+      "baseline": {
+        "serial_ns": 191694.0,
+        "parallel_ns": 323683.0,
+        "speedup": 0.584
+      },
+      "candidate": {
+        "serial_ns": 191827.0,
+        "parallel_ns": 330427.0,
+        "speedup": 0.585
+      },
+      "serial_ns_ratio": 1.0006938140995545,
+      "parallel_ns_ratio": 1.0208351998714793
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "baseline": {
+        "serial_ns": 2074530.0,
+        "parallel_ns": 9468659.0,
+        "speedup": 0.219
+      },
+      "candidate": {
+        "serial_ns": 2073637.0,
+        "parallel_ns": 9574924.0,
+        "speedup": 0.217
+      },
+      "serial_ns_ratio": 0.9995695410526722,
+      "parallel_ns_ratio": 1.0112228141281674
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "baseline": {
+        "serial_ns": 2084249.0,
+        "parallel_ns": 9459888.0,
+        "speedup": 0.22
+      },
+      "candidate": {
+        "serial_ns": 2086148.0,
+        "parallel_ns": 9526310.0,
+        "speedup": 0.218
+      },
+      "serial_ns_ratio": 1.0009111195447378,
+      "parallel_ns_ratio": 1.0070214361945935
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "baseline": {
+        "serial_ns": 2070547.0,
+        "parallel_ns": 9481246.0,
+        "speedup": 0.218
+      },
+      "candidate": {
+        "serial_ns": 2071647.0,
+        "parallel_ns": 9535056.0,
+        "speedup": 0.218
+      },
+      "serial_ns_ratio": 1.0005312605799337,
+      "parallel_ns_ratio": 1.005675414391737
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "baseline": {
+        "serial_ns": 192607.0,
+        "parallel_ns": 327866.0,
+        "speedup": 0.592
+      },
+      "candidate": {
+        "serial_ns": 177814.0,
+        "parallel_ns": 309087.0,
+        "speedup": 0.569
+      },
+      "serial_ns_ratio": 0.9231959378423422,
+      "parallel_ns_ratio": 0.9427235516948997
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "baseline": {
+        "serial_ns": 2075871.0,
+        "parallel_ns": 9564706.0,
+        "speedup": 0.217
+      },
+      "candidate": {
+        "serial_ns": 1273613.0,
+        "parallel_ns": 5351104.0,
+        "speedup": 0.238
+      },
+      "serial_ns_ratio": 0.6135318620473045,
+      "parallel_ns_ratio": 0.5594635109537084
+    }
+  ],
+  "samples": [
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2069835",
+      "parallel_ns": "9565921",
+      "speedup": "0.216",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2084249",
+      "parallel_ns": "9583469",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072471",
+      "parallel_ns": "9469662",
+      "speedup": "0.219",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2073672",
+      "parallel_ns": "9526310",
+      "speedup": "0.218",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2074530",
+      "parallel_ns": "9468659",
+      "speedup": "0.219",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192277",
+      "parallel_ns": "355156",
+      "speedup": "0.541",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2068464",
+      "parallel_ns": "10015020",
+      "speedup": "0.207",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "191473",
+      "parallel_ns": "335785",
+      "speedup": "0.570",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072088",
+      "parallel_ns": "9417307",
+      "speedup": "0.220",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "190973",
+      "parallel_ns": "335695",
+      "speedup": "0.569",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1246978",
+      "parallel_ns": "13094348",
+      "speedup": "0.095",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "179016",
+      "parallel_ns": "378406",
+      "speedup": "0.473",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2076353",
+      "parallel_ns": "9535056",
+      "speedup": "0.218",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2079086",
+      "parallel_ns": "9495137",
+      "speedup": "0.219",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072667",
+      "parallel_ns": "6989894",
+      "speedup": "0.297",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2077080",
+      "parallel_ns": "6971531",
+      "speedup": "0.298",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2068815",
+      "parallel_ns": "9528650",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "189228",
+      "parallel_ns": "348160",
+      "speedup": "0.544",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2077462",
+      "parallel_ns": "7471084",
+      "speedup": "0.278",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "191477",
+      "parallel_ns": "347259",
+      "speedup": "0.551",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1270608",
+      "parallel_ns": "4257027",
+      "speedup": "0.298",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "174818",
+      "parallel_ns": "322921",
+      "speedup": "0.541",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2078582",
+      "parallel_ns": "9564706",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "191040",
+      "parallel_ns": "328332",
+      "speedup": "0.582",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2067259",
+      "parallel_ns": "18489540",
+      "speedup": "0.112",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2044855",
+      "parallel_ns": "18448378",
+      "speedup": "0.111",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2071647",
+      "parallel_ns": "7299302",
+      "speedup": "0.284",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2088194",
+      "parallel_ns": "7286824",
+      "speedup": "0.287",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2097036",
+      "parallel_ns": "9819485",
+      "speedup": "0.214",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192835",
+      "parallel_ns": "302772",
+      "speedup": "0.637",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2095369",
+      "parallel_ns": "9481211",
+      "speedup": "0.221",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "194721",
+      "parallel_ns": "339173",
+      "speedup": "0.574",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072451",
+      "parallel_ns": "9853813",
+      "speedup": "0.210",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "193055",
+      "parallel_ns": "310150",
+      "speedup": "0.622",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1275334",
+      "parallel_ns": "5351104",
+      "speedup": "0.238",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "177968",
+      "parallel_ns": "306717",
+      "speedup": "0.580",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2067569",
+      "parallel_ns": "10244516",
+      "speedup": "0.202",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2091766",
+      "parallel_ns": "10158391",
+      "speedup": "0.206",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2076277",
+      "parallel_ns": "7278533",
+      "speedup": "0.285",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2088724",
+      "parallel_ns": "7249356",
+      "speedup": "0.288",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072672",
+      "parallel_ns": "9574924",
+      "speedup": "0.216",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "191827",
+      "parallel_ns": "327421",
+      "speedup": "0.586",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072366",
+      "parallel_ns": "7711557",
+      "speedup": "0.269",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192951",
+      "parallel_ns": "323140",
+      "speedup": "0.597",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1272160",
+      "parallel_ns": "5407274",
+      "speedup": "0.235",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "177814",
+      "parallel_ns": "308596",
+      "speedup": "0.576",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072266",
+      "parallel_ns": "9610177",
+      "speedup": "0.216",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192607",
+      "parallel_ns": "310942",
+      "speedup": "0.619",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2074737",
+      "parallel_ns": "9581434",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2099784",
+      "parallel_ns": "9697410",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2072209",
+      "parallel_ns": "9646755",
+      "speedup": "0.215",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2094763",
+      "parallel_ns": "9669734",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2079923",
+      "parallel_ns": "9579609",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "191694",
+      "parallel_ns": "306338",
+      "speedup": "0.626",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2073637",
+      "parallel_ns": "7924874",
+      "speedup": "0.262",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192412",
+      "parallel_ns": "318998",
+      "speedup": "0.603",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2075871",
+      "parallel_ns": "9606174",
+      "speedup": "0.216",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "194133",
+      "parallel_ns": "327866",
+      "speedup": "0.592",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1273625",
+      "parallel_ns": "5479109",
+      "speedup": "0.232",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "175509",
+      "parallel_ns": "309087",
+      "speedup": "0.568",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2070724",
+      "parallel_ns": "9606058",
+      "speedup": "0.216",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2073984",
+      "parallel_ns": "9578965",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2068820",
+      "parallel_ns": "7764025",
+      "speedup": "0.266",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2079507",
+      "parallel_ns": "7726530",
+      "speedup": "0.269",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2076048",
+      "parallel_ns": "9741256",
+      "speedup": "0.213",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "193491",
+      "parallel_ns": "330427",
+      "speedup": "0.586",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2069686",
+      "parallel_ns": "9504577",
+      "speedup": "0.218",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "190800",
+      "parallel_ns": "345353",
+      "speedup": "0.552",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1273613",
+      "parallel_ns": "4275913",
+      "speedup": "0.298",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "178333",
+      "parallel_ns": "313530",
+      "speedup": "0.569",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2087066",
+      "parallel_ns": "7477010",
+      "speedup": "0.279",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "193322",
+      "parallel_ns": "330898",
+      "speedup": "0.584",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2070547",
+      "parallel_ns": "9481246",
+      "speedup": "0.218",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2085791",
+      "parallel_ns": "9459888",
+      "speedup": "0.220",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-scalar",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2071523",
+      "parallel_ns": "7348446",
+      "speedup": "0.282",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-scalar-batch",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "2086148",
+      "parallel_ns": "7272524",
+      "speedup": "0.287",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2070964",
+      "parallel_ns": "7989396",
+      "speedup": "0.259",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "189139",
+      "parallel_ns": "323683",
+      "speedup": "0.584",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-scalar",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2074265",
+      "parallel_ns": "9577738",
+      "speedup": "0.217",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-batch-batch",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "190388",
+      "parallel_ns": "325460",
+      "speedup": "0.585",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "2077021",
+      "parallel_ns": "7712004",
+      "speedup": "0.269",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/baseline-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "192592",
+      "parallel_ns": "305927",
+      "speedup": "0.630",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-scalar",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1275259",
+      "parallel_ns": "4382962",
+      "speedup": "0.291",
+      "statistic": "median"
+    },
+    {
+      "case": "treiber-uncounted-batch",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-a1xcipk8/candidate-treiber_batch.zig",
+        "25000",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9",
+        "uncounted"
+      ],
+      "implementation": "batch",
+      "serial_ns": "177716",
+      "parallel_ns": "302952",
+      "speedup": "0.587",
+      "statistic": "median"
+    }
+  ],
+  "failures": []
+}

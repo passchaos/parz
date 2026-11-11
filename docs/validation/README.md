@@ -47,6 +47,10 @@ benchmarks to verify a claim on another machine.
 
 ## Synchronization
 
+- [2026-11-11 sync and arena](2026-11-11-sync-arena/README.md): uncounted
+  stack, specialized sparse consumer sets, lazy NUMA arenas and retained
+  rejection evidence for counterproductive default wake/backoff changes.
+
 | Report | Subject |
 |---|---|
 | [cached-spsc](2026-11-07-cached-spsc/README.md) | Cached peer positions and cache-line-separated SPSC layout |

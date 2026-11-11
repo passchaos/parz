@@ -27,6 +27,49 @@ pub fn ShardedMpscQueue(comptime T: type, comptime shard_count: usize) type {
         next: usize = 0,
         allocator: std.mem.Allocator,
 
+        /// Single-consumer view of a known producer set. No producer-side
+        /// ready atomics or heap allocation are added to the queue hot path.
+        /// Unselected shards remain queued for the normal consumer or another
+        /// later view; only one consumer may use any view at a time.
+        pub fn Consumer(comptime indices: []const usize) type {
+            return struct {
+                queue: *Self,
+                next: usize = 0,
+
+                pub fn tryPop(view: *@This()) ?T {
+                    for (0..indices.len) |_| {
+                        const index = indices[view.next];
+                        view.next += 1;
+                        if (view.next == indices.len) view.next = 0;
+                        if (view.queue.shards[index].queue.tryPop()) |value| return value;
+                    }
+                    return null;
+                }
+
+                pub fn tryPopSlice(view: *@This(), output: []T) usize {
+                    var count: usize = 0;
+                    for (0..indices.len) |_| {
+                        if (count == output.len) break;
+                        const index = indices[view.next];
+                        view.next += 1;
+                        if (view.next == indices.len) view.next = 0;
+                        count += view.queue.shards[index].queue.tryPopSlice(output[count..]);
+                    }
+                    return count;
+                }
+            };
+        }
+
+        /// Specialize a known producer set without a runtime index slice or
+        /// division. A changed registration set creates another view type.
+        pub fn consumer(self: *Self, comptime indices: []const usize) !Consumer(indices) {
+            for (indices, 0..) |index, position| {
+                if (index >= shard_count) return error.InvalidShard;
+                if (std.mem.indexOfScalar(usize, indices[0..position], index) != null) return error.DuplicateShard;
+            }
+            return .{ .queue = self };
+        }
+
         pub fn init(allocator: std.mem.Allocator, capacity_per_shard: usize) !Self {
             var self = Self{
                 .shards = undefined,
@@ -122,6 +165,62 @@ test "sharded mpsc queue: single-threaded round robin" {
         seen[value] = true;
     }
     try std.testing.expect(queue.tryPop() == null);
+}
+
+test "sharded consumer view preserves selected FIFO and leaves other shards queued" {
+    var queue = try ShardedMpscQueue(u32, 128).init(std.testing.allocator, 4);
+    defer queue.deinit();
+    try std.testing.expectError(error.InvalidShard, queue.consumer(&.{128}));
+    try std.testing.expectError(error.DuplicateShard, queue.consumer(&.{ 1, 1 }));
+    var empty = try queue.consumer(&.{});
+    try std.testing.expect(empty.tryPop() == null);
+    var view = try queue.consumer(&.{ 1, 127 });
+    for (0..10) |_| {
+        try std.testing.expectEqual(@as(usize, 3), queue.tryPushSlice(1, &.{ 1, 2, 3 }));
+        try std.testing.expectEqual(@as(usize, 3), queue.tryPushSlice(127, &.{ 4, 5, 6 }));
+        try std.testing.expect(queue.tryPush(64, 99));
+        try std.testing.expectEqual(@as(u32, 1), view.tryPop().?);
+        try std.testing.expectEqual(@as(u32, 4), view.tryPop().?);
+        var output: [4]u32 = undefined;
+        try std.testing.expectEqual(@as(usize, 4), view.tryPopSlice(&output));
+        try std.testing.expectEqualSlices(u32, &.{ 2, 3, 5, 6 }, &output);
+        try std.testing.expect(view.tryPop() == null);
+        try std.testing.expectEqual(@as(u32, 99), queue.tryPop().?);
+        try std.testing.expectEqual(@as(usize, 0), queue.len());
+    }
+}
+
+test "sparse sharded view concurrently preserves per producer order" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const Q = ShardedMpscQueue(usize, 128);
+    const Run = struct {
+        fn produce(q: *Q, id: usize) void {
+            const shard: usize = if (id == 0) 3 else 127;
+            for (0..10000) |i| {
+                while (!q.tryPush(shard, id * 10000 + i)) std.atomic.spinLoopHint();
+            }
+        }
+    };
+    var queue = try Q.init(std.testing.allocator, 64);
+    defer queue.deinit();
+    var view = try queue.consumer(&.{ 3, 127 });
+    const a = try std.Thread.spawn(.{}, Run.produce, .{ &queue, @as(usize, 0) });
+    defer a.join();
+    const b = try std.Thread.spawn(.{}, Run.produce, .{ &queue, @as(usize, 1) });
+    defer b.join();
+    var next = [_]usize{ 0, 0 };
+    var output: [17]usize = undefined;
+    while (next[0] + next[1] < 20000) {
+        const count = view.tryPopSlice(&output);
+        for (output[0..count]) |value| {
+            const id = value / 10000;
+            try std.testing.expect(id < 2);
+            try std.testing.expectEqual(next[id], value % 10000);
+            next[id] += 1;
+        }
+        if (count == 0) std.atomic.spinLoopHint();
+    }
+    try std.testing.expect(view.tryPop() == null);
 }
 
 test "sharded mpsc queue: mixed slice transfers preserve per-shard FIFO through wrap" {

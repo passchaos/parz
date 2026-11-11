@@ -1,0 +1,20 @@
+diff --git a/src/sync/mpsc.zig b/src/sync/mpsc.zig
+index b911e22..75c3c6c 100644
+--- a/src/sync/mpsc.zig
++++ b/src/sync/mpsc.zig
+@@ -66,6 +66,7 @@ pub fn MpscQueue(comptime T: type) type {
+                         .monotonic,
+                     )) |actual| {
+                         pos = actual;
++                        std.atomic.spinLoopHint();
+                         continue;
+                     }
+                     slot.value = value;
+@@ -112,6 +113,7 @@ pub fn MpscQueue(comptime T: type) type {
+                 if (count == 0) return 0;
+                 if (self.enqueue_pos.cmpxchgWeak(pos, pos +% count, .monotonic, .monotonic)) |actual| {
+                     pos = actual;
++                    std.atomic.spinLoopHint();
+                     continue;
+                 }
+                 // The successful CAS owns every slot in this prefix. Each

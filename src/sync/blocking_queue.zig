@@ -188,6 +188,74 @@ test "blocking queue: single-threaded order and bounds" {
     try std.testing.expect(queue.tryGet(io) == null);
 }
 
+test "blocking queue cancelled waits remove registration and preserve mutex reuse" {
+    const Stub = struct {
+        fn cancel(_: ?*anyopaque, _: *const u32, _: u32, _: std.Io.Timeout) std.Io.Cancelable!void {
+            return error.Canceled;
+        }
+    };
+    var vtable = std.testing.io.vtable.*;
+    vtable.futexWait = Stub.cancel;
+    const io = std.Io{ .userdata = std.testing.io.userdata, .vtable = &vtable };
+    var queue = try BlockingQueue(u32).init(std.testing.allocator, 1);
+    defer queue.deinit();
+    var output: [2]u32 = undefined;
+    try std.testing.expectError(error.Canceled, queue.get(io));
+    try std.testing.expectError(error.Canceled, queue.getSlice(io, &output));
+    try std.testing.expectEqual(@as(u16, 0), queue.not_empty.state.load(.monotonic).waiters);
+    try queue.put(std.testing.io, 1);
+    try std.testing.expectError(error.Canceled, queue.put(io, 2));
+    try std.testing.expectError(error.Canceled, queue.putSlice(io, &.{ 2, 3 }));
+    try std.testing.expectEqual(@as(u16, 0), queue.not_full.state.load(.monotonic).waiters);
+    try std.testing.expectEqual(@as(u32, 1), try queue.get(std.testing.io));
+    try queue.put(std.testing.io, 4);
+    try std.testing.expectEqual(@as(u32, 4), try queue.get(std.testing.io));
+}
+
+test "blocking batch wakes every blocked reader and writer without stranding" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const Q = BlockingQueue(u32);
+    const Run = struct {
+        fn reader(q: *Q, out: *u32) void {
+            out.* = q.get(std.testing.io) catch unreachable;
+        }
+        fn writer(q: *Q, value: u32) void {
+            q.put(std.testing.io, value) catch unreachable;
+        }
+        fn wait(q: *Q, readers: bool) !void {
+            for (0..20000) |_| {
+                q.mutex.lockUncancelable(std.testing.io);
+                const count = if (readers) q.not_empty.state.load(.monotonic).waiters else q.not_full.state.load(.monotonic).waiters;
+                q.mutex.unlock(std.testing.io);
+                if (count == 2) return;
+                try std.testing.io.sleep(std.Io.Duration.fromMilliseconds(1), .awake);
+            }
+            return error.WaiterTimeout;
+        }
+    };
+    var q = try Q.init(std.testing.allocator, 2);
+    defer q.deinit();
+    var output: [2]u32 = undefined;
+    const a = try std.Thread.spawn(.{}, Run.reader, .{ &q, &output[0] });
+    const b = try std.Thread.spawn(.{}, Run.reader, .{ &q, &output[1] });
+    try Run.wait(&q, true);
+    try std.testing.expectEqual(@as(usize, 2), try q.putSlice(std.testing.io, &.{ 1, 2 }));
+    a.join();
+    b.join();
+    try std.testing.expectEqual(@as(u32, 3), output[0] + output[1]);
+    try std.testing.expectEqual(@as(u16, 0), q.not_empty.state.load(.monotonic).waiters);
+    try std.testing.expectEqual(@as(usize, 2), try q.putSlice(std.testing.io, &.{ 3, 4 }));
+    const c = try std.Thread.spawn(.{}, Run.writer, .{ &q, @as(u32, 5) });
+    const d = try std.Thread.spawn(.{}, Run.writer, .{ &q, @as(u32, 6) });
+    try Run.wait(&q, false);
+    try std.testing.expectEqual(@as(usize, 2), try q.getSlice(std.testing.io, &output));
+    c.join();
+    d.join();
+    try std.testing.expectEqual(@as(u16, 0), q.not_full.state.load(.monotonic).waiters);
+    try std.testing.expectEqual(@as(usize, 2), try q.getSlice(std.testing.io, &output));
+    try std.testing.expectEqual(@as(u32, 11), output[0] + output[1]);
+}
+
 test "blocking queue: mixed slice transfers handle partial prefixes and wrap" {
     const io = std.testing.io;
     var queue = try BlockingQueue(u32).init(std.testing.allocator, 4);

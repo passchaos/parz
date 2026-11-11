@@ -1,0 +1,10 @@
+sample=0 serial_ns=22594026 parallel_ns=66628 speedup=339.107
+sample=1 serial_ns=22540605 parallel_ns=65994 speedup=341.555
+sample=2 serial_ns=22616284 parallel_ns=67932 speedup=332.925
+sample=3 serial_ns=22784453 parallel_ns=66791 speedup=341.131
+sample=4 serial_ns=22412327 parallel_ns=67885 speedup=330.151
+sample=5 serial_ns=22376576 parallel_ns=67276 speedup=332.609
+sample=6 serial_ns=22507654 parallel_ns=68031 speedup=330.844
+sample=7 serial_ns=22183228 parallel_ns=65664 speedup=337.829
+sample=8 serial_ns=23178511 parallel_ns=67486 speedup=343.457
+numa-arena count=4096 cpu=31 checksum=8386560 serial_ns=22540605 parallel_ns=67276 speedup=335.047 statistic=median mode=allocation-comparison reuse_allocations=0 policy_applied=40969 policy_fallbacks=0 errno=0

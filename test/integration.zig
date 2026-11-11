@@ -54,6 +54,76 @@ test "integration: NUMA allocator backs pool metadata and per-worker arenas" {
 const std = @import("std");
 const parz = @import("parz");
 
+test "lazy NUMA lane arenas allocate on their execution lane and reuse retained capacity" {
+    const Shared = struct { background: std.atomic.Value(bool) = .init(false), expect_background: bool };
+    const LaneArena = struct {
+        arena: std.heap.ArenaAllocator,
+        constructed: std.Thread.Id,
+        allocated: ?std.Thread.Id = null,
+        fn init(a: std.mem.Allocator, _: usize) !@This() {
+            return .{ .arena = std.heap.ArenaAllocator.init(a), .constructed = std.Thread.getCurrentId() };
+        }
+        fn deinit(_: std.mem.Allocator, self: *@This()) void {
+            self.arena.deinit();
+        }
+        fn map(w: *parz.Worker(@This()), shared: *Shared, i: usize) anyerror!u64 {
+            const lane = w.context();
+            if (lane.allocated == null) lane.allocated = std.Thread.getCurrentId();
+            if (w.caller_slot == null) shared.background.store(true, .release);
+            if (shared.expect_background and w.caller_slot != null) {
+                while (!shared.background.load(.acquire)) std.atomic.spinLoopHint();
+            }
+            const bytes = try lane.arena.allocator().alloc(u64, 8);
+            @memset(bytes, i);
+            return bytes[7];
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    for (0..4) |workers| {
+        var numa = try parz.NumaAllocator.init(std.testing.allocator, .{});
+        defer numa.deinit();
+        var pool = try parz.Pool(LaneArena).init(numa.allocator(), std.testing.io, .{
+            .workers = workers,
+            .max_workers = workers,
+            .max_callers = 1,
+            .context_init = LaneArena.init,
+            .context_deinit = LaneArena.deinit,
+        });
+        defer pool.deinit();
+        try pool.start();
+        for (pool.background_storage) |*w| try std.testing.expect(w.ctx.arena.queryCapacity() == 0);
+        for (pool.caller_storage) |*w| try std.testing.expect(w.ctx.arena.queryCapacity() == 0);
+        var shared = Shared{ .expect_background = pool.spawned_background != 0 };
+        const caller = pool.claimFlatCaller().?;
+        defer pool.releaseCaller(caller);
+        for (0..2) |_| {
+            try std.testing.expectEqual(@as(u64, 8386560), try parz.parallelFold(caller, u64, &shared, 4096, .{
+                .serial_threshold = 0,
+                .max_chunks = 16,
+                .chunks_per_worker = 16,
+                .schedule = .static,
+            }, 0, LaneArena.map, LaneArena.add));
+            for (pool.background_storage[0..pool.spawned_background]) |*w| {
+                if (w.ctx.allocated) |thread| try std.testing.expect(thread != w.ctx.constructed);
+                _ = w.ctx.arena.reset(.retain_capacity);
+            }
+            try std.testing.expectEqual(caller.ctx.constructed, caller.ctx.allocated.?);
+            _ = caller.ctx.arena.reset(.retain_capacity);
+        }
+        // Static chunks may run on different lanes on another call. Prove
+        // retained reuse on one explicitly owned lane rather than assuming
+        // static scheduling binds contexts to chunk indices.
+        const reuse = parz.ParallelOptions{ .serial_threshold = 0, .max_workers = 1, .max_chunks = 1 };
+        try std.testing.expectEqual(@as(u64, 8386560), try parz.parallelFold(caller, u64, &shared, 4096, reuse, 0, LaneArena.map, LaneArena.add));
+        _ = caller.ctx.arena.reset(.retain_capacity);
+        const before = numa.stats().policy_applied + numa.stats().policy_fallbacks;
+        try std.testing.expectEqual(@as(u64, 8386560), try parz.parallelFold(caller, u64, &shared, 4096, reuse, 0, LaneArena.map, LaneArena.add));
+        try std.testing.expectEqual(before, numa.stats().policy_applied + numa.stats().policy_fallbacks);
+    }
+}
+
 const Lane = struct {
     allocator: std.mem.Allocator,
     scratch: std.ArrayList(u64) = .empty,

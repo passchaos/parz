@@ -1,0 +1,196 @@
+diff --git a/src/sync/blocking_queue.zig b/src/sync/blocking_queue.zig
+index dd9ccb5..a83815c 100644
+--- a/src/sync/blocking_queue.zig
++++ b/src/sync/blocking_queue.zig
+@@ -18,6 +18,8 @@ pub fn BlockingQueue(comptime T: type) type {
+         not_empty: std.Io.Condition = .init,
+         not_full: std.Io.Condition = .init,
+         allocator: std.mem.Allocator,
++        put_waiters: usize = 0,
++        get_waiters: usize = 0,
+ 
+         pub fn init(allocator: std.mem.Allocator, requested_capacity: usize) !Self {
+             const actual_capacity = std.math.ceilPowerOfTwo(usize, @max(requested_capacity, 1)) catch
+@@ -48,7 +50,7 @@ pub fn BlockingQueue(comptime T: type) type {
+             self.buffer[self.tail] = value;
+             self.tail = (self.tail + 1) & self.mask;
+             self.count += 1;
+-            self.not_empty.signal(io);
++            self.notifyReaders(io, 1);
+             return true;
+         }
+ 
+@@ -67,12 +69,12 @@ pub fn BlockingQueue(comptime T: type) type {
+             try self.mutex.lock(io);
+             defer self.mutex.unlock(io);
+             while (self.count == self.buffer.len) {
+-                try self.not_full.wait(io, &self.mutex);
++                try self.waitForSpace(io);
+             }
+             self.buffer[self.tail] = value;
+             self.tail = (self.tail + 1) & self.mask;
+             self.count += 1;
+-            self.not_empty.signal(io);
++            self.notifyReaders(io, 1);
+         }
+ 
+         /// Wait for at least one free slot, then put the available input
+@@ -87,7 +89,7 @@ pub fn BlockingQueue(comptime T: type) type {
+             try self.mutex.lock(io);
+             defer self.mutex.unlock(io);
+             while (self.count == self.buffer.len) {
+-                try self.not_full.wait(io, &self.mutex);
++                try self.waitForSpace(io);
+             }
+             return self.putSliceLocked(io, values);
+         }
+@@ -99,7 +101,7 @@ pub fn BlockingQueue(comptime T: type) type {
+             const value = self.buffer[self.head];
+             self.head = (self.head + 1) & self.mask;
+             self.count -= 1;
+-            self.not_full.signal(io);
++            self.notifyWriters(io, 1);
+             return value;
+         }
+ 
+@@ -120,12 +122,12 @@ pub fn BlockingQueue(comptime T: type) type {
+             try self.mutex.lock(io);
+             defer self.mutex.unlock(io);
+             while (self.count == 0) {
+-                try self.not_empty.wait(io, &self.mutex);
++                try self.waitForItem(io);
+             }
+             const value = self.buffer[self.head];
+             self.head = (self.head + 1) & self.mask;
+             self.count -= 1;
+-            self.not_full.signal(io);
++            self.notifyWriters(io, 1);
+             return value;
+         }
+ 
+@@ -140,7 +142,7 @@ pub fn BlockingQueue(comptime T: type) type {
+             try self.mutex.lock(io);
+             defer self.mutex.unlock(io);
+             while (self.count == 0) {
+-                try self.not_empty.wait(io, &self.mutex);
++                try self.waitForItem(io);
+             }
+             return self.getSliceLocked(io, output);
+         }
+@@ -153,7 +155,7 @@ pub fn BlockingQueue(comptime T: type) type {
+             @memcpy(self.buffer[0 .. count - first], values[first..count]);
+             self.tail = (self.tail + count) & self.mask;
+             self.count += count;
+-            if (count == 1) self.not_empty.signal(io) else self.not_empty.broadcast(io);
++            self.notifyReaders(io, count);
+             return count;
+         }
+ 
+@@ -165,9 +167,31 @@ pub fn BlockingQueue(comptime T: type) type {
+             @memcpy(output[first..count], self.buffer[0 .. count - first]);
+             self.head = (self.head + count) & self.mask;
+             self.count -= count;
+-            if (count == 1) self.not_full.signal(io) else self.not_full.broadcast(io);
++            self.notifyWriters(io, count);
+             return count;
+         }
++
++        fn waitForSpace(self: *Self, io: std.Io) std.Io.Cancelable!void {
++            self.put_waiters += 1;
++            defer self.put_waiters -= 1;
++            try self.not_full.wait(io, &self.mutex);
++        }
++
++        fn waitForItem(self: *Self, io: std.Io) std.Io.Cancelable!void {
++            self.get_waiters += 1;
++            defer self.get_waiters -= 1;
++            try self.not_empty.wait(io, &self.mutex);
++        }
++
++        fn notifyReaders(self: *Self, io: std.Io, count: usize) void {
++            if (self.get_waiters == 0) return;
++            if (count == 1 or self.get_waiters == 1) self.not_empty.signal(io) else self.not_empty.broadcast(io);
++        }
++
++        fn notifyWriters(self: *Self, io: std.Io, count: usize) void {
++            if (self.put_waiters == 0) return;
++            if (count == 1 or self.put_waiters == 1) self.not_full.signal(io) else self.not_full.broadcast(io);
++        }
+     };
+ }
+ 
+@@ -188,6 +212,74 @@ test "blocking queue: single-threaded order and bounds" {
+     try std.testing.expect(queue.tryGet(io) == null);
+ }
+ 
++test "blocking queue cancelled waits remove registration and preserve mutex reuse" {
++    const Stub = struct {
++        fn cancel(_: ?*anyopaque, _: *const u32, _: u32, _: std.Io.Timeout) std.Io.Cancelable!void {
++            return error.Canceled;
++        }
++    };
++    var vtable = std.testing.io.vtable.*;
++    vtable.futexWait = Stub.cancel;
++    const io = std.Io{ .userdata = std.testing.io.userdata, .vtable = &vtable };
++    var queue = try BlockingQueue(u32).init(std.testing.allocator, 1);
++    defer queue.deinit();
++    var output: [2]u32 = undefined;
++    try std.testing.expectError(error.Canceled, queue.get(io));
++    try std.testing.expectError(error.Canceled, queue.getSlice(io, &output));
++    try std.testing.expectEqual(@as(usize, 0), queue.get_waiters);
++    try queue.put(std.testing.io, 1);
++    try std.testing.expectError(error.Canceled, queue.put(io, 2));
++    try std.testing.expectError(error.Canceled, queue.putSlice(io, &.{ 2, 3 }));
++    try std.testing.expectEqual(@as(usize, 0), queue.put_waiters);
++    try std.testing.expectEqual(@as(u32, 1), try queue.get(std.testing.io));
++    try queue.put(std.testing.io, 4);
++    try std.testing.expectEqual(@as(u32, 4), try queue.get(std.testing.io));
++}
++
++test "blocking batch wakes every blocked reader and writer without stranding" {
++    if (builtin.single_threaded) return error.SkipZigTest;
++    const Q = BlockingQueue(u32);
++    const Run = struct {
++        fn reader(q: *Q, out: *u32) void {
++            out.* = q.get(std.testing.io) catch unreachable;
++        }
++        fn writer(q: *Q, value: u32) void {
++            q.put(std.testing.io, value) catch unreachable;
++        }
++        fn wait(q: *Q, readers: bool) !void {
++            for (0..20000) |_| {
++                q.mutex.lockUncancelable(std.testing.io);
++                const count = if (readers) q.get_waiters else q.put_waiters;
++                q.mutex.unlock(std.testing.io);
++                if (count == 2) return;
++                try std.testing.io.sleep(std.Io.Duration.fromMilliseconds(1), .awake);
++            }
++            return error.WaiterTimeout;
++        }
++    };
++    var q = try Q.init(std.testing.allocator, 2);
++    defer q.deinit();
++    var output: [2]u32 = undefined;
++    const a = try std.Thread.spawn(.{}, Run.reader, .{ &q, &output[0] });
++    const b = try std.Thread.spawn(.{}, Run.reader, .{ &q, &output[1] });
++    try Run.wait(&q, true);
++    try std.testing.expectEqual(@as(usize, 2), try q.putSlice(std.testing.io, &.{ 1, 2 }));
++    a.join();
++    b.join();
++    try std.testing.expectEqual(@as(u32, 3), output[0] + output[1]);
++    try std.testing.expectEqual(@as(usize, 0), q.get_waiters);
++    try std.testing.expectEqual(@as(usize, 2), try q.putSlice(std.testing.io, &.{ 3, 4 }));
++    const c = try std.Thread.spawn(.{}, Run.writer, .{ &q, @as(u32, 5) });
++    const d = try std.Thread.spawn(.{}, Run.writer, .{ &q, @as(u32, 6) });
++    try Run.wait(&q, false);
++    try std.testing.expectEqual(@as(usize, 2), try q.getSlice(std.testing.io, &output));
++    c.join();
++    d.join();
++    try std.testing.expectEqual(@as(usize, 0), q.put_waiters);
++    try std.testing.expectEqual(@as(usize, 2), try q.getSlice(std.testing.io, &output));
++    try std.testing.expectEqual(@as(u32, 11), output[0] + output[1]);
++}
++
+ test "blocking queue: mixed slice transfers handle partial prefixes and wrap" {
+     const io = std.testing.io;
+     var queue = try BlockingQueue(u32).init(std.testing.allocator, 4);

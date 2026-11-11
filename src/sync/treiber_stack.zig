@@ -9,6 +9,16 @@ const builtin = @import("builtin");
 /// is the only thread that removes a node, so a head pointer cannot be popped
 /// and re-pushed between the consumer's load and store.
 pub fn TreiberStack(comptime T: type) type {
+    return StackImpl(T, true);
+}
+
+/// Caller-owned-node stack without a contended length counter. Single
+/// consumer semantics are unchanged; use isEmpty() instead of len().
+pub fn UncountedTreiberStack(comptime T: type) type {
+    return StackImpl(T, false);
+}
+
+fn StackImpl(comptime T: type, comptime track_count: bool) type {
     return struct {
         const Self = @This();
 
@@ -18,13 +28,13 @@ pub fn TreiberStack(comptime T: type) type {
         };
 
         head: std.atomic.Value(usize) = .init(0),
-        count: std.atomic.Value(usize) = .init(0),
+        count: if (track_count) std.atomic.Value(usize) else void = if (track_count) .init(0) else {},
 
         pub fn push(self: *Self, node: *Node) void {
             // Reserve the count before publishing the node. A consumer can
             // pop immediately after the head CAS, so accounting afterwards
             // would allow its decrement to wrap through zero.
-            _ = self.count.fetchAdd(1, .monotonic);
+            if (track_count) _ = self.count.fetchAdd(1, .monotonic);
             var old = self.head.load(.monotonic);
             while (true) {
                 node.next = if (old == 0) null else @as(*Node, @ptrFromInt(old));
@@ -33,10 +43,9 @@ pub fn TreiberStack(comptime T: type) type {
                     @intFromPtr(node),
                     .release,
                     .monotonic,
-                ) == null) {
-                    return;
-                }
-                old = self.head.load(.monotonic);
+                )) |actual| {
+                    old = if (track_count) self.head.load(.monotonic) else actual;
+                } else return;
             }
         }
 
@@ -51,7 +60,7 @@ pub fn TreiberStack(comptime T: type) type {
 
         noinline fn pushSliceBatch(self: *Self, nodes: []Node) void {
             for (nodes[1..], 0..) |*node, previous| node.next = &nodes[previous];
-            _ = self.count.fetchAdd(nodes.len, .monotonic);
+            if (track_count) _ = self.count.fetchAdd(nodes.len, .monotonic);
             var old = self.head.load(.monotonic);
             while (true) {
                 nodes[0].next = if (old == 0) null else @as(*Node, @ptrFromInt(old));
@@ -72,11 +81,12 @@ pub fn TreiberStack(comptime T: type) type {
             while (old != 0) {
                 const node: *Node = @ptrFromInt(old);
                 const next: usize = if (node.next) |n| @intFromPtr(n) else 0;
-                if (self.head.cmpxchgWeak(old, next, .acq_rel, .acquire) == null) {
-                    _ = self.count.fetchSub(1, .monotonic);
+                if (self.head.cmpxchgWeak(old, next, .acq_rel, .acquire)) |actual| {
+                    old = if (track_count) self.head.load(.acquire) else actual;
+                } else {
+                    if (track_count) _ = self.count.fetchSub(1, .monotonic);
                     return node;
                 }
-                old = self.head.load(.acquire);
             }
             return null;
         }
@@ -106,7 +116,7 @@ pub fn TreiberStack(comptime T: type) type {
                     old = actual;
                     continue;
                 }
-                _ = self.count.fetchSub(count_popped, .monotonic);
+                if (track_count) _ = self.count.fetchSub(count_popped, .monotonic);
                 return count_popped;
             }
             return 0;
@@ -114,6 +124,7 @@ pub fn TreiberStack(comptime T: type) type {
 
         /// Includes pushes being published; exact when quiescent.
         pub fn len(self: *const Self) usize {
+            if (!track_count) @compileError("UncountedTreiberStack has no length counter; use isEmpty");
             return self.count.load(.monotonic);
         }
 
@@ -121,6 +132,64 @@ pub fn TreiberStack(comptime T: type) type {
             return self.head.load(.acquire) == 0;
         }
     };
+}
+
+test "uncounted stack preserves mixed scalar batch LIFO and node reuse" {
+    const S = UncountedTreiberStack(u32);
+    var stack = S{};
+    var nodes: [8]S.Node = undefined;
+    for (&nodes, 0..) |*node, index| node.* = .{ .value = @intCast(index) };
+    for (0..20) |_| {
+        stack.pushSlice(nodes[0..4]);
+        for (nodes[4..]) |*node| stack.push(node);
+        var output: [3]*S.Node = undefined;
+        try std.testing.expectEqual(@as(usize, 3), stack.popSlice(&output));
+        for (output, 0..) |node, index| try std.testing.expectEqual(@as(u32, @intCast(7 - index)), node.value);
+        var next: u32 = 5;
+        while (stack.pop()) |node| {
+            next -= 1;
+            try std.testing.expectEqual(next, node.value);
+        }
+        try std.testing.expect(stack.isEmpty());
+    }
+    try std.testing.expectEqual(@sizeOf(usize), @sizeOf(S));
+}
+
+test "uncounted stack concurrent producers retain every caller owned node" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    const S = UncountedTreiberStack(usize);
+    const State = struct {
+        stack: S = .{},
+        nodes: []S.Node,
+        fn produce(state: *@This(), producer: usize) void {
+            const part = state.nodes[producer * 1000 ..][0..1000];
+            for (part, producer * 1000..) |*node, index| node.* = .{ .value = index };
+            for (0..100) |batch| state.stack.pushSlice(part[batch * 10 ..][0..10]);
+        }
+    };
+    const nodes = try std.testing.allocator.alloc(S.Node, 4000);
+    defer std.testing.allocator.free(nodes);
+    var seen = [_]bool{false} ** 4000;
+    var state = State{ .nodes = nodes };
+    var threads: [4]std.Thread = undefined;
+    var spawned: usize = 0;
+    defer for (threads[0..spawned]) |thread| thread.join();
+    for (&threads, 0..) |*thread, index| {
+        thread.* = try std.Thread.spawn(.{}, State.produce, .{ &state, index });
+        spawned += 1;
+    }
+    var received: usize = 0;
+    var output: [13]*S.Node = undefined;
+    while (received < nodes.len) {
+        const count = state.stack.popSlice(&output);
+        for (output[0..count]) |node| {
+            try std.testing.expect(node.value < seen.len and !seen[node.value]);
+            seen[node.value] = true;
+            received += 1;
+        }
+        if (count == 0) std.atomic.spinLoopHint();
+    }
+    try std.testing.expect(state.stack.isEmpty());
 }
 
 // ---------------------------------------------------------------------------

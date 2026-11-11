@@ -1,0 +1,13 @@
+sharded-mpsc-batch per_producer=25000 capacity_per_shard=64 batch=64 effective_batch=64 producer_cpus={ 24, 25, 26, 27 } consumer_cpu=31 checksum=4999950000
+sample=0 scalar_serial_ns=496102 scalar_parallel_ns=4622947 batch_serial_ns=277468 batch_parallel_ns=344795
+sample=1 scalar_serial_ns=503168 scalar_parallel_ns=4752650 batch_serial_ns=274020 batch_parallel_ns=355033
+sample=2 scalar_serial_ns=495683 scalar_parallel_ns=4665789 batch_serial_ns=273013 batch_parallel_ns=345104
+sample=3 scalar_serial_ns=504406 scalar_parallel_ns=4805421 batch_serial_ns=271456 batch_parallel_ns=343115
+sample=4 scalar_serial_ns=498100 scalar_parallel_ns=4607611 batch_serial_ns=271352 batch_parallel_ns=341555
+sample=5 scalar_serial_ns=501365 scalar_parallel_ns=4695531 batch_serial_ns=262545 batch_parallel_ns=352508
+sample=6 scalar_serial_ns=500667 scalar_parallel_ns=4694605 batch_serial_ns=271091 batch_parallel_ns=341743
+sample=7 scalar_serial_ns=502652 scalar_parallel_ns=4728084 batch_serial_ns=264014 batch_parallel_ns=339409
+sample=8 scalar_serial_ns=497372 scalar_parallel_ns=4578778 batch_serial_ns=266832 batch_parallel_ns=343264
+sharded-mpsc implementation=scalar serial_ns=500667 parallel_ns=4694605 speedup=0.107 statistic=median
+sharded-mpsc implementation=batch serial_ns=271352 parallel_ns=343264 speedup=0.791 statistic=median
+sharded-mpsc comparison scalar_ns=4694605 batch_ns=343264 speedup=13.676

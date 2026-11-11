@@ -1,0 +1,1891 @@
+{
+  "cpus": "24-31",
+  "rounds": 5,
+  "summary": [
+    {
+      "case": "mpsc-1-batch",
+      "baseline": {
+        "serial_ns": 971777.0,
+        "parallel_ns": 15529096.0,
+        "speedup": 0.063
+      },
+      "candidate": {
+        "serial_ns": 976576.0,
+        "parallel_ns": 15324183.0,
+        "speedup": 0.063
+      },
+      "serial_ns_ratio": 1.0049383757796284,
+      "parallel_ns_ratio": 0.986804576390023
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "baseline": {
+        "serial_ns": 973367.0,
+        "parallel_ns": 14654607.0,
+        "speedup": 0.066
+      },
+      "candidate": {
+        "serial_ns": 976362.0,
+        "parallel_ns": 15515308.0,
+        "speedup": 0.062
+      },
+      "serial_ns_ratio": 1.003076948365827,
+      "parallel_ns_ratio": 1.0587324518494423
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "baseline": {
+        "serial_ns": 425684.0,
+        "parallel_ns": 1309541.0,
+        "speedup": 0.33
+      },
+      "candidate": {
+        "serial_ns": 423672.0,
+        "parallel_ns": 1257975.0,
+        "speedup": 0.338
+      },
+      "serial_ns_ratio": 0.9952734892549403,
+      "parallel_ns_ratio": 0.9606228441873909
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "baseline": {
+        "serial_ns": 1095962.0,
+        "parallel_ns": 14059206.0,
+        "speedup": 0.078
+      },
+      "candidate": {
+        "serial_ns": 1097881.0,
+        "parallel_ns": 14288671.0,
+        "speedup": 0.077
+      },
+      "serial_ns_ratio": 1.001750973117681,
+      "parallel_ns_ratio": 1.016321334220439
+    },
+    {
+      "case": "mpsc-2-batch",
+      "baseline": {
+        "serial_ns": 1234954.0,
+        "parallel_ns": 16322905.0,
+        "speedup": 0.077
+      },
+      "candidate": {
+        "serial_ns": 1227890.0,
+        "parallel_ns": 16747305.0,
+        "speedup": 0.072
+      },
+      "serial_ns_ratio": 0.9942799488887846,
+      "parallel_ns_ratio": 1.0260002738483132
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "baseline": {
+        "serial_ns": 1174160.0,
+        "parallel_ns": 16387878.0,
+        "speedup": 0.073
+      },
+      "candidate": {
+        "serial_ns": 1183854.0,
+        "parallel_ns": 17173695.0,
+        "speedup": 0.069
+      },
+      "serial_ns_ratio": 1.0082561150098794,
+      "parallel_ns_ratio": 1.04795111362191
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "baseline": {
+        "serial_ns": 438379.0,
+        "parallel_ns": 421557.0,
+        "speedup": 1.048
+      },
+      "candidate": {
+        "serial_ns": 439835.0,
+        "parallel_ns": 429378.0,
+        "speedup": 1.022
+      },
+      "serial_ns_ratio": 1.0033213269796226,
+      "parallel_ns_ratio": 1.0185526512428924
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "baseline": {
+        "serial_ns": 1107744.0,
+        "parallel_ns": 14079755.0,
+        "speedup": 0.079
+      },
+      "candidate": {
+        "serial_ns": 1107740.0,
+        "parallel_ns": 14188506.0,
+        "speedup": 0.078
+      },
+      "serial_ns_ratio": 0.9999963890573995,
+      "parallel_ns_ratio": 1.007723927014355
+    }
+  ],
+  "samples": [
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "976878",
+      "parallel_ns": "10019816",
+      "speedup": "0.097",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "977518",
+      "parallel_ns": "10021118",
+      "speedup": "0.098",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "976362",
+      "parallel_ns": "14259647",
+      "speedup": "0.068",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "977226",
+      "parallel_ns": "13656130",
+      "speedup": "0.072",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1172023",
+      "parallel_ns": "18137696",
+      "speedup": "0.065",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1234954",
+      "parallel_ns": "18122461",
+      "speedup": "0.068",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1206020",
+      "parallel_ns": "17417496",
+      "speedup": "0.069",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1241250",
+      "parallel_ns": "17663015",
+      "speedup": "0.070",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1097487",
+      "parallel_ns": "12864014",
+      "speedup": "0.085",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "439298",
+      "parallel_ns": "1332656",
+      "speedup": "0.330",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1099224",
+      "parallel_ns": "12979630",
+      "speedup": "0.085",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "430122",
+      "parallel_ns": "1341225",
+      "speedup": "0.321",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1105805",
+      "parallel_ns": "13657758",
+      "speedup": "0.081",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "444858",
+      "parallel_ns": "421557",
+      "speedup": "1.055",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1133811",
+      "parallel_ns": "13559034",
+      "speedup": "0.084",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "439835",
+      "parallel_ns": "390419",
+      "speedup": "1.127",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "974581",
+      "parallel_ns": "16183863",
+      "speedup": "0.060",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "976576",
+      "parallel_ns": "15826522",
+      "speedup": "0.062",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "971536",
+      "parallel_ns": "15611093",
+      "speedup": "0.062",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "966993",
+      "parallel_ns": "15694722",
+      "speedup": "0.062",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1197663",
+      "parallel_ns": "15807642",
+      "speedup": "0.076",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1245004",
+      "parallel_ns": "15831286",
+      "speedup": "0.079",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1203296",
+      "parallel_ns": "16387878",
+      "speedup": "0.073",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1252067",
+      "parallel_ns": "16322905",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1095202",
+      "parallel_ns": "14539883",
+      "speedup": "0.075",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "428805",
+      "parallel_ns": "1257975",
+      "speedup": "0.341",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1095886",
+      "parallel_ns": "14394515",
+      "speedup": "0.076",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "425684",
+      "parallel_ns": "1309541",
+      "speedup": "0.325",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1104987",
+      "parallel_ns": "14261871",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "438965",
+      "parallel_ns": "429378",
+      "speedup": "1.022",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1104676",
+      "parallel_ns": "14309161",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "432561",
+      "parallel_ns": "424129",
+      "speedup": "1.020",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "975509",
+      "parallel_ns": "14036849",
+      "speedup": "0.069",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "957399",
+      "parallel_ns": "14897188",
+      "speedup": "0.064",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "958037",
+      "parallel_ns": "15515308",
+      "speedup": "0.062",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "958945",
+      "parallel_ns": "15324183",
+      "speedup": "0.063",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1163572",
+      "parallel_ns": "16009973",
+      "speedup": "0.073",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1233942",
+      "parallel_ns": "15922695",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1183854",
+      "parallel_ns": "17173695",
+      "speedup": "0.069",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1209172",
+      "parallel_ns": "16747305",
+      "speedup": "0.072",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1093222",
+      "parallel_ns": "14106696",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "424105",
+      "parallel_ns": "1337037",
+      "speedup": "0.317",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1097881",
+      "parallel_ns": "14288671",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "423278",
+      "parallel_ns": "1252103",
+      "speedup": "0.338",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1109154",
+      "parallel_ns": "14079755",
+      "speedup": "0.079",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "438379",
+      "parallel_ns": "418494",
+      "speedup": "1.048",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1121686",
+      "parallel_ns": "13507743",
+      "speedup": "0.083",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "442530",
+      "parallel_ns": "433607",
+      "speedup": "1.021",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "978255",
+      "parallel_ns": "14068228",
+      "speedup": "0.070",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "970904",
+      "parallel_ns": "14829743",
+      "speedup": "0.065",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "973367",
+      "parallel_ns": "15618687",
+      "speedup": "0.062",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "974753",
+      "parallel_ns": "15529096",
+      "speedup": "0.063",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1178887",
+      "parallel_ns": "18613414",
+      "speedup": "0.063",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1227890",
+      "parallel_ns": "18536835",
+      "speedup": "0.066",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1174160",
+      "parallel_ns": "18209726",
+      "speedup": "0.064",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1236292",
+      "parallel_ns": "17956982",
+      "speedup": "0.069",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1099568",
+      "parallel_ns": "13058826",
+      "speedup": "0.084",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "423581",
+      "parallel_ns": "1316576",
+      "speedup": "0.322",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1095962",
+      "parallel_ns": "14059206",
+      "speedup": "0.078",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "430870",
+      "parallel_ns": "1296112",
+      "speedup": "0.332",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1106010",
+      "parallel_ns": "14188506",
+      "speedup": "0.078",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "436454",
+      "parallel_ns": "449496",
+      "speedup": "0.971",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1129557",
+      "parallel_ns": "13362637",
+      "speedup": "0.085",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "439360",
+      "parallel_ns": "418382",
+      "speedup": "1.050",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "971262",
+      "parallel_ns": "14654607",
+      "speedup": "0.066",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "971777",
+      "parallel_ns": "16113941",
+      "speedup": "0.060",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "988692",
+      "parallel_ns": "33664403",
+      "speedup": "0.029",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1",
+        "1",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "981238",
+      "parallel_ns": "33611808",
+      "speedup": "0.029",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1193061",
+      "parallel_ns": "15430507",
+      "speedup": "0.077",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1228898",
+      "parallel_ns": "15767640",
+      "speedup": "0.078",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1174298",
+      "parallel_ns": "16577439",
+      "speedup": "0.071",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-2-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "2",
+        "2",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "1225658",
+      "parallel_ns": "16408370",
+      "speedup": "0.075",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1096336",
+      "parallel_ns": "13105657",
+      "speedup": "0.084",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "423377",
+      "parallel_ns": "1256319",
+      "speedup": "0.337",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1093965",
+      "parallel_ns": "14466622",
+      "speedup": "0.076",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-1024-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "1024",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "423672",
+      "parallel_ns": "1138709",
+      "speedup": "0.372",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1107744",
+      "parallel_ns": "14240196",
+      "speedup": "0.078",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/baseline-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "437068",
+      "parallel_ns": "428464",
+      "speedup": "1.020",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-scalar",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "scalar",
+      "serial_ns": "1107740",
+      "parallel_ns": "14938147",
+      "speedup": "0.074",
+      "statistic": "median"
+    },
+    {
+      "case": "mpsc-65536-batch",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24-31",
+        "/tmp/parz-sync-t55df9af/candidate-mpsc_batch.zig",
+        "25000",
+        "65536",
+        "64",
+        "24,25,26,27",
+        "31",
+        "9"
+      ],
+      "implementation": "batch",
+      "serial_ns": "441195",
+      "parallel_ns": "426982",
+      "speedup": "1.033",
+      "statistic": "median"
+    }
+  ],
+  "failures": [
+    "mpsc-1-scalar parallel_ns increased 5.87%"
+  ]
+}

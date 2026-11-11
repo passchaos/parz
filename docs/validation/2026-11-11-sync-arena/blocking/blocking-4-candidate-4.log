@@ -1,0 +1,13 @@
+blocking-batch per_producer=25000 capacity=4 batch=4 producer_cpus={ 24, 25 } consumer_cpus={ 26, 27 } serial_cpu=31 checksum=1249975000
+sample=0 scalar_serial_ns=1349532 scalar_parallel_ns=45911191 batch_serial_ns=363357 batch_parallel_ns=28382428
+sample=1 scalar_serial_ns=1334322 scalar_parallel_ns=47472923 batch_serial_ns=367382 batch_parallel_ns=28330790
+sample=2 scalar_serial_ns=1330425 scalar_parallel_ns=47196485 batch_serial_ns=369775 batch_parallel_ns=28479451
+sample=3 scalar_serial_ns=1301375 scalar_parallel_ns=46776232 batch_serial_ns=368138 batch_parallel_ns=28907046
+sample=4 scalar_serial_ns=1302939 scalar_parallel_ns=47237210 batch_serial_ns=364109 batch_parallel_ns=28821382
+sample=5 scalar_serial_ns=1313848 scalar_parallel_ns=46350020 batch_serial_ns=373422 batch_parallel_ns=28082149
+sample=6 scalar_serial_ns=1322304 scalar_parallel_ns=46984531 batch_serial_ns=371572 batch_parallel_ns=31661475
+sample=7 scalar_serial_ns=1351191 scalar_parallel_ns=48276630 batch_serial_ns=366538 batch_parallel_ns=28709889
+sample=8 scalar_serial_ns=1335472 scalar_parallel_ns=47226240 batch_serial_ns=372100 batch_parallel_ns=29593714
+blocking implementation=scalar serial_ns=1330425 parallel_ns=47196485 speedup=0.028 statistic=median
+blocking implementation=batch serial_ns=368138 parallel_ns=28709889 speedup=0.013 statistic=median
+blocking comparison scalar_ns=47196485 batch_ns=28709889 speedup=1.644

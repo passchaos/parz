@@ -1,0 +1,14 @@
+diff --git a/src/sync/mpsc.zig b/src/sync/mpsc.zig
+index b911e22..8a6a72b 100644
+--- a/src/sync/mpsc.zig
++++ b/src/sync/mpsc.zig
+@@ -112,6 +112,9 @@ pub fn MpscQueue(comptime T: type) type {
+                 if (count == 0) return 0;
+                 if (self.enqueue_pos.cmpxchgWeak(pos, pos +% count, .monotonic, .monotonic)) |actual| {
+                     pos = actual;
++                    // Batch contenders amortize this pause over a reserved
++                    // prefix; scalar and tiny-queue retries remain unchanged.
++                    std.atomic.spinLoopHint();
+                     continue;
+                 }
+                 // The successful CAS owns every slot in this prefix. Each

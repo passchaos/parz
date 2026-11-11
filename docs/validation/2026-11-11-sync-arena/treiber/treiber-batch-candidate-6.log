@@ -1,0 +1,13 @@
+treiber-batch per_producer=25000 batch=64 producer_cpus={ 24, 25, 26, 27 } consumer_cpu=31 checksum=4999950000
+sample=0 scalar_serial_ns=2069977 scalar_parallel_ns=9577738 batch_serial_ns=190388 batch_parallel_ns=325460
+sample=1 scalar_serial_ns=2068326 scalar_parallel_ns=9531502 batch_serial_ns=192780 batch_parallel_ns=349904
+sample=2 scalar_serial_ns=2081511 scalar_parallel_ns=9618498 batch_serial_ns=189183 batch_parallel_ns=331579
+sample=3 scalar_serial_ns=2086529 scalar_parallel_ns=9787062 batch_serial_ns=189146 batch_parallel_ns=315148
+sample=4 scalar_serial_ns=2070204 scalar_parallel_ns=9577809 batch_serial_ns=191170 batch_parallel_ns=339816
+sample=5 scalar_serial_ns=2074265 scalar_parallel_ns=9531060 batch_serial_ns=192481 batch_parallel_ns=340946
+sample=6 scalar_serial_ns=2078088 scalar_parallel_ns=9548492 batch_serial_ns=188298 batch_parallel_ns=316199
+sample=7 scalar_serial_ns=2098744 scalar_parallel_ns=9506669 batch_serial_ns=193476 batch_parallel_ns=322278
+sample=8 scalar_serial_ns=2071506 scalar_parallel_ns=9665617 batch_serial_ns=190148 batch_parallel_ns=322759
+treiber implementation=scalar serial_ns=2074265 parallel_ns=9577738 speedup=0.217 statistic=median
+treiber implementation=batch serial_ns=190388 parallel_ns=325460 speedup=0.585 statistic=median
+treiber comparison scalar_ns=9577738 batch_ns=325460 speedup=29.428

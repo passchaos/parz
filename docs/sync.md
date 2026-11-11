@@ -1,5 +1,23 @@
 # Synchronization primitives
 
+`UncountedTreiberStack(T)` preserves the single-consumer caller-owned-node
+stack API while removing contended length updates. Use `isEmpty()`; `len()`
+is unavailable in this variant. The default counted stack retains its original
+retry behavior after a CAS-result reuse trial failed performance controls.
+
+For a known sparse producer set, `ShardedMpscQueue.consumer(comptime indices)`
+creates a specialized consumer view. It reads only selected shards, adds no
+producer-side ready atomics, and allocates nothing. The queue and view retain
+the single-consumer contract: views must not be used concurrently. Unselected
+shards remain queued, and FIFO holds per producer. Default full-shard polling
+is unchanged; dynamic producer registration should use the default consumer.
+
+```zig
+var selected = try queue.consumer(&.{ 3, 127 });
+const value = selected.tryPop();
+const count = selected.tryPopSlice(output);
+```
+
 `parz.sync` is independent of the scheduler. It depends only on `std`, uses
 bounded storage, and allocates only in `init`.
 

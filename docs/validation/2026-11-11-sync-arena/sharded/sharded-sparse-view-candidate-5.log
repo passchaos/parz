@@ -1,0 +1,10 @@
+sample=0 serial_ns=8974536 parallel_ns=305892 speedup=29.339
+sample=1 serial_ns=7048580 parallel_ns=308958 speedup=22.814
+sample=2 serial_ns=6385846 parallel_ns=309125 speedup=20.658
+sample=3 serial_ns=7039030 parallel_ns=306113 speedup=22.995
+sample=4 serial_ns=6400107 parallel_ns=305803 speedup=20.929
+sample=5 serial_ns=7037601 parallel_ns=305760 speedup=23.017
+sample=6 serial_ns=6403008 parallel_ns=305616 speedup=20.951
+sample=7 serial_ns=7024696 parallel_ns=305817 speedup=22.970
+sample=8 serial_ns=6385190 parallel_ns=305628 speedup=20.892
+sharded-sparse shards=128 active=2 count=100000 cpu=31 checksum=4999950000 serial_ns=7024696 parallel_ns=305817 speedup=22.970 statistic=median mode=single-consumer-lookup

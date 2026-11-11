@@ -144,6 +144,20 @@ pub fn build(b: *std.Build) void {
         .description = "Measure concurrent caller throughput and latency on fixed CPUs",
         .optimize = .ReleaseFast,
     });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-sharded-sparse",
+        .source = "bench/sharded_sparse.zig",
+        .step = "bench-sharded-sparse",
+        .description = "Measure known producer shard views on fixed CPUs",
+        .optimize = .ReleaseFast,
+    });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-numa-arena",
+        .source = "bench/numa_arena.zig",
+        .step = "bench-numa-arena",
+        .description = "Compare VMA object allocations with retained lane arenas",
+        .optimize = .ReleaseFast,
+    });
 
     const bench_micro_step = addTool(b, parz_mod, target, .{
         .name = "parz-micro",

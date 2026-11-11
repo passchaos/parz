@@ -1,5 +1,18 @@
 # NUMA support
 
+Pool context constructors run before worker pinning and thread NUMA policy.
+Keep lane arenas lazy: construct `std.heap.ArenaAllocator` without allocating,
+then first allocate/touch scratch inside the worker callback. That work runs
+after worker placement. A retained arena amortizes Linux mapping/mbind calls;
+reset it only after all users of its allocations finish. Static scheduling
+guarantees contiguous chunk spans, not the same worker context on every call.
+Use an explicitly owned Worker when verifying lane-specific retained reuse.
+
+`bench-numa-arena` compares per-object VMA allocations with retained arena
+allocation on one fixed CPU. Its speedup is an allocation-pattern comparison,
+not parallel scaling or a claim about cross-node hardware. Multi-node placement
+requires execution on a multi-node host; current evidence is single-node.
+
 `parz` exposes two independent NUMA controls:
 
 1. `Pool` options that set the background workers' Linux memory policy.
