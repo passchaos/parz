@@ -14,8 +14,8 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Light flat-work granularity | Complete | [Cost guard with E/P-core rows and unknown/heavy controls](validation/2026-11-11-flat-controls/README.md); defaults preserved |
 | Explicit lane context reuse | Complete | All ten API shapes, nested parent futures, zero-worker/error/cancel coverage, zero repeated context allocations |
 | Explicit reusable dispatch scratch | Complete | Aligned noncommutative results, strict two-stage OOM, nested/cancel drain tests and zero measured dispatch allocations |
-| Idle heartbeat parking | Pending | Idle wake/CPU counts, first-job latency, held caller, shutdown, TSan and tree controls |
-| Multiple-caller owner lookup/fairness | Pending | 1/2/4/8 caller latency and throughput, ready-owner lifecycle, deterministic repeats, TSan |
+| Idle heartbeat parking | Complete | [Default idle shortcut and explicit parking evidence](validation/2026-11-11-scheduler-controls/README.md); automatic parking rejected to preserve cold latency |
+| Multiple-caller owner lookup/fairness | Complete | Default priority bitmap, optional round robin, 1/2/4/8 caller controls and deterministic/state-exhaustion contracts |
 | BlockingQueue batch wake strategy | Pending | Multi producer/consumer and tiny queues, cancellation, no stranded waiters, timings |
 | Treiber optional count | Pending | Scalar/batch/reuse semantics, TSan, counted/uncounted timings |
 | MPSC contention/backoff | Pending | Contention/tiny queue rows and repeated FIFO; retain only verified improvement |

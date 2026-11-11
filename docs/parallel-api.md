@@ -72,6 +72,13 @@ not a platform-independent performance guarantee.
 
 ## Reusing caller context and dispatch storage
 
+`Pool.claimFlatCaller()` reserves a reusable lane for flat calls. In optional
+heartbeat parking mode it does not keep the heartbeat awake until a callback
+starts recursive work with `Worker.begin()`. Normal `claimCaller()` retains
+recursive pacing. Both caller kinds must be released after all jobs/calls end.
+The default heartbeat timer remains periodic for predictable cold latency;
+parking is an explicit power/latency choice.
+
 ```zig
 const caller = pool.claimCaller() orelse return error.NoCallerSlot;
 defer pool.releaseCaller(caller);

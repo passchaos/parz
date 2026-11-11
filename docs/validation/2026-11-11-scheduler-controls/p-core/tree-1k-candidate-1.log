@@ -1,0 +1,12 @@
+tree_sum nodes=1000 workers=7 checksum=1000
+placement caller_cpu=14 worker_cpus={ 0, 2, 4, 6, 8, 10, 12 }
+sample=0 serial_ns=2330 parallel_ns=2278 speedup=1.023
+sample=1 serial_ns=2155 parallel_ns=2208 speedup=0.976
+sample=2 serial_ns=2157 parallel_ns=2091 speedup=1.032
+sample=3 serial_ns=2054 parallel_ns=2063 speedup=0.996
+sample=4 serial_ns=3248 parallel_ns=2121 speedup=1.531
+sample=5 serial_ns=2030 parallel_ns=2289 speedup=0.887
+sample=6 serial_ns=2006 parallel_ns=2064 speedup=0.972
+sample=7 serial_ns=2049 parallel_ns=2162 speedup=0.948
+sample=8 serial_ns=2051 parallel_ns=2073 speedup=0.989
+tree_sum nodes=1000 workers=7 serial_ns=2054 parallel_ns=2121 speedup=0.968 statistic=median

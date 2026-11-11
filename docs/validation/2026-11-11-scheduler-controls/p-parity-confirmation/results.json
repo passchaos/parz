@@ -1,0 +1,338 @@
+{
+  "environment": {
+    "cpus": [
+      0,
+      2,
+      4,
+      6,
+      8,
+      10,
+      12,
+      14
+    ],
+    "caller_cpu": 14,
+    "rounds": 7,
+    "zig": "0.16.0",
+    "max_regression": 0.05,
+    "harness_hashes": {
+      "tree_sum.zig": "f0af74e4eb789cfc84475ebeacb21b3e9e7ceb91b9313fd7b68ee0fda9c58c95"
+    },
+    "source_roots": {
+      "candidate": "/home/passchaos/project-z/parz",
+      "baseline": "/tmp/parz-opt-20261111/flat-checkpoint"
+    }
+  },
+  "summary": [
+    {
+      "case": "tree-1k",
+      "candidate": {
+        "serial_ns": 2108.0,
+        "parallel_ns": 2147.0,
+        "speedup": 0.982
+      },
+      "baseline": {
+        "serial_ns": 2097.0,
+        "parallel_ns": 2161.0,
+        "speedup": 0.965
+      },
+      "parallel_ratio": 0.993521517815826
+    }
+  ],
+  "samples": [
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2072",
+      "parallel_ns": "2088",
+      "speedup": "0.992",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2178",
+      "parallel_ns": "2148",
+      "speedup": "1.014",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2181",
+      "parallel_ns": "2170",
+      "speedup": "1.005",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2139",
+      "parallel_ns": "2254",
+      "speedup": "0.949",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2283",
+      "parallel_ns": "2258",
+      "speedup": "1.011",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2097",
+      "parallel_ns": "2096",
+      "speedup": "1.000",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2149",
+      "parallel_ns": "2228",
+      "speedup": "0.965",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2215",
+      "parallel_ns": "2232",
+      "speedup": "0.992",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2004",
+      "parallel_ns": "2116",
+      "speedup": "0.947",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2072",
+      "parallel_ns": "2174",
+      "speedup": "0.953",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2023",
+      "parallel_ns": "2161",
+      "speedup": "0.936",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2108",
+      "parallel_ns": "2147",
+      "speedup": "0.982",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/candidate-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "1863",
+      "parallel_ns": "1897",
+      "speedup": "0.982",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1k",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "0,2,4,6,8,10,12,14",
+        "/tmp/parz-perf-cxiy5db3/baseline-tree_sum.zig",
+        "1000",
+        "heartbeat",
+        "measure",
+        "14"
+      ],
+      "nodes": "1000",
+      "workers": "7",
+      "serial_ns": "2031",
+      "parallel_ns": "2143",
+      "speedup": "0.948",
+      "statistic": "median"
+    }
+  ],
+  "failures": []
+}

@@ -37,6 +37,21 @@ direct callbacks.
 
 ## Local-first scheduling
 
+Shared owners are indexed in an init-time bounded bitmap. Default job pickup
+preserves registered-worker index priority while avoiding a scan of inactive
+or empty workers. Optional `Options.fair_shared_owners` rotates owners in
+publication order; reclamation removes empty owners from both representations.
+The bitmap/list are protected by the pool mutex and updated only when jobs
+become shared or are removed. Local fork remains plain stores.
+
+Default idle heartbeats preserve the existing period but use atomic caller
+and stop snapshots to avoid locking the pool and writing idle worker flags
+when all background workers wait. Complete parking is opt-in through
+`park_idle_heartbeat`; automatic parking was rejected because cold first calls
+regressed on this host. Flat calls kickstart work directly; `Worker.begin()`
+requests pacing for recursive work in parking mode. A held normal caller keeps
+pacing active, and `idle_heartbeat_grace_ns` retains it across short idle gaps.
+
 Each worker owns a truly local intrusive job list:
 
 - `fork` appends to the owner's local list with plain stores: no atomics, no

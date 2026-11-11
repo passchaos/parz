@@ -201,6 +201,27 @@ through the direct serial kernel; larger trees retain heartbeat fork/join.
 
 ## Evidence index
 
+`bench-multi-caller` reports throughput and per-call p50/p95/max latency for
+checked simultaneous callers. Its arguments are caller count, items/call,
+calls/caller, complete physical CPU list, rounds and optional `fair` policy.
+The main controller shares the last caller CPU only during untimed setup/join.
+
+```sh
+taskset -c 24-31 zig build bench-multi-caller -- 4 4096 8 24,25,26,27,28,29,30,31 9
+python3 scripts/perf_gate.py --callers-only --baseline /path/to/baseline \
+  --cpus 24-31 --rounds 5 --output /tmp/parz-callers
+python3 scripts/perf_gate.py --first-call-only --idle-ms 100 \
+  --baseline /path/to/baseline --cpus 24-31 --rounds 5 --output /tmp/parz-cold
+python3 scripts/idle_profile.py --baseline /path/to/baseline --cpus 24-31 \
+  --rounds 3 --output /tmp/parz-idle
+```
+
+Cold-call preparation sleeps outside both timing intervals. Idle profiling
+uses per-thread context switches and scheduler CPU nanoseconds from `/proc`;
+`--parking` measures the explicit parking policy rather than the default.
+Automatic parking and unconditional owner fairness are not enabled by default
+when their latency/throughput comparisons show regressions.
+
 Primary compute, flat-fold and 2D benchmarks warm both paths, alternate them,
 verify every checksum and report medians. Both 2D paths include the fill and
 the same post-fill checksum traversal. Optional arguments fix lane count,

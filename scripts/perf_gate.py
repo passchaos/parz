@@ -64,6 +64,10 @@ def main():
     parser.add_argument('--rounds', type=int, default=5, help='alternating process rounds')
     parser.add_argument('--parity-only', action='store_true')
     parser.add_argument('--flat-only', action='store_true')
+    parser.add_argument('--first-call-only', action='store_true')
+    parser.add_argument('--callers-only', action='store_true')
+    parser.add_argument('--fair', action='store_true')
+    parser.add_argument('--idle-ms', type=int, default=100)
     parser.add_argument('--max-regression', type=float, default=0.05)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -83,6 +87,8 @@ def main():
             ('scratch-1m', 'flat_dispatch.zig', ['scratch', '1000003', lanes, caller, '64', '21']),
             ('context-16', 'flat_dispatch.zig', ['context', '16', lanes, caller, '16', '21', '1000']),
             ('heavy-8192', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', '21']),
+            ('first-scan', 'flat_dispatch.zig', ['scan', '65536', lanes, caller, '16', '21', '1', '2']),
+            ('first-heavy', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', '21', '1', '2']),
         ])
     if not args.parity_only and not args.flat_only:
         cases.extend([
@@ -94,6 +100,16 @@ def main():
             ('compute-1m', 'compute.zig', ['1000000', 'pin', lanes, caller, '9']),
             ('grid', 'parallel_for_2d.zig', ['1024', '1024', lanes, caller, '9']),
         ])
+    if args.first_call_only:
+        if args.idle_ms <= 0:
+            parser.error('first-call idle interval must be positive')
+        cases = [
+            ('first-scan', 'flat_dispatch.zig', ['scan', '65536', lanes, caller, '16', '9', '1', str(args.idle_ms)]),
+            ('first-heavy', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', '9', '1', str(args.idle_ms)]),
+        ]
+    if args.callers_only:
+        cases = [(f'callers-{count}', 'multi_caller.zig', [str(count), '4096', '8', cpu_arg, '9', 'fair' if args.fair else 'priority'])
+                 for count in (1, 2, 4, 8) if count <= len(cpus)]
     args.output.mkdir(parents=True, exist_ok=True)
     sources = {'candidate': args.candidate.resolve()}
     if args.baseline:

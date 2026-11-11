@@ -208,11 +208,11 @@ pub fn parallelForRange(
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
         return serialRange(executor, shared, count, options.cancel, run);
     }
-    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimFlatCaller() orelse {
         return serialRange(executor, shared, count, options.cancel, run);
     });
     defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
-    var task = caller.begin();
+    var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
@@ -261,11 +261,11 @@ pub fn parallelFoldRange(
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
         return serialFoldRange(executor, T, shared, count, options.cancel, identity, map_range, combine);
     }
-    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimFlatCaller() orelse {
         return serialFoldRange(executor, T, shared, count, options.cancel, identity, map_range, combine);
     });
     defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
-    var task = caller.begin();
+    var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
@@ -319,11 +319,11 @@ pub fn parallelFoldRangeInfallible(
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
         return serialFoldRangeInfallible(executor, T, shared, count, options.cancel, identity, map_range, combine);
     }
-    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimFlatCaller() orelse {
         return serialFoldRangeInfallible(executor, T, shared, count, options.cancel, identity, map_range, combine);
     });
     defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
-    var task = caller.begin();
+    var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
@@ -388,11 +388,11 @@ pub fn parallelFold(
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
         return serialFold(executor, T, shared, count, options.cancel, identity, map, combine);
     }
-    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimFlatCaller() orelse {
         return serialFold(executor, T, shared, count, options.cancel, identity, map, combine);
     });
     defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
-    var task = caller.begin();
+    var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
@@ -467,11 +467,11 @@ pub fn parallelFoldInfallible(
     if (shouldRunSerial(count, options, pool.parallelWorkerCount())) {
         return serialFoldInfallible(executor, T, shared, count, options.cancel, identity, map, combine);
     }
-    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimCaller() orelse {
+    const caller = executor_mod.borrowedWorker(executor) orelse (pool.claimFlatCaller() orelse {
         return serialFoldInfallible(executor, T, shared, count, options.cancel, identity, map, combine);
     });
     defer if (executor_mod.borrowedWorker(executor) == null) pool.releaseCaller(caller);
-    var task = caller.begin();
+    var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
     const lanes = plannedLaneCount(options, pool.parallelWorkerCount());

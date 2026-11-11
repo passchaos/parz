@@ -1,0 +1,10 @@
+sample=0 serial_ns=14664333 parallel_ns=8426688 speedup=1.740
+sample=1 serial_ns=15244126 parallel_ns=12050185 speedup=1.265
+sample=2 serial_ns=14648035 parallel_ns=5924763 speedup=2.472
+sample=3 serial_ns=15001724 parallel_ns=8058973 speedup=1.861
+sample=4 serial_ns=14567917 parallel_ns=11714083 speedup=1.244
+sample=5 serial_ns=15187181 parallel_ns=8863017 speedup=1.714
+sample=6 serial_ns=14599458 parallel_ns=5990652 speedup=2.437
+sample=7 serial_ns=14909660 parallel_ns=8027338 speedup=1.857
+sample=8 serial_ns=14489562 parallel_ns=11820444 speedup=1.226
+multi-caller callers=4 backgrounds=4 count=4096 iterations=8 cpus={ 24, 25, 26, 27, 28, 29, 30, 31 } checksum=13783350833582181059 serial_ns=14664333 parallel_ns=8426688 speedup=1.740 statistic=median p50_ns=158427 p95_ns=487227 max_ns=624759

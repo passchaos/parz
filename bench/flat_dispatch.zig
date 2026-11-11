@@ -13,6 +13,7 @@ const Config = struct {
     chunks_per_worker: usize,
     rounds: usize,
     repetitions: usize,
+    idle_ms: usize,
 };
 
 const ScratchContext = struct {
@@ -62,6 +63,11 @@ fn benchmark(comptime Ctx: type, comptime heavy: bool, init: std.process.Init, c
         worker: ?*parz.Worker(Ctx),
         data: []const u64,
         options: parz.ParallelOptions,
+        io: std.Io,
+        idle_ms: usize,
+        fn prepare(self: *@This()) !void {
+            try self.io.sleep(std.Io.Duration.fromNanoseconds(@as(i96, self.idle_ms) * std.time.ns_per_ms), .awake);
+        }
         fn work(value: u64) u64 {
             if (!heavy) return value;
             var x = value +% 0x9e3779b97f4a7c15;
@@ -87,18 +93,21 @@ fn benchmark(comptime Ctx: type, comptime heavy: bool, init: std.process.Init, c
             return a +% b;
         }
     };
-    var run = Run{ .pool = &pool, .worker = worker, .data = data, .options = options };
+    var run = Run{ .pool = &pool, .worker = worker, .data = data, .options = options, .io = init.io, .idle_ms = config.idle_ms };
     const expected = if (heavy) try run.serial() else @as(u64, @truncate(@as(u128, config.count) * (config.count - 1) / 2));
     const before = counted.allocations;
     const before_bytes = counted.allocated_bytes;
     if (try run.parallel() != expected) return error.ChecksumMismatch;
     const allocations = counted.allocations - before;
     const allocated_bytes = counted.allocated_bytes - before_bytes;
-    const times = try timing.pairedRepeated(u64, init.gpa, init.io, config.rounds, config.repetitions, expected, &run, Run.serial, Run.parallel);
-    std.debug.print("flat-dispatch kind={s} count={d} lanes={d} cpw={d} caller_cpu={d} worker_cpus={any} checksum={d} allocations={d} allocated_bytes={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median repetitions={d}\n", .{
+    const times = if (config.idle_ms != 0)
+        try timing.pairedPrepared(u64, init.gpa, init.io, config.rounds, expected, &run, Run.prepare, Run.serial, Run.parallel)
+    else
+        try timing.pairedRepeated(u64, init.gpa, init.io, config.rounds, config.repetitions, expected, &run, Run.serial, Run.parallel);
+    std.debug.print("flat-dispatch kind={s} count={d} lanes={d} cpw={d} caller_cpu={d} worker_cpus={any} checksum={d} allocations={d} allocated_bytes={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median repetitions={d} idle_ms={d}\n", .{
         config.kind,                                  config.count,    pool.parallelWorkerCount(), config.chunks_per_worker, config.cpu,
         pool.pinned_cpus[0..pool.spawned_background], expected,        allocations,                allocated_bytes,          times.serial_ns,
-        times.parallel_ns,                            times.speedup(), config.repetitions,
+        times.parallel_ns,                            times.speedup(), config.repetitions,         config.idle_ms,
     });
 }
 
@@ -114,8 +123,10 @@ pub fn main(init: std.process.Init) !void {
         .chunks_per_worker = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 16,
         .rounds = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 21,
         .repetitions = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 1,
+        .idle_ms = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 0,
     };
     if (config.count == 0 or config.lanes == 0 or config.rounds == 0 or config.repetitions == 0) return error.InvalidArguments;
+    if (config.idle_ms != 0 and config.repetitions != 1) return error.InvalidArguments;
     if (std.mem.eql(u8, config.kind, "context")) return benchmark(ScratchContext, false, init, config);
     if (std.mem.eql(u8, config.kind, "compute")) return benchmark(void, true, init, config);
     if (!std.mem.eql(u8, config.kind, "scan") and !std.mem.eql(u8, config.kind, "cheap") and

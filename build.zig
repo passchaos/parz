@@ -130,6 +130,20 @@ pub fn build(b: *std.Build) void {
         .description = "Measure flat cost hints, context reuse and dispatch scratch",
         .optimize = .ReleaseFast,
     });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-pool-idle",
+        .source = "bench/pool_idle.zig",
+        .step = "bench-pool-idle",
+        .description = "Expose a controlled idle or held-caller pool interval",
+        .optimize = .ReleaseFast,
+    });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-multi-caller",
+        .source = "bench/multi_caller.zig",
+        .step = "bench-multi-caller",
+        .description = "Measure concurrent caller throughput and latency on fixed CPUs",
+        .optimize = .ReleaseFast,
+    });
 
     const bench_micro_step = addTool(b, parz_mod, target, .{
         .name = "parz-micro",

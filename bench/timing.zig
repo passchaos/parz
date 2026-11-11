@@ -102,3 +102,46 @@ pub fn pairedRepeated(
     std.mem.sort(i96, parallel_samples, {}, std.sort.asc(i96));
     return .{ .serial_ns = serial_samples[rounds / 2], .parallel_ns = parallel_samples[rounds / 2] };
 }
+
+/// Prepare outside the clock interval to measure, for example, the first call
+/// after a pool becomes idle. Both paths receive the same preparation.
+pub fn pairedPrepared(
+    comptime Result: type,
+    allocator: std.mem.Allocator,
+    io: std.Io,
+    rounds: usize,
+    expected: Result,
+    context: anytype,
+    comptime prepare: anytype,
+    comptime serial: anytype,
+    comptime parallel: anytype,
+) !Times {
+    if (rounds == 0) return error.InvalidRounds;
+    const serial_samples = try allocator.alloc(i96, rounds);
+    defer allocator.free(serial_samples);
+    const parallel_samples = try allocator.alloc(i96, rounds);
+    defer allocator.free(parallel_samples);
+    try prepare(context);
+    if (try serial(context) != expected) return error.ChecksumMismatch;
+    try prepare(context);
+    if (try parallel(context) != expected) return error.ChecksumMismatch;
+    for (0..rounds) |round| {
+        for (0..2) |path| {
+            const run_serial = (path == 0) == (round % 2 == 0);
+            try prepare(context);
+            std.mem.doNotOptimizeAway(context);
+            const start = std.Io.Clock.Timestamp.now(io, .awake);
+            const result = if (run_serial) try serial(context) else try parallel(context);
+            const elapsed = start.untilNow(io).raw.toNanoseconds();
+            if (result != expected) return error.ChecksumMismatch;
+            if (run_serial) serial_samples[round] = elapsed else parallel_samples[round] = elapsed;
+        }
+        const sample = Times{ .serial_ns = serial_samples[round], .parallel_ns = parallel_samples[round] };
+        std.debug.print("sample={d} serial_ns={d} parallel_ns={d} speedup={d:.3} prepared=true\n", .{
+            round, sample.serial_ns, sample.parallel_ns, sample.speedup(),
+        });
+    }
+    std.mem.sort(i96, serial_samples, {}, std.sort.asc(i96));
+    std.mem.sort(i96, parallel_samples, {}, std.sort.asc(i96));
+    return .{ .serial_ns = serial_samples[rounds / 2], .parallel_ns = parallel_samples[rounds / 2] };
+}

@@ -1,0 +1,11 @@
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=15140081 parallel_ns=3101561 speedup=4.881
+sample=1 serial_ns=15290463 parallel_ns=3183226 speedup=4.803
+sample=2 serial_ns=15039368 parallel_ns=3178322 speedup=4.732
+sample=3 serial_ns=15270673 parallel_ns=3070473 speedup=4.973
+sample=4 serial_ns=15153840 parallel_ns=3111176 speedup=4.871
+sample=5 serial_ns=15565125 parallel_ns=3119666 speedup=4.989
+sample=6 serial_ns=15471581 parallel_ns=3198233 speedup=4.838
+sample=7 serial_ns=15273708 parallel_ns=3138818 speedup=4.866
+sample=8 serial_ns=15151210 parallel_ns=3105090 speedup=4.879
+parallel_for count=16000003 workers=7 checksum=128000040000003 serial_ns=15270673 parallel_ns=3119666 speedup=4.895 statistic=median

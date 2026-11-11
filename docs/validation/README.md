@@ -7,6 +7,10 @@ benchmarks to verify a claim on another machine.
 
 ## Scheduler and recursive fork/join
 
+- [2026-11-11 scheduler controls](2026-11-11-scheduler-controls/README.md):
+  default priority bitmap, idle metadata shortcut, optional power/fairness
+  policies, E/P-core and cold/caller comparisons plus rejected candidates.
+
 - [2026-11-11 benchmark gates](2026-11-11-benchmark-gates/README.md): paired
   primary benchmarks, symmetric 2D timing, default small-tree check and
   unchanged-core noise calibration.

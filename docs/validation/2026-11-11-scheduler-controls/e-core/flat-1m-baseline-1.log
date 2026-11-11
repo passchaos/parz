@@ -1,0 +1,23 @@
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=379365 parallel_ns=84340 speedup=4.498
+sample=1 serial_ns=385751 parallel_ns=87713 speedup=4.398
+sample=2 serial_ns=295513 parallel_ns=79583 speedup=3.713
+sample=3 serial_ns=374393 parallel_ns=76483 speedup=4.895
+sample=4 serial_ns=295672 parallel_ns=75170 speedup=3.933
+sample=5 serial_ns=363945 parallel_ns=75078 speedup=4.848
+sample=6 serial_ns=307623 parallel_ns=68462 speedup=4.493
+sample=7 serial_ns=356694 parallel_ns=72044 speedup=4.951
+sample=8 serial_ns=302449 parallel_ns=68137 speedup=4.439
+sample=9 serial_ns=346449 parallel_ns=71420 speedup=4.851
+sample=10 serial_ns=295304 parallel_ns=75111 speedup=3.932
+sample=11 serial_ns=344146 parallel_ns=71073 speedup=4.842
+sample=12 serial_ns=294851 parallel_ns=67720 speedup=4.354
+sample=13 serial_ns=343088 parallel_ns=66987 speedup=5.122
+sample=14 serial_ns=295479 parallel_ns=66810 speedup=4.423
+sample=15 serial_ns=331545 parallel_ns=72572 speedup=4.568
+sample=16 serial_ns=295171 parallel_ns=70827 speedup=4.167
+sample=17 serial_ns=329928 parallel_ns=71640 speedup=4.605
+sample=18 serial_ns=302873 parallel_ns=68860 speedup=4.398
+sample=19 serial_ns=330609 parallel_ns=67396 speedup=4.905
+sample=20 serial_ns=297086 parallel_ns=68770 speedup=4.320
+parallel_for count=1000003 workers=7 checksum=500002500003 serial_ns=329928 parallel_ns=71420 speedup=4.620 statistic=median
