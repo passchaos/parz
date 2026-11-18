@@ -177,7 +177,9 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
 - **Outlined cold join path.** Moving the non-tail, shared and executing
   branches of `tryJoin` into a `noinline tryJoinSlow` made tree-100k/1m
   slower (69.2us / 687us) and shifted micro by 11%; the inlined local-tail
-  fast path is already small enough. Rejected.
+  fast path is already small enough. Aligning the benchmark's parallel
+  callbacks to 64 bytes did not change the shift, so it is not just the
+  callback entry address. Rejected.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.
