@@ -185,8 +185,10 @@ group.done(io);
 group.wait(io);
 ```
 
-`doneMany` completes several members with one lock. `waitCancelable`
-complements the existing uncancelable `wait`.
+The completion counter is atomic, so `done` and `doneMany` take no mutex unless
+they perform the final completion; only that last member locks the group to
+wake sleepers. `wait` also returns without locking when every member already
+finished. `waitCancelable` remains a cancellation point.
 
 ## Validation
 

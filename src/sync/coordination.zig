@@ -85,15 +85,17 @@ pub const Semaphore = struct {
 
 /// Wait for a set of tasks to finish. `add` before starting them; each task
 /// calls `done` exactly once.
+///
+/// The completion counter is atomic so the common `done` path takes no mutex.
+/// Only the last completion locks the wait group to broadcast to sleepers.
 pub const WaitGroup = struct {
     mutex: std.Io.Mutex = .init,
     cond: std.Io.Condition = .init,
-    count: usize = 0,
+    count: std.atomic.Value(usize) = .init(0),
 
     pub fn add(self: *WaitGroup, io: std.Io, n: usize) void {
-        self.mutex.lockUncancelable(io);
-        defer self.mutex.unlock(io);
-        self.count += n;
+        _ = io;
+        _ = self.count.fetchAdd(n, .release);
     }
 
     pub inline fn done(self: *WaitGroup, io: std.Io) void {
@@ -102,23 +104,28 @@ pub const WaitGroup = struct {
 
     pub fn doneMany(self: *WaitGroup, io: std.Io, n: usize) void {
         if (n == 0) return;
+        const previous = self.count.fetchSub(n, .acq_rel);
+        std.debug.assert(previous >= n);
+        if (previous != n) return;
+        // The waiter registers on the condition while holding the mutex, so
+        // this broadcast cannot be lost between its counter check and sleep.
         self.mutex.lockUncancelable(io);
-        defer self.mutex.unlock(io);
-        std.debug.assert(self.count >= n);
-        self.count -= n;
-        if (self.count == 0) self.cond.broadcast(io);
+        self.cond.broadcast(io);
+        self.mutex.unlock(io);
     }
 
     pub fn wait(self: *WaitGroup, io: std.Io) void {
+        // Common case: every member finished before the waiter arrived.
+        if (self.count.load(.acquire) == 0) return;
         self.mutex.lockUncancelable(io);
         defer self.mutex.unlock(io);
-        while (self.count != 0) self.cond.waitUncancelable(io, &self.mutex);
+        while (self.count.load(.acquire) != 0) self.cond.waitUncancelable(io, &self.mutex);
     }
 
     pub fn waitCancelable(self: *WaitGroup, io: std.Io) std.Io.Cancelable!void {
         try self.mutex.lock(io);
         defer self.mutex.unlock(io);
-        while (self.count != 0) try self.cond.wait(io, &self.mutex);
+        while (self.count.load(.acquire) != 0) try self.cond.wait(io, &self.mutex);
     }
 };
 
@@ -247,4 +254,25 @@ test "wait group batch completion wakes cancelable waiters" {
     for (waiters) |thread| thread.join();
     try std.testing.expectEqual(@as(usize, waiters.len), state.completed.load(.acquire));
     group.wait(std.testing.io);
+}
+
+test "wait group concurrent last completions keep every waiter awake" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+
+    const members = 8;
+    const rounds = 20;
+    const Worker = struct {
+        fn run(group: *WaitGroup) void {
+            group.done(std.testing.io);
+        }
+    };
+    for (0..rounds) |_| {
+        var group = WaitGroup{};
+        group.add(std.testing.io, members);
+        var threads: [members]std.Thread = undefined;
+        for (&threads) |*thread| thread.* = try std.Thread.spawn(.{}, Worker.run, .{&group});
+        group.wait(std.testing.io);
+        for (threads) |thread| thread.join();
+        try std.testing.expectEqual(@as(usize, 0), group.count.load(.acquire));
+    }
 }

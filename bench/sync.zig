@@ -278,6 +278,32 @@ fn runBlocking(allocator: std.mem.Allocator, io: std.Io) !void {
     report("blocking", start.untilNow(io).raw.toNanoseconds(), total);
 }
 
+fn runWaitGroup(io: std.Io) !void {
+    var group = parz.sync.WaitGroup{};
+    group.add(io, total);
+    const Worker = struct {
+        fn run(g: *parz.sync.WaitGroup, thread_io: std.Io, count: usize) void {
+            for (0..count) |_| g.done(thread_io);
+        }
+    };
+    const Waiter = struct {
+        fn run(g: *parz.sync.WaitGroup, thread_io: std.Io) void {
+            g.wait(thread_io);
+        }
+    };
+
+    const start = now(io);
+    var threads: [mpsc_producers]std.Thread = undefined;
+    for (&threads) |*thread| {
+        thread.* = try std.Thread.spawn(.{}, Worker.run, .{ &group, io, mpsc_per_producer });
+    }
+    const waiter = try std.Thread.spawn(.{}, Waiter.run, .{ &group, io });
+    for (threads) |thread| thread.join();
+    waiter.join();
+    if (group.count.load(.acquire) != 0) return error.ChecksumMismatch;
+    report("wait-group", start.untilNow(io).raw.toNanoseconds(), total);
+}
+
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
     const io = init.io;
@@ -288,4 +314,5 @@ pub fn main(init: std.process.Init) !void {
     try runMutexMpsc(allocator, io);
     try runTreiber(allocator, io);
     try runBlocking(allocator, io);
+    try runWaitGroup(io);
 }
