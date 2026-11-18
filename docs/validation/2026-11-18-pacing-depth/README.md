@@ -168,6 +168,12 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
   71.5us / 704us: the requesting lane's self-share alone cannot distribute the
   tree, and the backed-off heartbeat does not publish flags in time. The event
   wake is retained.
+- **Spin-before-park.** A bounded worker spin before the futex wait could
+  avoid wake latency in short bursts. Three shapes were measured: a new
+  `work_epoch` field, reusing `caller_epoch` as the publication hint, and a
+  `noinline` spin helper. All shifted the micro binary by 6-9% even though
+  micro never publishes work, and the existing gates have no burst row that
+  would show the wake-latency benefit. Rejected.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.

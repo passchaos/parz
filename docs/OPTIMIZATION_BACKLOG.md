@@ -34,7 +34,7 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Per-owner locking / shared heartbeat mask | Evaluated | Claim/release is ~0.1-0.6 us and adaptive pacing already cuts idle ticks; no measured pool-mutex or flag-write bottleneck |
 | Static scheduling / recursive grain | Evaluated | Dynamic remains the default; static and serial depth are caller/benchmark policy without new fixed-CPU evidence |
 | Join-wait helping and wider wake batches | Evaluated | Shared/local helping and wider broadcasts improved trees by 2-4% but regressed cold first-scan or micro; rejected with data ([report](validation/2026-11-18-pacing-depth/README.md)) |
-| Worker spin-before-park | Evaluated | Wake latency is hidden by the paired serial gap in the gates; a lock-free publication hint needs a new pool field, and the micro benchmark is layout-sensitive |
+| Worker spin-before-park | Evaluated | Three shapes (new epoch field, reused caller epoch, noinline helper) all shifted micro by 6-9%; the gates have no burst row that would show the wake-latency benefit ([report](validation/2026-11-18-pacing-depth/README.md)) |
 | Final correctness/platform/performance gates and Git sync | Complete | Debug/ReleaseSafe/TSan/serial/WASM/cross-target, E/P/cold/negative-control gates and cross-library comparison pass; `main` pushed to GitHub |
 
 The original baseline is commit `04ab4e1`; the 2026-11-18 adaptive pass uses
