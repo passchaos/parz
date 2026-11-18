@@ -188,8 +188,10 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
 - **Larger share batches.** A warm-burst harness measured `share_batch`
   2/4/8/16 on the final code. tree-100k prefers 4 (52.3us) over 8/16
   (54.9/55.3us), while tree-1m prefers 2 (401.6us) over 4 (420.9us); no
-  single value wins both rows, so the default 4 is retained. In a warm burst
-  the heartbeat's periodic flags still let a small tree share, which is cheap
+  single value wins both rows. The official paired gate agrees: with
+  `share_batch = 2`, tree-100k regressed 6.2%; with `share_batch = 8`,
+  tree-1m regressed 4.7%. The default 4 is retained. In a warm burst the
+  heartbeat's periodic flags still let a small tree share, which is cheap
   because the lanes are already awake; the depth gate only suppresses
   demand-driven wake-ups from an idle pool.
 
