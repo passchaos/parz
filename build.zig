@@ -131,6 +131,20 @@ pub fn build(b: *std.Build) void {
         .optimize = .ReleaseFast,
     });
     _ = addTool(b, parz_mod, target, .{
+        .name = "parz-wake-latency",
+        .source = "bench/wake_latency.zig",
+        .step = "bench-wake-latency",
+        .description = "Measure background-worker wake latency after idle",
+        .optimize = .ReleaseFast,
+    });
+    _ = addTool(b, parz_mod, target, .{
+        .name = "parz-cold-phases",
+        .source = "bench/cold_phases.zig",
+        .step = "bench-cold-phases",
+        .description = "Decompose a cold flat call into claim, dispatch and release",
+        .optimize = .ReleaseFast,
+    });
+    _ = addTool(b, parz_mod, target, .{
         .name = "parz-pool-idle",
         .source = "bench/pool_idle.zig",
         .step = "bench-pool-idle",

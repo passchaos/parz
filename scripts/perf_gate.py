@@ -72,6 +72,10 @@ def main():
     parser.add_argument('--cold-samples', type=int, default=9, help='inner samples per process in cold mode')
     parser.add_argument('--heartbeat-cpu', type=int, help='dedicated physical CPU for cold-mode heartbeat')
     parser.add_argument('--max-regression', type=float, default=0.05)
+    parser.add_argument('--statistic', choices=('median', 'min'), default='median',
+                        help='aggregate inner samples with median (default) or min')
+    parser.add_argument('--negative-control', action='store_true',
+                        help='build both revisions from the baseline source to measure the noise floor')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.rounds < 3 or not 0 <= args.max_regression <= 0.1:
@@ -132,6 +136,11 @@ def main():
     sources = {'candidate': args.candidate.resolve()}
     if args.baseline:
         sources['baseline'] = args.baseline.resolve()
+    if args.negative_control:
+        if 'baseline' not in sources:
+            parser.error('--negative-control requires --baseline')
+        sources['candidate'] = sources['baseline']
+    aggregate = statistics.median if args.statistic == 'median' else min
     samples = []
     code_hashes = {}
     with tempfile.TemporaryDirectory(prefix='parz-perf-') as temp:
@@ -169,7 +178,7 @@ def main():
         row = {'case': case}
         for revision in sources:
             selected = [s for s in samples if s['case'] == case and s['revision'] == revision]
-            row[revision] = {key: statistics.median(float(s[key]) for s in selected)
+            row[revision] = {key: aggregate(float(s[key]) for s in selected)
                              for key in ('serial_ns', 'parallel_ns', 'speedup')}
         if case == 'tree-1k' and row['candidate']['speedup'] < 0.9:
             failures.append(f'{case}: parity below 0.9')
@@ -186,6 +195,8 @@ def main():
                 'binary_text_hashes': code_hashes,
                 'zig': command(['zig', 'version']).strip(),
                 'max_regression': args.max_regression,
+                'statistic': args.statistic,
+                'negative_control': args.negative_control,
                 'harness_hashes': {source: hashlib.sha256((REPO / 'bench' / source).read_bytes()).hexdigest()
                                   for source in {case[1] for case in cases}},
                 'source_hashes': {name: {str(file.relative_to(path)): hashlib.sha256(file.read_bytes()).hexdigest()
