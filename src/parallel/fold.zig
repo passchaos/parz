@@ -10,7 +10,7 @@ const CancelToken = @import("../cancel.zig").CancelToken;
 const executor_mod = @import("executor.zig");
 const checkCancel = @import("cancellation.zig").checkCancel;
 const planning = @import("planning.zig");
-const plannedLaneCount = planning.plannedLaneCount;
+const plannedLaneCountForWork = planning.plannedLaneCountForWork;
 const plannedChunkCount = planning.plannedChunkCount;
 const shouldRunSerial = planning.shouldRunSerial;
 const dispatch = @import("dispatch.zig");
@@ -81,7 +81,7 @@ pub fn parallelFold(
     var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
-    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCountForWork(count, options, pool.parallelWorkerCount());
     const result = try dispatchFold(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, Exec.exec, combine);
     // Dispatch has already selected any chunk error in index order. Only
     // successful reduction reaches this final cancellation checkpoint.
@@ -160,7 +160,7 @@ pub fn parallelFoldInfallible(
     var task = caller.beginFlat();
 
     const chunks = plannedChunkCount(count, options, pool.parallelWorkerCount());
-    const lanes = plannedLaneCount(options, pool.parallelWorkerCount());
+    const lanes = plannedLaneCountForWork(count, options, pool.parallelWorkerCount());
     if (options.cancel == null) {
         return dispatchFoldValue(pool, &task, T, Input, &runner, count, chunks, lanes, options.schedule, options.scratch, identity, ExecValue.exec, combine);
     }

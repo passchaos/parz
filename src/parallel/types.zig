@@ -41,10 +41,15 @@ pub const Options = struct {
     /// 4096 items. Range callbacks may check the token within their own work.
     cancel: ?*CancelToken = null,
     /// Estimated useful nanoseconds per item. Zero leaves existing item-count
-    /// planning unchanged; a nonzero estimate adds a minimum-work guard.
-    /// serial_threshold=0 still explicitly forces dispatch.
+    /// planning unchanged; a nonzero estimate adds a minimum-work guard and
+    /// caps lanes by useful work per lane. serial_threshold=0 still explicitly
+    /// forces dispatch.
     estimated_item_ns: usize = 0,
     min_parallel_ns: usize = 50 * std.time.ns_per_us,
+    /// Minimum useful work per lane when `estimated_item_ns` is nonzero.
+    /// Cheap calls use fewer lanes so they do not pay wake-up cost for lanes
+    /// that cannot stay busy. Zero disables the lane cap.
+    min_parallel_lane_ns: usize = 20 * std.time.ns_per_us,
     /// Strict caller-owned dispatch buffer. Insufficient capacity returns
     /// OutOfMemory before callbacks. Nested use gets an independent stack
     /// fallback; concurrent calls require separate scratch objects.
