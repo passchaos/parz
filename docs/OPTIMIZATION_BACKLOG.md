@@ -33,12 +33,14 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Future-embedded completion event | Evaluated | Retained bounded state pool: cold dispatch is wake-dominated, release is one uncontended CAS, and the pool preserves the `max_execute_states` fallback contract |
 | Per-owner locking / shared heartbeat mask | Evaluated | Claim/release is ~0.1-0.6 us and adaptive pacing already cuts idle ticks; no measured pool-mutex or flag-write bottleneck |
 | Static scheduling / recursive grain | Evaluated | Dynamic remains the default; static and serial depth are caller/benchmark policy without new fixed-CPU evidence |
-| Final correctness/platform/performance gates and Git sync | Pending | Debug/ReleaseSafe/TSan/serial/WASM/cross-target, E/P/caller/sync gates pass; push remains |
+| Join-wait helping and wider wake batches | Evaluated | Shared/local helping and wider broadcasts improved trees by 2-4% but regressed cold first-scan or micro; rejected with data ([report](validation/2026-11-18-pacing-depth/README.md)) |
+| Worker spin-before-park | Evaluated | Wake latency is hidden by the paired serial gap in the gates; a lock-free publication hint needs a new pool field, and the micro benchmark is layout-sensitive |
+| Final correctness/platform/performance gates and Git sync | Complete | Debug/ReleaseSafe/TSan/serial/WASM/cross-target, E/P/cold/negative-control gates and cross-library comparison pass; `main` pushed to GitHub |
 
 The original baseline is commit `04ab4e1`; the 2026-11-18 adaptive pass uses
-`2a11f8b` for adaptive/topology rows and `59456fa` for lane planning. Historical
-rejected worker padding, payload layouts, 8 KiB fixed-stack expansion and forced
-outlining remain rejected unless new evidence justifies revisiting them.
-Dynamic remains the default until mixed-cost and heterogeneous CPU rows support
-a change. A rejected experiment must retain its patch, input/CPU configuration
-and measured reason.
+`2a11f8b` for adaptive/topology rows and `59456fa` for lane planning. The
+pacing-depth pass uses `93f52fa`. Historical rejected worker padding, payload
+layouts, 8 KiB fixed-stack expansion and forced outlining remain rejected
+unless new evidence justifies revisiting them. Dynamic remains the default
+until mixed-cost and heterogeneous CPU rows support a change. A rejected
+experiment must retain its patch, input/CPU configuration and measured reason.
