@@ -114,10 +114,14 @@ Account for both arrays, their alignment and the larger error-union result
 type when cancellation is enabled. Scratch alignment may consume a prefix.
 
 A nested call using the active outer scratch takes its own standard 4 KiB
-stack fallback, leaving outer storage intact. Independent concurrent calls
-must use separate scratch objects. Scratch and its byte buffer must remain
-at stable addresses until the call returns. Default calls still use the
-existing bounded stack/pool-allocator policy.
+stack fallback, then a pool-owned scratch object if one is free, otherwise the
+pool allocator. Independent concurrent calls use separate pool objects when
+available. Scratch and its byte buffer must remain at stable addresses until
+the call returns. Default calls use the stack fallback for small payloads and a
+pool-owned scratch object for larger payloads; if every object is busy or the
+payload exceeds one object, the pool allocator is used. Tune or disable this
+storage with `Options.dispatch_scratch_count` and
+`Options.dispatch_scratch_bytes`.
 
 ## Basic loops
 

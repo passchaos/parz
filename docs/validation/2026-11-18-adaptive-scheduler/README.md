@@ -39,6 +39,13 @@ The full flat gate showed no failures: `scan-1m` 0.985, `first-scan` 1.006,
 `first-heavy` 1.023, and the remaining rows stayed inside the 5% allowance.
 Raw data: `lane-planning-flat.json`.
 
+### Pool-owned dispatch storage
+
+At `chunks_per_worker=1024` (scan 1M, 4096 chunks), the baseline performs one
+32768-byte allocation per call; the candidate performs zero after pool
+initialization. Timing was noisy on the shared host and is not claimed as a
+speedup. Raw data: `pool-scratch-high-chunk.log`.
+
 ### Adaptive heartbeat (E placement)
 
 The default heartbeat now waits on a timeout event. A lane with local work

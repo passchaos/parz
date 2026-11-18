@@ -140,7 +140,7 @@ test "explicit worker reuses context for every flat API and keeps its caller slo
             .chunks_per_worker = 1,
             .scratch = &scratch,
         }, 0, Run.value, Run.add));
-        try std.testing.expect(!scratch.busy);
+        try std.testing.expect(!scratch.busy.load(.monotonic));
         try std.testing.expectEqual(@as(usize, 960), worker.ctx.calls);
         try std.testing.expectError(error.ExpectedFailure, api.parallelFor(worker, {}, 16, .{}, Run.fail));
         var token = @import("../cancel.zig").CancelToken{};

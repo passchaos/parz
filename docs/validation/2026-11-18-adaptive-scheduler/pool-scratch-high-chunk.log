@@ -1,0 +1,9 @@
+== round 1
+current: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=0 allocated_bytes=0 serial_ns=330371 parallel_ns=94548 speedup=3.494 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null
+baseline: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=1 allocated_bytes=32768 serial_ns=331312 parallel_ns=90228 speedup=3.672 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null
+== round 2
+current: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=0 allocated_bytes=0 serial_ns=352965 parallel_ns=112430 speedup=3.139 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null
+baseline: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=1 allocated_bytes=32768 serial_ns=362965 parallel_ns=112588 speedup=3.224 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null
+== round 3
+current: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=0 allocated_bytes=0 serial_ns=377257 parallel_ns=116533 speedup=3.237 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null
+baseline: flat-dispatch kind=scan count=1000003 lanes=8 cpw=1024 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=500002500003 allocations=1 allocated_bytes=32768 serial_ns=371253 parallel_ns=93507 speedup=3.970 statistic=median repetitions=1 idle_ms=0 heartbeat_cpu=null

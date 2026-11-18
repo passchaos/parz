@@ -28,6 +28,7 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Adaptive heartbeat default | Complete | Demand-woken timeout waits, tri-state worker flag and out-of-line slow path; E/P tree and idle evidence |
 | Topology-aware placement policies | Complete | Opt-in `prefer_performance_cores` and `use_smt_siblings` with pure ordering tests |
 | Configurable heartbeat share batch | Complete | `share_batch` option with bound/tail-retention test; default 4 preserves prior behavior |
+| Pool-owned dispatch storage | Complete | High-chunk flat calls reuse pool scratch; cpw=1024 allocations 1 -> 0; small calls keep the 4 KiB stack path |
 | Final correctness/platform/performance gates and Git sync | Pending | Debug/ReleaseSafe/TSan/serial/WASM/cross-target, E/P/caller/sync gates pass; push remains |
 
 The original baseline is commit `04ab4e1`; the 2026-11-18 adaptive pass uses

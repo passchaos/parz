@@ -193,11 +193,14 @@ A flat call (`parallelFor`, `parallelForRange`, folds) does the following:
    reduction.
 6. Check cancellation before successful completion.
 
-Dispatch storage uses a 4 KiB stack fallback buffer; overflow goes to the
-pool's allocator. Optional caller-owned `ParallelScratch` provides strict
-reusable storage for results/futures; nested use takes a separate bounded
-stack fallback. No per-item allocation occurs. See the
-[parallel API guide](parallel-api.md) for capacity and ownership rules.
+Dispatch storage uses a 4 KiB stack fallback buffer. Larger calls first try a
+pool-owned scratch object (`dispatch_scratch_count` x `dispatch_scratch_bytes`,
+two 64 KiB objects by default); if every object is busy or the call is larger
+than one object, overflow goes to the pool's allocator. Optional caller-owned
+`ParallelScratch` remains strict: an undersized explicit scratch returns
+OutOfMemory. Nested use takes a separate bounded stack fallback. No per-item
+allocation occurs. See the [parallel API guide](parallel-api.md) for capacity
+and ownership rules.
 
 ### Chunk planning
 

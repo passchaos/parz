@@ -55,6 +55,12 @@ pub fn Options(comptime Ctx: type) type {
         /// Larger batches fill more lanes on deep fork/join trees; smaller
         /// batches keep tiny trees from waking unnecessary lanes.
         share_batch: usize = 4,
+        /// Pool-owned dispatch scratch objects. High-chunk flat calls reuse
+        /// these instead of allocating from the pool allocator; nested or
+        /// concurrent calls fall back to the bounded stack/heap path. Zero
+        /// count or bytes disables the pool storage.
+        dispatch_scratch_count: usize = 2,
+        dispatch_scratch_bytes: usize = 64 * 1024,
         /// Start a dedicated heartbeat thread. Without it, `tick` never
         /// shares work and only eager `kickstart` paths (flat loops) run in
         /// parallel.

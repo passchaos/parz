@@ -15,6 +15,7 @@ const heartbeat_idle = @import("../core.zig").heartbeat_idle;
 const heartbeat_pacing = @import("../core.zig").heartbeat_pacing;
 const initContext = @import("context.zig").initContext;
 const deinitContext = @import("context.zig").deinitContext;
+const Scratch = @import("../parallel/scratch.zig").Scratch;
 
 pub fn Pool(comptime Ctx: type) type {
     return struct {
@@ -70,6 +71,10 @@ pub fn Pool(comptime Ctx: type) type {
 
         execute_states: []ExecuteState,
         execute_free: ?usize = null,
+        /// Pool-owned dispatch scratch for high-chunk flat calls. Each object
+        /// is exclusive while acquired; nested/concurrent calls fall back.
+        dispatch_scratch_buffers: []align(64) u8,
+        dispatch_scratch: []Scratch,
         /// Dedicated lock for the execute-state free list. Joins push states
         /// back without taking the pool mutex, so completion does not contend
         /// with sharing or ready-job pickup.
@@ -118,6 +123,15 @@ pub fn Pool(comptime Ctx: type) type {
             errdefer allocator.free(caller_busy);
             const execute_states = try allocator.alloc(ExecuteState, options.max_execute_states);
             errdefer allocator.free(execute_states);
+            const dispatch_scratch_bytes = options.dispatch_scratch_count *| options.dispatch_scratch_bytes;
+            const dispatch_scratch_buffers = try allocator.alignedAlloc(u8, .fromByteUnits(64), dispatch_scratch_bytes);
+            errdefer allocator.free(dispatch_scratch_buffers);
+            const dispatch_scratch = try allocator.alloc(Scratch, options.dispatch_scratch_count);
+            errdefer allocator.free(dispatch_scratch);
+            for (dispatch_scratch, 0..) |*scratch, index| {
+                const offset = index * options.dispatch_scratch_bytes;
+                scratch.* = Scratch.init(dispatch_scratch_buffers[offset..][0..options.dispatch_scratch_bytes]);
+            }
             var ready_owners = try ReadyOwners.init(allocator, background_count + caller_count);
             errdefer ready_owners.deinit();
 
@@ -174,6 +188,8 @@ pub fn Pool(comptime Ctx: type) type {
                 .pinned_cpus = pinned_cpus,
                 .execute_states = execute_states,
                 .execute_free = if (execute_states.len != 0) 0 else null,
+                .dispatch_scratch_buffers = dispatch_scratch_buffers,
+                .dispatch_scratch = dispatch_scratch,
                 .ready_owners = ready_owners,
             };
         }
@@ -274,6 +290,8 @@ pub fn Pool(comptime Ctx: type) type {
             if (self.caller_busy.len != 0) self.allocator.free(self.caller_busy);
             if (self.pinned_cpus.len != 0) self.allocator.free(self.pinned_cpus);
             if (self.execute_states.len != 0) self.allocator.free(self.execute_states);
+            if (self.dispatch_scratch_buffers.len != 0) self.allocator.free(self.dispatch_scratch_buffers);
+            if (self.dispatch_scratch.len != 0) self.allocator.free(self.dispatch_scratch);
             self.ready_owners.deinit();
             self.* = undefined;
         }
@@ -513,6 +531,19 @@ pub fn Pool(comptime Ctx: type) type {
         /// heartbeat.
         pub fn kickstart(self: *Self, owner: *Worker(Ctx), max: usize) void {
             self.shareMany(owner, max);
+        }
+
+        /// Pool-owned dispatch scratch for high-chunk flat calls. Returns null
+        /// when every object is busy; callers then use the stack/heap path.
+        pub fn acquireDispatchScratch(self: *Self) ?*Scratch {
+            for (self.dispatch_scratch) |*scratch| {
+                if (!scratch.busy.load(.monotonic)) return scratch;
+            }
+            return null;
+        }
+
+        pub fn dispatchScratchBytes(self: *const Self) usize {
+            return self.options.dispatch_scratch_bytes;
         }
 
         fn applyNumaPolicy(self: *Self) void {

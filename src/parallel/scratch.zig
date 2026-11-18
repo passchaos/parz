@@ -1,27 +1,30 @@
-//! Explicit caller-owned dispatch storage. No allocation and no sharing.
+//! Explicit caller-owned or pool-owned dispatch storage. No per-call
+//! allocation once the storage exists.
 const std = @import("std");
 
 pub const Scratch = struct {
     buffer: std.heap.FixedBufferAllocator,
-    busy: bool = false,
+    /// Atomic so a pool can share a small set of scratch objects between
+    /// concurrent callers. The fixed buffer itself is only touched by the
+    /// thread that successfully acquired the scratch.
+    busy: std.atomic.Value(bool) = .init(false),
 
     pub fn init(bytes: []u8) Scratch {
         return .{ .buffer = std.heap.FixedBufferAllocator.init(bytes) };
     }
 
     /// A nested call using this scratch falls back to its own bounded stack.
-    /// Concurrent callers must use separate scratch objects.
+    /// Concurrent callers try other scratch objects or the fallback.
     pub fn acquire(self: *Scratch) ?std.mem.Allocator {
-        if (self.busy) return null;
-        self.busy = true;
+        if (self.busy.cmpxchgStrong(false, true, .acq_rel, .monotonic) != null) return null;
         self.buffer.reset();
         return self.buffer.allocator();
     }
 
     pub fn release(self: *Scratch) void {
-        std.debug.assert(self.busy);
+        std.debug.assert(self.busy.load(.monotonic));
         self.buffer.reset();
-        self.busy = false;
+        self.busy.store(false, .release);
     }
 };
 
@@ -93,7 +96,7 @@ test "explicit dispatch scratch handles aligned results order and no heap across
                     const options = api.Options{ .serial_threshold = 0, .chunks_per_worker = 64, .max_chunks = 64, .schedule = schedule, .scratch = &scratch };
                     try std.testing.expectEqualDeep(expected, try api.parallelFoldInfallible(&pool, Packet, {}, 256, options, .{}, Packet.map, Packet.combine));
                     try std.testing.expectEqualDeep(expected, try api.parallelFold(&pool, Packet, {}, 256, options, .{}, Packet.fallible, Packet.combine));
-                    try std.testing.expect(!scratch.busy);
+                    try std.testing.expect(!scratch.busy.load(.monotonic));
                     try std.testing.expectEqual(@as(usize, 0), scratch.buffer.end_index);
                 }
             }
@@ -140,14 +143,14 @@ test "strict dispatch scratch rejects both allocation stages before callbacks an
                 .scratch = &scratch,
             }, 0, Run.map, Run.add));
             try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
-            try std.testing.expect(!scratch.busy);
+            try std.testing.expect(!scratch.busy.load(.monotonic));
             try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
         }
         var scratch = Scratch.init(&bytes);
         const options = api.Options{ .serial_threshold = 0, .max_chunks = 8, .chunks_per_worker = 8, .scratch = &scratch };
         try std.testing.expectEqual(@as(u64, 2016), try api.parallelFoldInfallible(&pool, u64, &calls, 64, options, 0, Run.map, Run.add));
         try std.testing.expectError(error.FirstChunk, api.parallelForRange(&pool, {}, 64, options, Run.fail));
-        try std.testing.expect(!scratch.busy);
+        try std.testing.expect(!scratch.busy.load(.monotonic));
         try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
     }
 }
@@ -192,7 +195,7 @@ test "nested scratch calls use independent storage and retain outer results" {
                     .schedule = schedule,
                     .scratch = &scratch,
                 }, 0, Run.range, Run.add));
-                try std.testing.expect(!scratch.busy);
+                try std.testing.expect(!scratch.busy.load(.monotonic));
             }
         }
     }
@@ -238,7 +241,7 @@ test "cancellation drains scratch callbacks before storage and caller are releas
                     .cancel = &state.token,
                 }, 0, State.map, State.add));
                 try std.testing.expectEqual(@as(usize, 0), state.live.load(.monotonic));
-                try std.testing.expect(!scratch.busy);
+                try std.testing.expect(!scratch.busy.load(.monotonic));
                 try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
             }
         }

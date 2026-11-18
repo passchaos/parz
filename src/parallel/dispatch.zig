@@ -14,6 +14,15 @@ const ChunkCursor = @import("planning.zig").ChunkCursor;
 const dynamicClaimBatch = @import("planning.zig").dynamicClaimBatch;
 
 // Keep dispatch storage in one bounded buffer, outside the serial fallback frame.
+fn pooledScratch(pool: anytype, scratch: ?*Scratch, payload_bytes: usize) ?*Scratch {
+    if (scratch) |explicit| return explicit;
+    // Small calls keep the exact 4 KiB stack path; the pool is only used when
+    // the stack fallback would overflow.
+    if (payload_bytes <= 4096) return null;
+    if (payload_bytes +| 4096 > pool.dispatchScratchBytes()) return null;
+    return pool.acquireDispatchScratch();
+}
+
 pub noinline fn dispatchRange(
     pool: anytype,
     task: anytype,
@@ -26,8 +35,11 @@ pub noinline fn dispatchRange(
     scratch: ?*Scratch,
     comptime exec: anytype,
 ) anyerror!void {
+    const P = @TypeOf(pool.*);
+    const payload_bytes = chunks *| @sizeOf(anyerror!void) +|
+        @min(lanes, chunks) *| @sizeOf(core.Future(P.Context, *anyopaque, void));
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    var lease = ScratchLease.init(scratch, fallback.get());
+    var lease = ScratchLease.init(pooledScratch(pool, scratch, payload_bytes), fallback.get());
     defer lease.deinit();
     const allocator = lease.allocator;
     const results = try allocator.alloc(anyerror!void, chunks);
@@ -51,8 +63,11 @@ pub noinline fn dispatchFold(
     comptime exec: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const P = @TypeOf(pool.*);
+    const needed = chunks *| @sizeOf(anyerror!T) +|
+        @min(lanes, chunks) *| @sizeOf(core.Future(P.Context, *anyopaque, void)) +| 4096;
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    var lease = ScratchLease.init(scratch, fallback.get());
+    var lease = ScratchLease.init(pooledScratch(pool, scratch, needed), fallback.get());
     defer lease.deinit();
     const allocator = lease.allocator;
     const results = try allocator.alloc(anyerror!T, chunks);
@@ -80,8 +95,11 @@ pub noinline fn dispatchFoldValue(
     comptime exec: anytype,
     comptime combine: anytype,
 ) anyerror!T {
+    const P = @TypeOf(pool.*);
+    const payload_bytes = chunks *| @sizeOf(T) +|
+        @min(lanes, chunks) *| @sizeOf(core.Future(P.Context, *anyopaque, void));
     var fallback = std.heap.stackFallback(4096, pool.allocator);
-    var lease = ScratchLease.init(scratch, fallback.get());
+    var lease = ScratchLease.init(pooledScratch(pool, scratch, payload_bytes), fallback.get());
     defer lease.deinit();
     const allocator = lease.allocator;
     const results = try allocator.alloc(T, chunks);
@@ -264,6 +282,8 @@ test "capped allocation failures release caller slots before invoking callbacks"
         .workers = 3,
         .max_workers = 3,
         .max_callers = 1,
+        // Exercise the stack/heap fallback allocation failure path.
+        .dispatch_scratch_count = 0,
     });
     defer pool.deinit();
     try pool.start();
@@ -476,6 +496,8 @@ test "infallible value dispatch allocation failures release caller before callba
         .workers = 1,
         .max_workers = 1,
         .max_callers = 1,
+        // Exercise the stack/heap fallback allocation failure path.
+        .dispatch_scratch_count = 0,
     });
     defer pool.deinit();
     try pool.start();
@@ -519,4 +541,52 @@ test "infallible value dispatch allocation failures release caller before callba
     }, .{}, Run.packet, Run.combine);
     try std.testing.expectEqual(@as(usize, 64), calls.load(.monotonic));
     for (result.words) |word| try std.testing.expectEqual(@as(u64, 2016), word);
+}
+
+test "pool dispatch scratch reuses storage for high chunk counts" {
+    const Run = struct {
+        fn map(_: *core.Worker(void), _: void, index: usize) u64 {
+            return index;
+        }
+        fn add(a: u64, b: u64) u64 {
+            return a + b;
+        }
+    };
+    var failing = std.testing.FailingAllocator.init(std.testing.allocator, .{});
+    var pool = try core.Pool(void).init(failing.allocator(), std.testing.io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .dispatch_scratch_count = 1,
+        .dispatch_scratch_bytes = 64 * 1024,
+    });
+    defer pool.deinit();
+    try pool.start();
+    const allocated = failing.alloc_index;
+    failing.fail_index = allocated;
+    for (0..3) |_| {
+        try std.testing.expectEqual(@as(u64, 8386560), try api.parallelFoldInfallible(&pool, u64, {}, 4096, .{
+            .min_chunk = 1,
+            .max_chunks = 1024,
+            .chunks_per_worker = 1024,
+            .serial_threshold = 0,
+        }, 0, Run.map, Run.add));
+    }
+    try std.testing.expectEqual(allocated, failing.alloc_index);
+    try std.testing.expect(!failing.has_induced_failure);
+}
+
+test "pool dispatch scratch is exclusive and falls back when all objects are busy" {
+    var pool = try core.Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .max_workers = 0,
+        .max_callers = 1,
+        .dispatch_scratch_count = 1,
+        .dispatch_scratch_bytes = 4096,
+    });
+    defer pool.deinit();
+    const first = pool.acquireDispatchScratch().?;
+    try std.testing.expect(first.acquire() != null);
+    try std.testing.expect(pool.acquireDispatchScratch() == null);
+    first.release();
+    try std.testing.expect(pool.acquireDispatchScratch() != null);
 }
