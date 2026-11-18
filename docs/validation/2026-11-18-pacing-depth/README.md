@@ -145,9 +145,24 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
 
 ## Evaluated and retained
 
-- **Helping while waiting.** Implementing Spice's `waitForJob` helper loop
-  executed only one or two shared jobs per tree round because shared lists are
-  usually empty when a join waits; the gain was inside run-to-run noise.
+- **Helping while waiting (shared lists).** A `waitForJob` loop that pops and
+  executes other ready shared jobs improved tree-100k/1m by 2-4% in the
+  seven-round gate, but cold `first-scan` regressed 15-22% in two focused
+  nine-round runs: the joining caller steals a lane job from the workers that
+  are just waking. Gating on `idle_workers == 0` kept the tree gain but cold
+  `first-scan` still regressed 15%; gating on a non-empty local list kept cold
+  flat neutral but made tree-100k/1m slower (64.1us / 626us). Every variant
+  also shifted the micro binary layout by 8% even though `waitForJob` is never
+  called there (`wait_calls=0`). Rejected.
+- **Helping while waiting (local list).** Executing the lane's own queued
+  jobs while the target runs needs no mutex, but it made tree-100k/1m slower
+  (60.9us / 606us) and shifted micro by 10%. Rejected.
+- **Wider wake broadcast.** Broadcasting a multi-job batch whenever at least
+  four lanes are idle replaced per-job signals with one wake, but tree-100k
+  (63.2us), tree-1m (583us) and micro (+7%) all regressed. Rejected.
+- **Guarded caller epoch.** Skipping the caller-epoch atomic when parking is
+  disabled left flat dispatch unchanged and shifted micro by 6%; the epoch is
+  not a measured bottleneck. Rejected.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.
