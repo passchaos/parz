@@ -128,7 +128,7 @@ test "explicit worker reuses context for every flat API and keeps its caller slo
                 try std.testing.expectEqual(@as(u64, 120), try api.parallelReduce(worker, u64, worker, 16, options, 0, Run.map, Run.add));
                 try std.testing.expectEqual(@as(u64, 120), try api.parallelReduceInfallible(worker, u64, worker, 16, options, 0, Run.value, Run.add));
                 for (values, 0..) |value, i| try std.testing.expectEqual(i, value);
-                try std.testing.expect(pool.caller_busy[0]);
+                try std.testing.expect(pool.caller_busy[0].load(.monotonic));
             }
         }
         try std.testing.expectEqual(@as(usize, 960), worker.ctx.calls);
@@ -146,7 +146,7 @@ test "explicit worker reuses context for every flat API and keeps its caller slo
         var token = @import("../cancel.zig").CancelToken{};
         token.cancel();
         try std.testing.expectError(error.Cancelled, api.parallelFor(worker, {}, 16, .{ .cancel = &token }, Run.fail));
-        try std.testing.expect(pool.caller_busy[0]);
+        try std.testing.expect(pool.caller_busy[0].load(.monotonic));
         try std.testing.expectEqual(allocated, failing.alloc_index);
         try std.testing.expect(!failing.has_induced_failure);
     }
@@ -200,7 +200,7 @@ test "nested worker dispatch retains parent futures and ordered output across la
                 }, 0, Run.range, Run.add);
                 try std.testing.expectEqual(@as(u64, 32896), result);
                 try std.testing.expect(worker.job_head.isTail());
-                try std.testing.expect(pool.caller_busy[0]);
+                try std.testing.expect(pool.caller_busy[0].load(.monotonic));
             }
         }
     }

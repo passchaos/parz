@@ -14,12 +14,12 @@ pub const ChunkCursor = struct {
     extra: usize,
     start: usize = 0,
 
-    pub fn init(count: usize, chunks: usize) ChunkCursor {
+    pub inline fn init(count: usize, chunks: usize) ChunkCursor {
         std.debug.assert(chunks > 0 and chunks <= count);
         return .{ .size = count / chunks, .extra = count % chunks };
     }
 
-    pub fn next(self: *ChunkCursor) Chunk {
+    pub inline fn next(self: *ChunkCursor) Chunk {
         const end = self.start + self.size + @intFromBool(self.extra > 0);
         const chunk = Chunk{ .start = self.start, .end = end };
         self.start = end;
@@ -28,7 +28,7 @@ pub const ChunkCursor = struct {
     }
 };
 
-pub fn plannedLaneCount(options: Options, worker_count: usize) usize {
+pub inline fn plannedLaneCount(options: Options, worker_count: usize) usize {
     const requested_lanes = if (options.max_workers == 0)
         worker_count
     else
@@ -40,7 +40,7 @@ pub fn plannedLaneCount(options: Options, worker_count: usize) usize {
 /// when a caller requests many small chunks. Above that point, claim a few
 /// adjacent chunks per cursor update. Small and default chunk plans keep the
 /// exact single-claim loop, so their distribution is unchanged.
-pub fn dynamicClaimBatch(chunks: usize) usize {
+pub inline fn dynamicClaimBatch(chunks: usize) usize {
     return @max(1, @min(@as(usize, 8), chunks / 512));
 }
 

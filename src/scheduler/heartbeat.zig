@@ -39,13 +39,13 @@ pub fn Heartbeat(comptime P: type) type {
                 const parking = self.options.park_idle_heartbeat;
                 if (parking) {
                     self.mutex.lockUncancelable(self.io);
-                    if (observed_epoch != self.caller_epoch) {
-                        observed_epoch = self.caller_epoch;
+                    if (observed_epoch != self.caller_epoch.load(.monotonic)) {
+                        observed_epoch = self.caller_epoch.load(.monotonic);
                         idle_since = null;
                     }
                     while (!self.is_stopping.load(.monotonic)) {
                         if (self.heartbeat_demand.load(.monotonic)) {
-                            if (self.active_callers != 0 or self.idle_workers.load(.monotonic) < self.spawned_background) {
+                            if (self.active_callers.load(.monotonic) != 0 or self.idle_workers.load(.monotonic) < self.spawned_background) {
                                 idle_since = null;
                                 break;
                             }
@@ -58,7 +58,7 @@ pub fn Heartbeat(comptime P: type) type {
                         self.heartbeat_ready.waitUncancelable(self.io, &self.mutex);
                         self.heartbeat_parked = false;
                         idle_since = null;
-                        observed_epoch = self.caller_epoch;
+                        observed_epoch = self.caller_epoch.load(.monotonic);
                     }
                     if (self.is_stopping.load(.monotonic)) {
                         self.mutex.unlock(self.io);
@@ -126,12 +126,12 @@ test "heartbeat parks with no callers wakes held callers and shuts down from par
             try Wait.parked(&pool, true);
             const first = pool.claimCaller().?;
             const second = pool.claimCaller().?;
-            try std.testing.expectEqual(@as(usize, 2), pool.active_callers);
+            try std.testing.expectEqual(@as(usize, 2), pool.active_callers.load(.monotonic));
             try Wait.flag(first);
             try Wait.flag(second);
             try Wait.parked(&pool, false);
             pool.releaseCaller(first);
-            try std.testing.expectEqual(@as(usize, 1), pool.active_callers);
+            try std.testing.expectEqual(@as(usize, 1), pool.active_callers.load(.monotonic));
             second.heartbeat.store(false, .monotonic);
             try Wait.flag(second);
             var task = second.begin();
@@ -139,7 +139,7 @@ test "heartbeat parks with no callers wakes held callers and shuts down from par
             future.initFork(&task, Wait.leaf, 19);
             try std.testing.expectEqual(@as(u64, 19), future.joinOrCall(&task, Wait.leaf));
             pool.releaseCaller(second);
-            try std.testing.expectEqual(@as(usize, 0), pool.active_callers);
+            try std.testing.expectEqual(@as(usize, 0), pool.active_callers.load(.monotonic));
         }
         try Wait.parked(&pool, true);
         // The deferred deinit must wake a heartbeat blocked on its condition.

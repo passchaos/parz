@@ -29,7 +29,7 @@ pub const Lease = struct {
     scratch: ?*Scratch,
     allocator: std.mem.Allocator,
 
-    pub fn init(requested: ?*Scratch, fallback: std.mem.Allocator) Lease {
+    pub inline fn init(requested: ?*Scratch, fallback: std.mem.Allocator) Lease {
         if (requested) |scratch| {
             if (scratch.acquire()) |a| return .{ .scratch = scratch, .allocator = a };
         }
@@ -141,14 +141,14 @@ test "strict dispatch scratch rejects both allocation stages before callbacks an
             }, 0, Run.map, Run.add));
             try std.testing.expectEqual(@as(usize, 0), calls.load(.monotonic));
             try std.testing.expect(!scratch.busy);
-            try std.testing.expect(!pool.caller_busy[0]);
+            try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
         }
         var scratch = Scratch.init(&bytes);
         const options = api.Options{ .serial_threshold = 0, .max_chunks = 8, .chunks_per_worker = 8, .scratch = &scratch };
         try std.testing.expectEqual(@as(u64, 2016), try api.parallelFoldInfallible(&pool, u64, &calls, 64, options, 0, Run.map, Run.add));
         try std.testing.expectError(error.FirstChunk, api.parallelForRange(&pool, {}, 64, options, Run.fail));
         try std.testing.expect(!scratch.busy);
-        try std.testing.expect(!pool.caller_busy[0]);
+        try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
     }
 }
 
@@ -239,7 +239,7 @@ test "cancellation drains scratch callbacks before storage and caller are releas
                 }, 0, State.map, State.add));
                 try std.testing.expectEqual(@as(usize, 0), state.live.load(.monotonic));
                 try std.testing.expect(!scratch.busy);
-                try std.testing.expect(!pool.caller_busy[0]);
+                try std.testing.expect(!pool.caller_busy[0].load(.monotonic));
             }
         }
     }

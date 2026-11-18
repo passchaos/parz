@@ -31,11 +31,12 @@ pub fn Pool(comptime Ctx: type) type {
         mutex: std.Io.Mutex = .init,
         job_ready: std.Io.Condition = .init,
         heartbeat_ready: std.Io.Condition = .init,
-        /// Protected by mutex, as is caller_busy. Worker.active is atomic
-        /// because the default heartbeat reads it without the mutex.
-        active_callers: usize = 0,
+        /// Caller slots are claimed and released with atomics, so a flat call
+        /// in the default heartbeat mode never takes the pool mutex. Parking
+        /// demand signaling still uses it.
+        active_callers: std.atomic.Value(usize) = .init(0),
         has_callers: std.atomic.Value(bool) = .init(false),
-        caller_epoch: usize = 0,
+        caller_epoch: std.atomic.Value(usize) = .init(0),
         heartbeat_parked: bool = false,
         heartbeat_demand: std.atomic.Value(bool) = .init(false),
         workers_ready: std.Io.Semaphore = .{},
@@ -52,13 +53,17 @@ pub fn Pool(comptime Ctx: type) type {
         background_count: usize = 0,
         spawned_background: usize = 0,
         caller_count: usize = 0,
-        caller_busy: []bool,
+        caller_busy: []std.atomic.Value(bool),
         pinned_cpus: []u32 = &.{},
 
         execute_states: []ExecuteState,
         execute_free: ?usize = null,
+        /// Dedicated lock for the execute-state free list. Joins push states
+        /// back without taking the pool mutex, so completion does not contend
+        /// with sharing or ready-job pickup.
+        execute_free_lock: std.atomic.Value(bool) = .init(false),
         ready_owners: ReadyOwners,
-        execute_state_pressure: bool = false,
+        execute_state_pressure: std.atomic.Value(bool) = .init(false),
 
         pub fn init(
             allocator: std.mem.Allocator,
@@ -94,7 +99,7 @@ pub fn Pool(comptime Ctx: type) type {
             errdefer allocator.free(background_threads);
             const workers = try allocator.alloc(*Worker(Ctx), background_count + caller_count);
             errdefer allocator.free(workers);
-            const caller_busy = try allocator.alloc(bool, caller_count);
+            const caller_busy = try allocator.alloc(std.atomic.Value(bool), caller_count);
             errdefer allocator.free(caller_busy);
             const execute_states = try allocator.alloc(ExecuteState, options.max_execute_states);
             errdefer allocator.free(execute_states);
@@ -131,7 +136,7 @@ pub fn Pool(comptime Ctx: type) type {
                 };
                 caller_initialized += 1;
             }
-            @memset(caller_busy, false);
+            for (caller_busy) |*busy| busy.* = .init(false);
 
             for (execute_states, 0..) |*state, i| {
                 state.* = .{ .io = io, .index = i };
@@ -270,26 +275,25 @@ pub fn Pool(comptime Ctx: type) type {
         }
 
         fn claimCallerKind(self: *Self, wants_heartbeat: bool) ?*Worker(Ctx) {
-            self.mutex.lockUncancelable(self.io);
-            defer self.mutex.unlock(self.io);
             for (self.caller_storage, 0..) |*w, i| {
-                if (!self.caller_busy[i]) {
-                    self.caller_busy[i] = true;
-                    self.active_callers += 1;
-                    if (self.active_callers == 1) self.has_callers.store(true, .release);
-                    self.caller_epoch +%= 1;
-                    if (wants_heartbeat and self.options.park_idle_heartbeat and self.options.enable_heartbeat and self.spawned_background != 0) {
-                        self.heartbeat_demand.store(true, .monotonic);
-                        if (self.heartbeat_parked) self.heartbeat_ready.signal(self.io);
-                    }
-                    w.active.store(true, .monotonic);
-                    w.job_head = Job.head();
-                    w.local_tail = &w.job_head;
-                    w.shared_head = Job.head();
-                    w.shared_tail = &w.shared_head;
-                    w.heartbeat.store(false, .monotonic);
-                    return w;
+                if (self.caller_busy[i].cmpxchgStrong(false, true, .acq_rel, .monotonic) != null) continue;
+                const previous = self.active_callers.fetchAdd(1, .acq_rel);
+                if (previous == 0) self.has_callers.store(true, .release);
+                _ = self.caller_epoch.fetchAdd(1, .release);
+                if (wants_heartbeat and self.options.park_idle_heartbeat and self.options.enable_heartbeat and self.spawned_background != 0) {
+                    // Parking demand is the only claim path that needs the mutex.
+                    self.mutex.lockUncancelable(self.io);
+                    self.heartbeat_demand.store(true, .monotonic);
+                    if (self.heartbeat_parked) self.heartbeat_ready.signal(self.io);
+                    self.mutex.unlock(self.io);
                 }
+                w.active.store(true, .monotonic);
+                w.job_head = Job.head();
+                w.local_tail = &w.job_head;
+                w.shared_head = Job.head();
+                w.shared_tail = &w.shared_head;
+                w.heartbeat.store(false, .monotonic);
+                return w;
             }
             return null;
         }
@@ -305,25 +309,30 @@ pub fn Pool(comptime Ctx: type) type {
         }
 
         pub fn releaseCaller(self: *Self, w: *Worker(Ctx)) void {
-            self.mutex.lockUncancelable(self.io);
-            defer self.mutex.unlock(self.io);
             std.debug.assert(w.job_head.isTail());
             std.debug.assert(w.shared_head.isTail());
-            std.debug.assert(!self.ready_owners.contains(w.index));
-            if (w.caller_slot) |slot| {
-                if (self.caller_busy[slot]) {
-                    std.debug.assert(self.active_callers > 0);
-                    self.active_callers -= 1;
-                    if (self.active_callers == 0) self.has_callers.store(false, .release);
-                    self.caller_busy[slot] = false;
-                }
+            // The membership check reads the mutex-protected ready-owner list.
+            // Keep it in safety-checked builds only; release itself is lock-free.
+            if (comptime builtin.mode == .Debug or builtin.mode == .ReleaseSafe) {
+                self.mutex.lockUncancelable(self.io);
+                std.debug.assert(!self.ready_owners.contains(w.index));
+                self.mutex.unlock(self.io);
             }
+            // Reset owner-local fields before publishing the slot as free; a
+            // new claimant must never observe or overwrite this lane's state.
             w.active.store(false, .monotonic);
             w.heartbeat.store(false, .monotonic);
             w.job_head = Job.head();
             w.local_tail = &w.job_head;
             w.shared_head = Job.head();
             w.shared_tail = &w.shared_head;
+            if (w.caller_slot) |slot| {
+                if (self.caller_busy[slot].swap(false, .acq_rel)) {
+                    const previous = self.active_callers.fetchSub(1, .acq_rel);
+                    std.debug.assert(previous > 0);
+                    if (previous == 1) self.has_callers.store(false, .release);
+                }
+            }
         }
 
         /// Context for a caller that could not claim a slot. The caller runs
@@ -382,12 +391,12 @@ pub fn Pool(comptime Ctx: type) type {
             if (job.state() != .queued_shared) return false;
             job.remove(&owner.shared_tail);
             if (owner.shared_head.isTail()) self.ready_owners.remove(owner.index);
-            if (self.execute_state_pressure and self.ready_owners.head == null) self.execute_state_pressure = false;
+            if (self.execute_state_pressure.load(.monotonic) and self.ready_owners.head == null) self.execute_state_pressure.store(false, .monotonic);
             return true;
         }
 
         /// Internal scheduler protocol; use Worker/Future for user work.
-        pub fn waitForJob(self: *Self, worker: *Worker(Ctx), job: *Job) bool {
+        pub inline fn waitForJob(self: *Self, worker: *Worker(Ctx), job: *Job) bool {
             _ = worker;
             const state = job.getExecuteState();
             state.done.waitUncancelable(self.io);
@@ -396,14 +405,40 @@ pub fn Pool(comptime Ctx: type) type {
 
         /// Internal scheduler protocol; use Worker/Future for user work.
         pub fn releaseExecuteState(self: *Self, state: *ExecuteState) void {
-            self.mutex.lockUncancelable(self.io);
-            defer self.mutex.unlock(self.io);
-            self.releaseExecuteStateLocked(state);
+            self.pushExecuteState(state);
+            // Normal joins already have capacity and publication's wake-ups.
+            // Only actual state exhaustion needs the pool mutex for the wake.
+            if (self.execute_state_pressure.load(.monotonic) and self.idle_workers.load(.monotonic) != 0) {
+                self.mutex.lockUncancelable(self.io);
+                defer self.mutex.unlock(self.io);
+                if (self.execute_state_pressure.load(.monotonic) and self.ready_owners.head != null)
+                    self.job_ready.signal(self.io);
+            }
         }
 
-        fn acquireExecuteStateLocked(self: *Self) ?*ExecuteState {
+        fn lockExecuteFree(self: *Self) void {
+            while (self.execute_free_lock.swap(true, .acquire)) {
+                std.atomic.spinLoopHint();
+            }
+        }
+
+        fn unlockExecuteFree(self: *Self) void {
+            self.execute_free_lock.store(false, .release);
+        }
+
+        fn pushExecuteState(self: *Self, state: *ExecuteState) void {
+            state.done = .unset;
+            self.lockExecuteFree();
+            defer self.unlockExecuteFree();
+            state.next_free = self.execute_free;
+            self.execute_free = state.index;
+        }
+
+        fn acquireExecuteState(self: *Self) ?*ExecuteState {
+            self.lockExecuteFree();
+            defer self.unlockExecuteFree();
             const index = self.execute_free orelse {
-                self.execute_state_pressure = true;
+                self.execute_state_pressure.store(true, .monotonic);
                 return null;
             };
             const state = &self.execute_states[index];
@@ -414,15 +449,12 @@ pub fn Pool(comptime Ctx: type) type {
             return state;
         }
 
+        /// Push a state while the pool mutex is already held. Used by tests
+        /// that return several states under one lock to exercise pressure
+        /// wake-ups without re-locking.
         fn releaseExecuteStateLocked(self: *Self, state: *ExecuteState) void {
-            state.done = .unset;
-            state.next_free = self.execute_free;
-            self.execute_free = state.index;
-            // Normal joins already have capacity and publication's wake-ups.
-            // Once workers actually wait for state capacity, wake for each
-            // return: multiple returns before a worker resumes need multiple
-            // notifications, even though the free list is already nonempty.
-            if (self.execute_state_pressure and self.ready_owners.head != null and self.idle_workers.load(.monotonic) != 0)
+            self.pushExecuteState(state);
+            if (self.execute_state_pressure.load(.monotonic) and self.ready_owners.head != null and self.idle_workers.load(.monotonic) != 0)
                 self.job_ready.signal(self.io);
         }
 
@@ -432,7 +464,7 @@ pub fn Pool(comptime Ctx: type) type {
                 self.ready_owners.head
             else
                 self.ready_owners.firstPriority()) orelse return null;
-            const state = self.acquireExecuteStateLocked() orelse return null;
+            const state = self.acquireExecuteState() orelse return null;
             if (self.options.fair_shared_owners) self.ready_owners.remove(index);
             const w = self.workers[index];
             std.debug.assert(w.active.load(.monotonic));
@@ -440,7 +472,7 @@ pub fn Pool(comptime Ctx: type) type {
             if (self.options.fair_shared_owners) {
                 if (!w.shared_head.isTail()) self.ready_owners.push(index);
             } else if (w.shared_head.isTail()) self.ready_owners.remove(index);
-            if (self.execute_state_pressure and self.ready_owners.head == null) self.execute_state_pressure = false;
+            if (self.execute_state_pressure.load(.monotonic) and self.ready_owners.head == null) self.execute_state_pressure.store(false, .monotonic);
             job.setExecuteState(state);
             return job;
         }
@@ -501,11 +533,11 @@ test "zero worker caller accounting preserves serial fallback" {
     try std.testing.expect(pool.heartbeat_thread == null);
     for (0..10) |_| {
         const caller = pool.claimCaller().?;
-        try std.testing.expectEqual(@as(usize, 1), pool.active_callers);
+        try std.testing.expectEqual(@as(usize, 1), pool.active_callers.load(.monotonic));
         try std.testing.expect(pool.has_callers.load(.acquire));
         try std.testing.expect(pool.claimCaller() == null);
         pool.releaseCaller(caller);
-        try std.testing.expectEqual(@as(usize, 0), pool.active_callers);
+        try std.testing.expectEqual(@as(usize, 0), pool.active_callers.load(.monotonic));
         try std.testing.expect(!pool.has_callers.load(.acquire));
     }
 }
@@ -797,7 +829,7 @@ test "multiple capacity returns wake blocked peers before any state is consumed"
                 joined += 1;
                 try std.testing.expectEqual(@as(u64, (index + 1) * 11), value);
             }
-            try std.testing.expect(!pool.execute_state_pressure);
+            try std.testing.expect(!pool.execute_state_pressure.load(.monotonic));
         }
     }
 }
