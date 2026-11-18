@@ -88,7 +88,10 @@ own lane for sharing, so the batch leaves on the next `Task.call` instead of
 waiting for the heartbeat round trip; the heartbeat still paces lanes that do
 not tick, for example while running a long serial leaf. Pools with no
 background lanes disable pacing entirely, which keeps the single-threaded,
-WASM and thread-spawn-failure fallbacks on the one-load tick path.
+WASM and thread-spawn-failure fallbacks on the one-load tick path. The depth
+gate only suppresses demand-driven wake-ups from an idle pool: during a warm
+burst the heartbeat's periodic flags can still share a small tree, which is
+cheap because the lanes are already awake.
 
 Each worker owns a truly local intrusive job list:
 
