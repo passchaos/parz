@@ -188,6 +188,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.index = i;
                 w.active.store(true, .monotonic);
                 w.pacing_enabled = self.pacing_enabled;
+                w.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
@@ -198,6 +199,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.index = self.background_count + i;
                 w.active.store(false, .monotonic);
                 w.pacing_enabled = self.pacing_enabled;
+                w.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
                 w.caller_slot = i;
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
