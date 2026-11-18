@@ -163,6 +163,11 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
 - **Guarded caller epoch.** Skipping the caller-epoch atomic when parking is
   disabled left flat dispatch unchanged and shifted micro by 6%; the epoch is
   not a measured bottleneck. Rejected.
+- **Demand without the heartbeat wake.** Keeping `heartbeat_demand` but
+  skipping `heartbeat_tick.set` left micro at parity, but tree-100k/1m fell to
+  71.5us / 704us: the requesting lane's self-share alone cannot distribute the
+  tree, and the backed-off heartbeat does not publish flags in time. The event
+  wake is retained.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.
