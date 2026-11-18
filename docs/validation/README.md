@@ -5,6 +5,9 @@ summaries where applicable, and raw logs, patches, or assembly snapshots. The
 reports describe the code state and host at measurement time; re-run the
 benchmarks to verify a claim on another machine.
 
+- [2026-11-18 adaptive scheduler and cold-path optimization](2026-11-18-adaptive-scheduler/README.md):
+  work-aware lane planning, lock-free caller/execute-state paths, adaptive
+  heartbeat default, topology policies and E/P/core/sync gates.
 - [2026-11-11 cumulative optimization validation](2026-11-11-final/README.md):
   semantic modules, static heartbeat entry, capacity-pressure wake tests and
   retained cumulative performance signals. This goal remains in progress.

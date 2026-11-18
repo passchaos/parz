@@ -43,6 +43,8 @@ zig build bench-2d                       # 2D grid fill
 zig build bench-sync                     # sync primitive throughput
 zig build bench-micro
 zig build bench-micro -- 1000 8          # paired callback-shape overhead
+zig build bench-wake-latency -- 8 31 100 21
+zig build bench-cold-phases -- scan 65536 8 31 100 21
 zig build bench-irregular -- 200000 8 9 mixed
 zig build bench                          # all primary benchmarks
 ```
@@ -266,6 +268,22 @@ taskset -c 24-31 zig build bench-flat-dispatch -- scratch 1000003 8 31 64 21
 python3 scripts/perf_gate.py --flat-only --baseline /path/to/baseline \
   --cpus 24-31 --rounds 7 --output /tmp/parz-flat-controls
 ```
+
+Cold-path diagnostics:
+
+```sh
+taskset -c 24-31 zig build bench-wake-latency -- 8 31 100 21
+taskset -c 24-31 zig build bench-cold-phases -- scan 65536 8 31 100 21
+```
+
+`bench-wake-latency` records kickstart-to-handler-entry delay for every
+background lane after a controlled idle interval. `bench-cold-phases` splits a
+cold flat fold into caller claim, dispatch/work and release, using the borrowed
+worker API so the dispatch phase excludes caller-slot setup. `perf_gate.py`
+accepts `--statistic min|median` and `--negative-control` (build both revisions
+from the baseline source) to separate host noise from a real regression.
+`idle_profile.py --adaptive` measures the adaptive heartbeat policy; the
+historical periodic policy is measured without the flag.
 
 Allocation counts exclude input/pool initialization. The synthetic context
 constructor allocates 64 KiB; its map only scans data. Repeated context samples

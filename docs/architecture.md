@@ -28,7 +28,7 @@ direct callbacks.
 | `src/root.zig` | Public surface and module re-exports |
 | `src/core.zig` | Coherent owner-local `Worker`, `Task`, `Future` protocol and compatible pool/options exports |
 | `src/scheduler/pool.zig` | Pool lifecycle, caller slots, shared-job publication, execute states |
-| `src/scheduler/heartbeat.zig` | Periodic pacing, idle shortcut and optional parking |
+| `src/scheduler/heartbeat.zig` | Adaptive pacing, demand wake, idle backoff and optional parking |
 | `src/scheduler/pool_options.zig`, `context.zig` | Resource policy and context lifetime |
 | `src/scheduler/ready_owners.zig` | Bounded shared-owner priority bitmap and optional rotation |
 | `src/job.zig` | Intrusive local/shared job list and tagged job state |
@@ -69,13 +69,16 @@ keep the original path without extra notifications. Multiple states returned
 before a worker resumes require multiple notifications, which is covered by
 blocked-peer tests and an intentionally failing transition-only control.
 
-Default idle heartbeats preserve the original periodic mutex/metadata path.
-`skip_idle_heartbeat_metadata` explicitly uses atomic caller/stop snapshots to
-skip the lock and idle lane writes. This shortcut and complete parking through
-`park_idle_heartbeat` are opt-in because cumulative cold calls regressed with
-automatic idle controls. Flat calls kickstart work directly; `Worker.begin()`
-requests pacing for recursive work in parking mode. A held normal caller keeps
-pacing active, and `idle_heartbeat_grace_ns` retains it across short idle gaps.
+Default heartbeats use adaptive pacing. The heartbeat thread waits on a
+timeout event; a lane with local work requests pacing through an out-of-line
+tick slow path, which wakes a backed-off wait immediately. Idle waits double
+up to `max_idle_heartbeat_interval_ns` (1 ms default). A tri-state worker flag
+encodes `idle`, `pacing` and `share`, so pools without adaptive pacing keep the
+original single-load `Task.call` fast path. `share_batch` bounds jobs offered
+per tick. `skip_idle_heartbeat_metadata` and complete parking through
+`park_idle_heartbeat` remain explicit alternatives. Flat calls kickstart work
+directly; a held normal caller keeps pacing active, and
+`idle_heartbeat_grace_ns` retains parking across short idle gaps.
 
 Each worker owns a truly local intrusive job list:
 
@@ -84,11 +87,12 @@ Each worker owns a truly local intrusive job list:
 - Work leaves the local list only through:
   - a heartbeat firing, or
   - an explicit `kickstart` from a flat loop.
-- The heartbeat only sets a per-worker flag. The owner checks that flag at the
-  next `Task.call`, so the call hot path is a single atomic load.
-- A heartbeat shares at most a few jobs and retains the owner's local tail, so
-  the owner always keeps work to run even if every idle worker picks something
-  up.
+- The heartbeat only sets a per-worker state byte. The owner checks that state
+  at the next `Task.call`; `idle` returns after one atomic load, while pacing
+  and sharing run in an out-of-line slow path.
+- A heartbeat shares at most `share_batch` jobs and retains the owner's local
+  tail, so the owner always keeps work to run even if every idle worker picks
+  something up.
 - Idle workers consume jobs from shared lists. They do not steal from another
   worker's local list. Work stealing is intentionally out of scope.
 - A share batch that can occupy every idle lane wakes them with one condition
@@ -149,11 +153,14 @@ See [the owner-tail validation report](validation/2026-11-07-owner-tail/README.m
   fallback instead.
 - The caller executes its own flat lane immediately before waiting for
   background lanes.
+- Caller slots are claimed and released with atomic compare/exchange in the
+  default mode, so a flat call does not take the pool mutex. Parking demand
+  signaling is the only claim path that locks.
 - `Pool.parallelWorkerCount()` is `spawned_background + 1` and is the lane
   budget used by flat planning.
 - `deinit` requires all caller slots released and no active flat call.
 - A worker never executes user code while the pool mutex is held. The mutex
-  protects shared lists and execute-state allocation only.
+  protects shared lists and ready-owner publication only.
 
 ## Execute states
 
@@ -164,7 +171,10 @@ Out-of-line execution needs a small state object to carry the completion event.
 - it stays local;
 - `join` returns `false` and the caller executes it.
 
-This keeps the fallback total without allocating in the hot path.
+This keeps the fallback total without allocating in the hot path. The free
+list has its own spinlock: joins push completed states without taking the pool
+mutex, and only actual state exhaustion locks the pool to notify an idle
+worker.
 
 ## Flat call model
 
@@ -176,7 +186,9 @@ A flat call (`parallelFor`, `parallelForRange`, folds) does the following:
    context; explicit Worker calls borrow that lane's existing context.
 3. Use the supplied worker or claim a caller slot. If none is available, run
    the serial path. Borrowed workers are never released by the flat call.
-4. Plan balanced contiguous chunks and lanes.
+4. Plan balanced contiguous chunks and lanes. When `estimated_item_ns` is
+   nonzero, `min_parallel_lane_ns` (20 us default) caps lanes by useful work so
+   cheap calls do not wake lanes that cannot stay busy.
 5. Dispatch one future per lane, then join every lane before ordered
    reduction.
 6. Check cancellation before successful completion.
@@ -268,6 +280,10 @@ rejected:
 - **Automatic inlining for cold paths.** Branch hints emitted identical code and
   explicit outlining regressed the P-core large-tree control. See
   [cold-path layout trials](validation/2026-11-07-cold-paths/README.md).
+- **Adaptive heartbeat.** Timeout waits plus demand wakes cut idle wake-ups and
+  improve medium/large recursive trees while the tri-state fast path keeps
+  small-callback overhead unchanged. See
+  [adaptive scheduler validation](validation/2026-11-18-adaptive-scheduler/README.md).
 - **Simplified local join.** The obsolete pending-future specialization and
   repeated local-tail checks were removed. See
   [join simplification](validation/2026-11-07-join-simplification/README.md).
@@ -288,3 +304,7 @@ rejected:
   arenas.
 - `deinit` requires all caller slots to be released and no flat-parallel call
   to be active.
+- `Options.prefer_performance_cores` orders pinned CPUs by sysfs
+  `cpu_capacity` on hybrid CPUs; `Options.use_smt_siblings` appends siblings
+  after every physical core has one logical CPU. Both are best effort and keep
+  the original order when sysfs data is unavailable.

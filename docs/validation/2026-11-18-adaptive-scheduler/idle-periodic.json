@@ -1,0 +1,1420 @@
+{
+  "cpus": [
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "parking": false,
+  "adaptive": false,
+  "samples": [
+    {
+      "revision": "baseline",
+      "held": false,
+      "mode": "idle",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001234769122675,
+      "threads": {
+        "2188174": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188175": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188176": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188177": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188178": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188179": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188180": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188181": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188182": {
+          "voluntary": 27958,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 52305023
+        }
+      },
+      "voluntary_per_second": 13970.374906216804,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 52305023
+    },
+    {
+      "revision": "candidate",
+      "held": false,
+      "mode": "idle",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001350498991087,
+      "threads": {
+        "2188298": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188299": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188300": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188301": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188302": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188303": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188304": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188305": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188306": {
+          "voluntary": 26522,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 50942681
+        }
+      },
+      "voluntary_per_second": 13252.051558869956,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 50942681
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "held",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012341050896794,
+      "threads": {
+        "2188373": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188374": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188375": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188376": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188377": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188378": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188379": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188380": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188381": {
+          "voluntary": 27948,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 53831715
+        }
+      },
+      "voluntary_per_second": 13965.382625111515,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 53831715
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "held",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012558039743453,
+      "threads": {
+        "2188540": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188541": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188542": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188543": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188544": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188545": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188546": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188547": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188548": {
+          "voluntary": 27986,
+          "involuntary": 0,
+          "cpu_ticks": 4,
+          "cpu_ns": 51440720
+        }
+      },
+      "voluntary_per_second": 13984.21928092445,
+      "cpu_seconds": 0.04,
+      "cpu_ns": 51440720
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "flat-held",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0013114721514285,
+      "threads": {
+        "2188590": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188591": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188592": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188593": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188594": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188595": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188596": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188597": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188598": {
+          "voluntary": 27366,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 54751300
+        }
+      },
+      "voluntary_per_second": 13674.033442970922,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 54751300
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "flat-held",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012498050928116,
+      "threads": {
+        "2188742": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188743": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188744": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188745": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188746": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188747": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188748": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188749": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188750": {
+          "voluntary": 27974,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 52433416
+        }
+      },
+      "voluntary_per_second": 13978.26494664051,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 52433416
+    },
+    {
+      "revision": "candidate",
+      "held": false,
+      "mode": "idle",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001216884003952,
+      "threads": {
+        "2188878": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188879": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188880": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188881": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188882": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188883": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188884": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188885": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188886": {
+          "voluntary": 27957,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 52723787
+        }
+      },
+      "voluntary_per_second": 13970.000065192728,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 52723787
+    },
+    {
+      "revision": "baseline",
+      "held": false,
+      "mode": "idle",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012052678503096,
+      "threads": {
+        "2188979": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188980": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188981": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188982": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188983": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188984": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188985": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188986": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2188987": {
+          "voluntary": 27969,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 56129252
+        }
+      },
+      "voluntary_per_second": 13976.077541532879,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 56129252
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "held",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012504439800978,
+      "threads": {
+        "2189130": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189131": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189132": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189133": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189134": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189135": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189136": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189137": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189138": {
+          "voluntary": 27978,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 51559799
+        }
+      },
+      "voluntary_per_second": 13980.259234500007,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 51559799
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "held",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0011998100671917,
+      "threads": {
+        "2189232": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189233": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189234": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189235": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189236": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189237": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189238": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189239": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189240": {
+          "voluntary": 27169,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 51671962
+        }
+      },
+      "voluntary_per_second": 13576.355476012053,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 51671962
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "flat-held",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012227499391884,
+      "threads": {
+        "2189379": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189380": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189381": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189382": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189383": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189384": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189385": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189386": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189387": {
+          "voluntary": 27998,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 51752236
+        }
+      },
+      "voluntary_per_second": 13990.446591140731,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 51752236
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "flat-held",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012343989219517,
+      "threads": {
+        "2189435": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189436": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189437": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189438": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189439": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189440": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189441": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189442": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189443": {
+          "voluntary": 27983,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 51577970
+        }
+      },
+      "voluntary_per_second": 13982.869780308698,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 51577970
+    },
+    {
+      "revision": "baseline",
+      "held": false,
+      "mode": "idle",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001527369953692,
+      "threads": {
+        "2189611": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189613": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189618": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189619": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189620": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189621": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189622": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189623": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189624": {
+          "voluntary": 25725,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 57299392
+        }
+      },
+      "voluntary_per_second": 12852.684597860474,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 57299392
+    },
+    {
+      "revision": "candidate",
+      "held": false,
+      "mode": "idle",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "idle",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=idle parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001203594962135,
+      "threads": {
+        "2189964": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189965": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189966": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189967": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189968": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189969": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189970": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189971": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2189972": {
+          "voluntary": 27807,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 58222286
+        }
+      },
+      "voluntary_per_second": 13895.137940988028,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 58222286
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "held",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0012377980165184,
+      "threads": {
+        "2190203": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190204": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190205": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190206": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190207": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190208": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190209": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190210": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190211": {
+          "voluntary": 27985,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 53543022
+        }
+      },
+      "voluntary_per_second": 13983.845411942899,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 53543022
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "held",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0013145769480616,
+      "threads": {
+        "2190406": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190407": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190408": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190409": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190410": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190411": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190412": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190413": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190414": {
+          "voluntary": 27980,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 52265111
+        }
+      },
+      "voluntary_per_second": 13980.81057435187,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 52265111
+    },
+    {
+      "revision": "baseline",
+      "held": true,
+      "mode": "flat-held",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/baseline",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.001266944920644,
+      "threads": {
+        "2190590": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190591": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190592": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190593": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190594": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190595": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190596": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190597": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190598": {
+          "voluntary": 27964,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 57867219
+        }
+      },
+      "voluntary_per_second": 13973.148395307579,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 57867219
+    },
+    {
+      "revision": "candidate",
+      "held": true,
+      "mode": "flat-held",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-idle-dv72tqxv/candidate",
+        "8",
+        "31",
+        "flat-held",
+        "periodic",
+        "periodic"
+      ],
+      "ready": "ready workers=7 mode=flat-held parking=false adaptive=false parked=false",
+      "elapsed_s": 2.0013048991095275,
+      "threads": {
+        "2190780": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190781": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190782": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190783": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190784": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190785": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190786": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190787": {
+          "voluntary": 0,
+          "involuntary": 0,
+          "cpu_ticks": 0,
+          "cpu_ns": 0
+        },
+        "2190788": {
+          "voluntary": 27980,
+          "involuntary": 0,
+          "cpu_ticks": 5,
+          "cpu_ns": 52678330
+        }
+      },
+      "voluntary_per_second": 13980.878182254783,
+      "cpu_seconds": 0.05,
+      "cpu_ns": 52678330
+    }
+  ]
+}

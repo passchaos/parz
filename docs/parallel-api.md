@@ -63,12 +63,15 @@ pub const Options = struct {
 - `min_parallel_ns` — minimum estimated useful work before dispatch. Measure
   the callback to choose an estimate and budget; the library does not sample
   callbacks or infer cost from fallibility.
+- `min_parallel_lane_ns` — when `estimated_item_ns` is nonzero, cap lanes by
+  useful work per lane so cheap calls do not wake lanes that cannot stay busy.
+  `0` disables the cap. Plans without an estimate are unchanged.
 - `scratch` — optional strict reusable dispatch buffer; see below.
 
 For lightweight scans, `.estimated_item_ns = 1` avoids the 4096-item wake-up
-boundary on the measured host. Keep the default zero estimate for unknown
-cost callbacks and tune heavy kernels independently. The item estimate is
-not a platform-independent performance guarantee.
+boundary and caps lanes by useful work on the measured host. Keep the default
+zero estimate for unknown cost callbacks and tune heavy kernels independently.
+The item estimate is not a platform-independent performance guarantee.
 
 ## Reusing caller context and dispatch storage
 
@@ -76,10 +79,10 @@ not a platform-independent performance guarantee.
 heartbeat parking mode it does not keep the heartbeat awake until a callback
 starts recursive work with `Worker.begin()`. Normal `claimCaller()` retains
 recursive pacing. Both caller kinds must be released after all jobs/calls end.
-The default heartbeat timer and idle metadata path preserve periodic pacing
-for predictable cold latency. `park_idle_heartbeat` and
-`skip_idle_heartbeat_metadata` are explicit power/latency choices, both false
-by default.
+The default adaptive heartbeat backs off while idle and wakes when a lane has
+recursive local work. Set `adaptive_heartbeat = false` for the historical
+periodic timer. `park_idle_heartbeat` and `skip_idle_heartbeat_metadata` remain
+explicit power/latency choices, both false by default.
 
 ```zig
 const caller = pool.claimCaller() orelse return error.NoCallerSlot;
