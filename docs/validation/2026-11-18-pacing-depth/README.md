@@ -184,6 +184,12 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
   bytes made micro-plain 6-10% slower while micro-error-union improved 2-4%;
   the two instantiations prefer different I-cache placements, so alignment is
   not a neutral stabilizer for future experiments.
+- **Burst wake latency.** Warm (no idle) versus cold (1 ms idle) flat calls
+  show the wake cost is mostly hidden by the caller's own lane: scan-65536
+  measured 12.3-16.6us warm versus 13.6-17.3us cold, and compute-8192 was
+  125us in both. A spin-before-park window could recover at most about 1us on
+  the cheap scan, far less than its measured micro layout cost. The burst
+  direction is closed without a new benchmark.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.
