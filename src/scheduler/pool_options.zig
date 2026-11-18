@@ -42,6 +42,19 @@ pub fn Options(comptime Ctx: type) type {
         /// idle lane writes, but may increase cold first-call latency. Default
         /// pacing retains the original mutex/metadata path.
         skip_idle_heartbeat_metadata: bool = false,
+        /// Adaptive heartbeat backoff. While every background worker is idle
+        /// and no caller has local work, double the wait up to
+        /// `max_idle_heartbeat_interval_ns`. Local work requests pacing through
+        /// `Worker.tick`, which wakes the backed-off wait immediately. This is
+        /// the default: it cuts idle wake-ups and starts recursive sharing
+        /// sooner than the fixed timer. Set false for the historical periodic
+        /// pacing path.
+        adaptive_heartbeat: bool = true,
+        max_idle_heartbeat_interval_ns: i96 = 1 * std.time.ns_per_ms,
+        /// Maximum local jobs offered to idle lanes per heartbeat tick.
+        /// Larger batches fill more lanes on deep fork/join trees; smaller
+        /// batches keep tiny trees from waking unnecessary lanes.
+        share_batch: usize = 4,
         /// Start a dedicated heartbeat thread. Without it, `tick` never
         /// shares work and only eager `kickstart` paths (flat loops) run in
         /// parallel.

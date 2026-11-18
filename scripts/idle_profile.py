@@ -31,6 +31,7 @@ def main():
     parser.add_argument('--cpus', default=os.environ.get('PARZ_BENCH_CPUS'))
     parser.add_argument('--rounds', type=int, default=3)
     parser.add_argument('--parking', action='store_true')
+    parser.add_argument('--adaptive', action='store_true', help='enable opt-in adaptive heartbeat backoff')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.rounds < 3:
@@ -52,7 +53,8 @@ def main():
                     revisions.reverse()
                 for revision in revisions:
                     cmd = ['taskset', '-c', ','.join(map(str, cpus)), str(binaries[revision]),
-                           str(len(cpus)), str(cpus[-1]), mode, 'park' if args.parking else 'periodic']
+                           str(len(cpus)), str(cpus[-1]), mode, 'park' if args.parking else 'periodic',
+                           'adaptive' if args.adaptive else 'periodic']
                     process = subprocess.Popen(cmd, stderr=subprocess.PIPE, text=True)
                     try:
                         ready = process.stderr.readline()
@@ -79,7 +81,7 @@ def main():
                            'cpu_ns': sum(t['cpu_ns'] for t in deltas.values())}
                     rows.append(row)
                     print(json.dumps(row), flush=True)
-    (args.output / 'results.json').write_text(json.dumps({'cpus': cpus, 'parking': args.parking, 'samples': rows}, indent=2))
+    (args.output / 'results.json').write_text(json.dumps({'cpus': cpus, 'parking': args.parking, 'adaptive': args.adaptive, 'samples': rows}, indent=2))
     idle = [row for row in rows if row['revision'] == 'candidate' and not row['held']]
     if args.parking and any(row['voluntary_per_second'] > 2 for row in idle):
         raise SystemExit('idle heartbeat did not remain parked')

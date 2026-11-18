@@ -11,6 +11,12 @@ const Job = job_mod.Job;
 pub const Options = @import("scheduler/pool_options.zig").Options;
 pub const Pool = @import("scheduler/pool.zig").Pool;
 
+/// Worker heartbeat state. `pacing` encodes an enabled adaptive policy while
+/// no share was requested, so the hot tick path needs only one atomic load.
+pub const heartbeat_idle: u8 = 0;
+pub const heartbeat_pacing: u8 = 1;
+pub const heartbeat_share: u8 = 2;
+
 pub fn Worker(comptime Ctx: type) type {
     return struct {
         const Self = @This();
@@ -28,7 +34,10 @@ pub fn Worker(comptime Ctx: type) type {
         local_tail: *Job = undefined,
         shared_head: Job = Job.head(),
         shared_tail: *Job = undefined,
-        heartbeat: std.atomic.Value(bool) = .init(false),
+        heartbeat: std.atomic.Value(u8) = .init(heartbeat_idle),
+        /// Per-lane copy of the pool pacing policy. Keeps the hot tick path
+        /// from touching shared pool state when adaptive pacing is disabled.
+        pacing_enabled: bool = false,
 
         pub fn context(self: *Self) *Ctx {
             return &self.ctx;
@@ -48,11 +57,23 @@ pub fn Worker(comptime Ctx: type) type {
         /// Cheap hot-path check. Only a heartbeat or an explicit kickstart
         /// lets work leave the local list, so tiny workloads stay serial.
         pub inline fn tick(self: *Self) void {
-            // Inactive workers never have `heartbeat` set (the heartbeat
-            // thread skips them and releaseCaller clears the flag), so the
-            // atomic load is sufficient here.
-            if (!self.heartbeat.load(.monotonic)) return;
-            self.heartbeat.store(false, .monotonic);
+            // Keep the disabled/no-flag path identical to the original tick:
+            // one atomic load and return. Adaptive pacing and sharing live in
+            // an out-of-line slow path so tiny callbacks do not pay for them.
+            const state = self.heartbeat.load(.monotonic);
+            if (state == heartbeat_idle) return;
+            self.tickSlow(state);
+        }
+
+        noinline fn tickSlow(self: *Self, state: u8) void {
+            if (state == heartbeat_pacing) {
+                // Request pacing only when this lane actually has local work
+                // to offer; tiny serial kernels stay quiet.
+                if (!self.job_head.isTail() and !self.pool.heartbeat_demand.load(.monotonic))
+                    self.pool.requestPacing();
+                return;
+            }
+            self.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
             self.maybeShare();
         }
 
@@ -61,7 +82,7 @@ pub fn Worker(comptime Ctx: type) type {
             if (self.job_head.isTail()) return;
             const idle = self.pool.idle_workers.load(.monotonic);
             if (idle == 0) return;
-            self.pool.shareMany(self, @min(idle, 4));
+            self.pool.shareMany(self, @min(idle, self.pool.options.share_batch));
         }
 
         /// Internal background-job entry; pool mutex must be unlocked.

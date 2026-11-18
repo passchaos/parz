@@ -12,6 +12,7 @@ pub fn main(init: std.process.Init) !void {
     const mode = args.next() orelse "idle";
     const held = !std.mem.eql(u8, mode, "idle");
     const parking = if (args.next()) |a| std.mem.eql(u8, a, "park") else false;
+    const adaptive = if (args.next()) |a| std.mem.eql(u8, a, "adaptive") else false;
     if (lanes == 0) return error.InvalidArguments;
     var options = parz.Options(void){
         .workers = if (lanes > 1) lanes - 1 else 0,
@@ -20,6 +21,7 @@ pub fn main(init: std.process.Init) !void {
         .pin_workers = true,
     };
     if (comptime @hasField(parz.Options(void), "park_idle_heartbeat")) options.park_idle_heartbeat = parking;
+    if (comptime @hasField(parz.Options(void), "adaptive_heartbeat")) options.adaptive_heartbeat = adaptive;
     var pool = try parz.Pool(void).init(init.gpa, init.io, options);
     defer pool.deinit();
     try pool.start();
@@ -38,6 +40,6 @@ pub fn main(init: std.process.Init) !void {
         parked = pool.heartbeat_parked;
         pool.mutex.unlock(init.io);
     }
-    std.debug.print("ready workers={d} mode={s} parking={} parked={any}\n", .{ pool.spawned_background, mode, parking, parked });
+    std.debug.print("ready workers={d} mode={s} parking={} adaptive={} parked={any}\n", .{ pool.spawned_background, mode, parking, adaptive, parked });
     try init.io.sleep(std.Io.Duration.fromNanoseconds(3 * std.time.ns_per_s), .awake);
 }

@@ -6,23 +6,56 @@ const Pool = @import("pool.zig").Pool;
 const Worker = @import("../core.zig").Worker;
 const Task = @import("../core.zig").Task;
 const Future = @import("../core.zig").Future;
+const heartbeat_idle = @import("../core.zig").heartbeat_idle;
+const heartbeat_pacing = @import("../core.zig").heartbeat_pacing;
+const heartbeat_share = @import("../core.zig").heartbeat_share;
 
 /// Periodically mark every active worker as ready to share one batch
 /// of local work. Small fork/join trees finish before the first
 /// heartbeat, so they never pay thread-wakeup cost.
 pub fn Heartbeat(comptime P: type) type {
     return struct {
+        /// Back off toward the configured idle ceiling. The default policy
+        /// keeps the historical fixed idle period.
+        fn idleInterval(self: *P, interval: i96) i96 {
+            if (!self.options.adaptive_heartbeat) return self.options.idle_heartbeat_interval_ns;
+            const grown = interval *| 2;
+            return @min(@max(grown, self.options.heartbeat_interval_ns), self.options.max_idle_heartbeat_interval_ns);
+        }
+
+        fn recordPeriod(self: *P, interval: i96) void {
+            if (self.options.adaptive_heartbeat)
+                self.heartbeat_period_ns.store(@intCast(@max(interval, 1)), .monotonic);
+        }
+
         pub fn run(self: *P) void {
             var interval = self.options.heartbeat_interval_ns;
             var observed_epoch: usize = 0;
             var idle_since: ?std.Io.Clock.Timestamp = null;
+            const adaptive = self.options.adaptive_heartbeat and !self.options.park_idle_heartbeat;
             while (true) {
-                self.io.sleep(
-                    std.Io.Duration.fromNanoseconds(@max(interval, 1)),
-                    .awake,
-                ) catch |err| switch (err) {
-                    error.Canceled => return,
-                };
+                if (adaptive) {
+                    // A caller claim or recursive begin sets this event, so a
+                    // backed-off idle wait wakes immediately instead of waiting
+                    // for the full idle interval.
+                    self.heartbeat_tick.waitTimeout(self.io, .{
+                        .duration = .{
+                            .raw = std.Io.Duration.fromNanoseconds(@max(interval, 1)),
+                            .clock = .awake,
+                        },
+                    }) catch |err| switch (err) {
+                        error.Timeout => {},
+                        error.Canceled => return,
+                    };
+                    self.heartbeat_tick.reset();
+                } else {
+                    self.io.sleep(
+                        std.Io.Duration.fromNanoseconds(@max(interval, 1)),
+                        .awake,
+                    ) catch |err| switch (err) {
+                        error.Canceled => return,
+                    };
+                }
                 if (self.is_stopping.load(.acquire)) return;
                 // This shortcut is opt-in: repeated cumulative cold-scan comparisons
                 // regressed, so defaults retain the original periodic metadata path.
@@ -30,7 +63,8 @@ pub fn Heartbeat(comptime P: type) type {
                     !self.has_callers.load(.acquire) and
                     self.idle_workers.load(.monotonic) >= self.spawned_background)
                 {
-                    interval = self.options.idle_heartbeat_interval_ns;
+                    interval = idleInterval(self, interval);
+                    recordPeriod(self, interval);
                     continue;
                 }
                 // `active` is atomic, so the default periodic path publishes
@@ -66,13 +100,27 @@ pub fn Heartbeat(comptime P: type) type {
                     }
                 }
                 for (self.workers[0..self.worker_count]) |w| {
-                    if (w.active.load(.monotonic)) w.heartbeat.store(true, .monotonic);
+                    if (w.active.load(.monotonic)) w.heartbeat.store(heartbeat_share, .monotonic);
                 }
                 const idle = self.idle_workers.load(.monotonic);
-                interval = if (idle >= self.spawned_background)
-                    self.options.idle_heartbeat_interval_ns
-                else
-                    self.options.heartbeat_interval_ns;
+                if (adaptive) {
+                    // Demand keeps base pacing for recursive work; otherwise a
+                    // fully idle pool (even with a held caller) backs off.
+                    if (self.heartbeat_demand.load(.monotonic)) {
+                        self.heartbeat_demand.store(false, .monotonic);
+                        interval = self.options.heartbeat_interval_ns;
+                    } else if (idle >= self.spawned_background) {
+                        interval = idleInterval(self, interval);
+                    } else {
+                        interval = self.options.heartbeat_interval_ns;
+                    }
+                } else {
+                    interval = if (idle >= self.spawned_background)
+                        self.options.idle_heartbeat_interval_ns
+                    else
+                        self.options.heartbeat_interval_ns;
+                }
+                recordPeriod(self, interval);
                 if (parking) self.mutex.unlock(self.io);
             }
         }
@@ -103,7 +151,7 @@ test "heartbeat parks with no callers wakes held callers and shuts down from par
         }
         fn flag(worker: *Worker(void)) !void {
             for (0..20000) |_| {
-                if (worker.heartbeat.load(.monotonic)) return;
+                if (worker.heartbeat.load(.monotonic) == heartbeat_share) return;
                 try worker.pool.io.sleep(std.Io.Duration.fromNanoseconds(50 * std.time.ns_per_us), .awake);
             }
             return error.HeartbeatFlagTimeout;
@@ -132,7 +180,7 @@ test "heartbeat parks with no callers wakes held callers and shuts down from par
             try Wait.parked(&pool, false);
             pool.releaseCaller(first);
             try std.testing.expectEqual(@as(usize, 1), pool.active_callers.load(.monotonic));
-            second.heartbeat.store(false, .monotonic);
+            second.heartbeat.store(if (second.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
             try Wait.flag(second);
             var task = second.begin();
             var future: Future(void, u64, u64) = undefined;
@@ -159,12 +207,12 @@ test "explicit idle shortcut skips worker writes and resumes periodic flags for 
     if (pool.heartbeat_thread == null) return;
     try pool.io.sleep(std.Io.Duration.fromNanoseconds(2 * std.time.ns_per_ms), .awake);
     for (pool.background_storage[0..pool.spawned_background]) |*worker| {
-        try std.testing.expect(!worker.heartbeat.load(.monotonic));
+        try std.testing.expect(worker.heartbeat.load(.monotonic) != heartbeat_share);
     }
     const caller = pool.claimCaller().?;
     var flagged = false;
     for (0..20000) |_| {
-        if (caller.heartbeat.load(.monotonic)) {
+        if (caller.heartbeat.load(.monotonic) == heartbeat_share) {
             flagged = true;
             break;
         }
@@ -188,7 +236,7 @@ test "default heartbeat preserves periodic idle lane flags" {
     if (pool.heartbeat_thread == null) return;
     var flagged = false;
     for (0..20000) |_| {
-        if (pool.background_storage[0].heartbeat.load(.monotonic)) {
+        if (pool.background_storage[0].heartbeat.load(.monotonic) == heartbeat_share) {
             flagged = true;
             break;
         }
@@ -250,4 +298,50 @@ test "flat callers keep heartbeat parked until recursive begin requests pacing" 
             try Run.parked(&pool);
         }
     }
+}
+
+test "adaptive heartbeat backs off while idle and wakes on caller demand" {
+    if (builtin.single_threaded) return error.SkipZigTest;
+    var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .adaptive_heartbeat = true,
+        .max_idle_heartbeat_interval_ns = 1 * std.time.ns_per_ms,
+    });
+    defer pool.deinit();
+    try pool.start();
+    if (pool.heartbeat_thread == null) return;
+    const base: u64 = @intCast(pool.options.heartbeat_interval_ns);
+    var backed_off = false;
+    for (0..20000) |_| {
+        if (pool.heartbeat_period_ns.load(.monotonic) > base) {
+            backed_off = true;
+            break;
+        }
+        try pool.io.sleep(std.Io.Duration.fromNanoseconds(50 * std.time.ns_per_us), .awake);
+    }
+    try std.testing.expect(backed_off);
+    const caller = pool.claimCaller().?;
+    defer pool.releaseCaller(caller);
+    const Run = struct {
+        fn leaf(_: *Task(void), value: u64) u64 {
+            return value;
+        }
+    };
+    var task = caller.begin();
+    var future: Future(void, u64, u64) = undefined;
+    future.initFork(&task, Run.leaf, 7);
+    // Local work requests pacing; the backed-off wait wakes and consumes it.
+    task.tick();
+    var consumed = false;
+    for (0..20000) |_| {
+        if (!pool.heartbeat_demand.load(.monotonic)) {
+            consumed = true;
+            break;
+        }
+        try pool.io.sleep(std.Io.Duration.fromNanoseconds(50 * std.time.ns_per_us), .awake);
+    }
+    try std.testing.expect(consumed);
+    try std.testing.expectEqual(@as(u64, 7), future.joinOrCall(&task, Run.leaf));
 }

@@ -117,8 +117,10 @@ pub fn main(init: std.process.Init) !void {
         true;
     const gate = argv.items.len > 3 and std.mem.eql(u8, argv.items[3], "gate");
     const caller_cpu = if (argv.items.len > 4) try std.fmt.parseInt(usize, argv.items[4], 10) else null;
+    const adaptive_arg = argv.items.len > 5;
+    const adaptive = adaptive_arg and std.mem.eql(u8, argv.items[5], "adaptive");
 
-    var pool = try parz.Pool(void).init(allocator, io, .{
+    var options = parz.Options(void){
         .workers = 0,
         .max_workers = 64,
         .max_callers = 1,
@@ -126,7 +128,9 @@ pub fn main(init: std.process.Init) !void {
         .worker_stack_size = 2 * 1024 * 1024,
         .enable_heartbeat = heartbeat,
         .pin_workers = caller_cpu != null,
-    });
+    };
+    if (adaptive_arg and comptime @hasField(parz.Options(void), "adaptive_heartbeat")) options.adaptive_heartbeat = adaptive;
+    var pool = try parz.Pool(void).init(allocator, io, options);
     defer pool.deinit();
     try pool.start();
     if (caller_cpu) |cpu| try affinity.pinCaller(&pool, cpu);

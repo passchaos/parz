@@ -11,6 +11,8 @@ const Options = @import("pool_options.zig").Options;
 const Worker = @import("../core.zig").Worker;
 const Task = @import("../core.zig").Task;
 const Future = @import("../core.zig").Future;
+const heartbeat_idle = @import("../core.zig").heartbeat_idle;
+const heartbeat_pacing = @import("../core.zig").heartbeat_pacing;
 const initContext = @import("context.zig").initContext;
 const deinitContext = @import("context.zig").deinitContext;
 
@@ -37,8 +39,18 @@ pub fn Pool(comptime Ctx: type) type {
         active_callers: std.atomic.Value(usize) = .init(0),
         has_callers: std.atomic.Value(bool) = .init(false),
         caller_epoch: std.atomic.Value(usize) = .init(0),
+        /// True when adaptive pacing can actually wake the heartbeat. Kept as
+        /// a plain field so the hot `tick` path skips atomic demand loads when
+        /// pacing is disabled (no heartbeat, parking, or explicit periodic).
+        pacing_enabled: bool = false,
         heartbeat_parked: bool = false,
         heartbeat_demand: std.atomic.Value(bool) = .init(false),
+        /// Adaptive-heartbeat wake. Caller claims and recursive begins set it
+        /// so the pacing thread can leave a backed-off idle wait immediately.
+        heartbeat_tick: std.Io.Event = .unset,
+        /// Last pacing interval used by the adaptive heartbeat, in
+        /// nanoseconds. Diagnostic/test hook; zero until the first tick.
+        heartbeat_period_ns: std.atomic.Value(u64) = .init(0),
         workers_ready: std.Io.Semaphore = .{},
         idle_workers: std.atomic.Value(usize) = .init(0),
         is_stopping: std.atomic.Value(bool) = .init(false),
@@ -157,6 +169,8 @@ pub fn Pool(comptime Ctx: type) type {
                 .background_count = background_count,
                 .caller_count = caller_count,
                 .caller_busy = caller_busy,
+                .pacing_enabled = options.adaptive_heartbeat and options.enable_heartbeat and
+                    !options.park_idle_heartbeat,
                 .pinned_cpus = pinned_cpus,
                 .execute_states = execute_states,
                 .execute_free = if (execute_states.len != 0) 0 else null,
@@ -173,6 +187,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.pool = self;
                 w.index = i;
                 w.active.store(true, .monotonic);
+                w.pacing_enabled = self.pacing_enabled;
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
@@ -182,6 +197,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.pool = self;
                 w.index = self.background_count + i;
                 w.active.store(false, .monotonic);
+                w.pacing_enabled = self.pacing_enabled;
                 w.caller_slot = i;
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
@@ -233,6 +249,7 @@ pub fn Pool(comptime Ctx: type) type {
                 self.is_stopping.store(true, .release);
                 self.job_ready.broadcast(self.io);
                 self.heartbeat_ready.broadcast(self.io);
+                self.heartbeat_tick.set(self.io);
                 self.mutex.unlock(self.io);
 
                 for (self.background_threads[0..self.spawned_background]) |thread| {
@@ -291,11 +308,12 @@ pub fn Pool(comptime Ctx: type) type {
                     self.mutex.unlock(self.io);
                 }
                 w.active.store(true, .monotonic);
+                w.pacing_enabled = self.pacing_enabled;
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
                 w.shared_tail = &w.shared_head;
-                w.heartbeat.store(false, .monotonic);
+                w.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
                 return w;
             }
             return null;
@@ -311,6 +329,14 @@ pub fn Pool(comptime Ctx: type) type {
             if (self.heartbeat_parked) self.heartbeat_ready.signal(self.io);
         }
 
+        /// Adaptive pacing demand. Called only when a lane actually has local
+        /// jobs to offer, so tiny serial kernels do not wake the heartbeat.
+        pub noinline fn requestPacing(self: *Self) void {
+            if (!self.pacing_enabled or self.spawned_background == 0) return;
+            self.heartbeat_demand.store(true, .monotonic);
+            self.heartbeat_tick.set(self.io);
+        }
+
         pub fn releaseCaller(self: *Self, w: *Worker(Ctx)) void {
             std.debug.assert(w.job_head.isTail());
             std.debug.assert(w.shared_head.isTail());
@@ -324,7 +350,7 @@ pub fn Pool(comptime Ctx: type) type {
             // Reset owner-local fields before publishing the slot as free; a
             // new claimant must never observe or overwrite this lane's state.
             w.active.store(false, .monotonic);
-            w.heartbeat.store(false, .monotonic);
+            w.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
             w.job_head = Job.head();
             w.local_tail = &w.job_head;
             w.shared_head = Job.head();
@@ -601,6 +627,42 @@ test "shared ready owners rotate fairly and state exhaustion preserves reclamati
             try std.testing.expectEqual(@as(u64, owner * 10 + 2), slots[2].joinOrCall(task, Run.leaf));
             pool.releaseCaller(caller);
         }
+    }
+}
+
+test "shareMany bounds offered jobs and retains the local tail" {
+    const F = Future(void, u64, u64);
+    const Run = struct {
+        fn leaf(_: *Task(void), value: u64) u64 {
+            return value;
+        }
+    };
+    var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .max_workers = 0,
+        .max_callers = 1,
+        .max_execute_states = 16,
+        .enable_heartbeat = false,
+    });
+    defer pool.deinit();
+    try pool.start();
+    const caller = pool.claimCaller().?;
+    defer pool.releaseCaller(caller);
+    for ([_]usize{ 1, 2, 4, 8 }) |batch| {
+        var task = caller.begin();
+        var futures: [8]F = undefined;
+        for (&futures, 0..) |*future, index| future.initFork(&task, Run.leaf, index);
+        pool.shareMany(caller, batch);
+        var shared: usize = 0;
+        for (&futures) |*future| {
+            if (future.job.state() == .queued_shared) shared += 1;
+        }
+        try std.testing.expect(shared <= batch);
+        try std.testing.expect(shared <= futures.len - 1);
+        try std.testing.expect(!caller.job_head.isTail());
+        for (&futures, 0..) |*future, index| {
+            try std.testing.expectEqual(@as(u64, index), future.joinOrCall(&task, Run.leaf));
+        }
+        try std.testing.expect(caller.job_head.isTail());
     }
 }
 
