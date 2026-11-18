@@ -197,7 +197,10 @@ should check its token internally when lower cancellation latency is needed.
 ## Dynamic and static scheduling
 
 Dynamic scheduling is the default and lets fast lanes take more chunks, which
-is preferable for irregular callbacks and heterogeneous CPUs.
+is preferable for irregular callbacks and heterogeneous CPUs. Above 512
+planned chunks, each cursor update claims a small adjacent batch (up to eight)
+so the shared cursor atomic does not dominate very fine-grained plans; smaller
+and default plans keep one-chunk claims and their exact distribution.
 
 Static scheduling divides chunk indices into balanced contiguous spans, one per
 dispatch future. A future may execute on any available worker, so static is a

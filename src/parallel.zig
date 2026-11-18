@@ -643,16 +643,31 @@ fn runDynamicLanes(
         results: []Result,
         size: usize,
         extra: usize,
+        claim_batch: usize,
         next: std.atomic.Value(usize) = .init(0),
 
         fn run(t: *Task, self: *@This()) void {
-            while (true) {
-                const index = self.next.fetchAdd(1, .monotonic);
-                if (index >= self.results.len) return;
-                const start = index * self.size + @min(index, self.extra);
-                const chunk = Chunk{ .start = start, .end = start + self.size + @intFromBool(index < self.extra) };
-                self.results[index] = t.call(Result, exec, Input{ .runner = self.runner, .chunk = chunk });
+            // Keep the common single-chunk claim loop byte-for-byte tight;
+            // batching only starts where cursor contention can matter.
+            if (self.claim_batch == 1) {
+                while (true) {
+                    const index = self.next.fetchAdd(1, .monotonic);
+                    if (index >= self.results.len) return;
+                    self.execute(t, index);
+                }
             }
+            while (true) {
+                const first = self.next.fetchAdd(self.claim_batch, .monotonic);
+                if (first >= self.results.len) return;
+                const end = @min(first +| self.claim_batch, self.results.len);
+                for (first..end) |index| self.execute(t, index);
+            }
+        }
+
+        inline fn execute(self: *@This(), t: *Task, index: usize) void {
+            const start = index * self.size + @min(index, self.extra);
+            const chunk = Chunk{ .start = start, .end = start + self.size + @intFromBool(index < self.extra) };
+            self.results[index] = t.call(Result, exec, Input{ .runner = self.runner, .chunk = chunk });
         }
     };
     var state = State{
@@ -660,6 +675,7 @@ fn runDynamicLanes(
         .results = results,
         .size = count / results.len,
         .extra = count % results.len,
+        .claim_batch = dynamicClaimBatch(results.len),
     };
     const Fut = core.Future(P.Context, *State, void);
     const futures = try allocator.alloc(Fut, lanes);
@@ -764,6 +780,14 @@ fn plannedLaneCount(options: Options, worker_count: usize) usize {
     else
         @min(options.max_workers, worker_count);
     return @max(requested_lanes, 1);
+}
+
+/// One atomic claim per chunk makes the dynamic cursor the bottleneck only
+/// when a caller requests many small chunks. Above that point, claim a few
+/// adjacent chunks per cursor update. Small and default chunk plans keep the
+/// exact single-claim loop, so their distribution is unchanged.
+fn dynamicClaimBatch(chunks: usize) usize {
+    return @max(1, @min(@as(usize, 8), chunks / 512));
 }
 
 fn plannedChunkCount(count: usize, options: Options, worker_count: usize) usize {
