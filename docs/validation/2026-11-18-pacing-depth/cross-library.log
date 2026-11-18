@@ -1,0 +1,87 @@
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 1000 32
+r01 spice  tree-1000        serial=      2081 parallel=      2897 speedup=0.72
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 1000 32
+r01 rayon  tree-1000        serial=      2599 parallel=     28832 speedup=0.09
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 1000 32
+r01 openmp tree-1000        serial=      1443 parallel=    467171 speedup=0.00
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 100000 32
+r01 parz   tree-100000      serial=    223928 parallel=     55578 speedup=4.03
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 100000 32
+r01 spice  tree-100000      serial=    156771 parallel=    217889 speedup=0.72
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 100000 32
+r01 rayon  tree-100000      serial=    183035 parallel=    338873 speedup=0.54
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 100000 32
+r01 openmp tree-100000      serial=    113973 parallel=    488244 speedup=0.23
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 10000000 32
+r01 parz   tree-10000000    serial=  16102975 parallel=   3475161 speedup=4.63
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 10000000 32
+r01 spice  tree-10000000    serial=  16659320 parallel=   7118215 speedup=2.34
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 10000000 32
+r01 rayon  tree-10000000    serial=  15832640 parallel=   4779356 speedup=3.31
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 10000000 32
+r01 openmp tree-10000000    serial=  13072606 parallel=   3490861 speedup=3.74
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz flat 16000000 32
+r01 parz   flat-16000000    serial=   6721365 parallel=   1584140 speedup=4.24
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice flat 16000000 32
+r01 spice  flat-16000000    serial=   6588495 parallel=   4291571 speedup=1.54
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench flat 16000000 32
+r01 rayon  flat-16000000    serial=   5375127 parallel=   1803156 speedup=2.98
++ /home/passchaos/project-z/parz/bench/compare/omp_bench flat 16000000 32
+r01 openmp flat-16000000    serial=   6914346 parallel=   1932852 speedup=3.58
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz compute-inf 1000000 32
+r01 parz   compute-1000000  serial=  61829006 parallel=   3466818 speedup=17.83
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice compute 1000000 32
+r01 spice  compute-1000000  serial=  61868795 parallel=   9263043 speedup=6.68
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench compute 1000000 32
+r01 rayon  compute-1000000  serial=  61505673 parallel=   3739604 speedup=16.45
++ /home/passchaos/project-z/parz/bench/compare/omp_bench compute 1000000 32
+r01 openmp compute-1000000  serial=  64438417 parallel=   6793386 speedup=9.49
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 1000 32
+r02 spice  tree-1000        serial=      1391 parallel=      2273 speedup=0.61
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 1000 32
+r02 rayon  tree-1000        serial=      2025 parallel=     30897 speedup=0.07
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 1000 32
+r02 openmp tree-1000        serial=      2483 parallel=    452996 speedup=0.01
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 1000 32
+r02 parz   tree-1000        serial=      2141 parallel=      2144 speedup=1.00
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 100000 32
+r02 spice  tree-100000      serial=    157709 parallel=    239304 speedup=0.66
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 100000 32
+r02 rayon  tree-100000      serial=    191427 parallel=    247345 speedup=0.77
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 100000 32
+r02 openmp tree-100000      serial=    131421 parallel=    466734 speedup=0.28
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 100000 32
+r02 parz   tree-100000      serial=    219918 parallel=     59445 speedup=3.70
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 10000000 32
+r02 spice  tree-10000000    serial=  16282731 parallel=   7562509 speedup=2.15
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 10000000 32
+r02 rayon  tree-10000000    serial=  15861132 parallel=   5144101 speedup=3.08
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 10000000 32
+r02 openmp tree-10000000    serial=  12923046 parallel=   3606142 speedup=3.58
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 10000000 32
+r02 parz   tree-10000000    serial=  15657310 parallel=   3393153 speedup=4.61
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice flat 16000000 32
+r02 spice  flat-16000000    serial=   6923201 parallel=   4546653 speedup=1.52
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench flat 16000000 32
+r02 rayon  flat-16000000    serial=   5328406 parallel=   1962540 speedup=2.72
++ /home/passchaos/project-z/parz/bench/compare/omp_bench flat 16000000 32
+r02 openmp flat-16000000    serial=   7162064 parallel=   1995906 speedup=3.59
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz flat 16000000 32
+r02 parz   flat-16000000    serial=   6911889 parallel=   1629222 speedup=4.24
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice compute 1000000 32
+r02 spice  compute-1000000  serial=  61799885 parallel=   8976616 speedup=6.88
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench compute 1000000 32
+r02 rayon  compute-1000000  serial=  61568285 parallel=   3542979 speedup=17.38
++ /home/passchaos/project-z/parz/bench/compare/omp_bench compute 1000000 32
+r02 openmp compute-1000000  serial=  64019795 parallel=   6477733 speedup=9.88
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz compute-inf 1000000 32
+r02 parz   compute-1000000  serial=  61810766 parallel=   3431504 speedup=18.01
+
+=== median time per implementation ===
+workload                       parz              spice              rayon             openmp
+tree-1000             0.002ms/ 1.00x      0.003ms/ 0.67x      0.030ms/ 0.08x      0.460ms/ 0.00x
+tree-100000           0.058ms/ 3.86x      0.229ms/ 0.69x      0.293ms/ 0.64x      0.477ms/ 0.26x
+tree-10000000         3.434ms/ 4.62x      7.340ms/ 2.24x      4.962ms/ 3.19x      3.549ms/ 3.66x
+flat-16000000         1.607ms/ 4.24x      4.419ms/ 1.53x      1.883ms/ 2.84x      1.964ms/ 3.58x
+compute-1000000       3.449ms/17.92x      9.120ms/ 6.78x      3.641ms/16.90x      6.636ms/ 9.68x
+gate passed

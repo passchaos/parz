@@ -1,0 +1,388 @@
+build candidate tree_sum.zig
+run 0 tree-1k candidate
+run 1 tree-1k candidate
+run 2 tree-1k candidate
+{"case": "tree-1k", "candidate": {"serial_ns": 1543.0, "parallel_ns": 1547.0, "speedup": 0.991}}
+1/132 root.test_0...OK
+2/132 job.test.job list: push, shift, and remove preserve order...OK
+3/132 job.test.job list: shared list supports single-element pop...OK
+4/132 job.test.job list: remove middle node repairs tail...OK
+5/132 core.test.future: nested begin preserves outstanding local work on registered and temporary lanes...OK
+6/132 core.test.future: fork/join tree sum with caller fallback...OK
+7/132 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+8/132 core.test.Future shares input and output storage...OK
+9/132 core.test.future: initFork accepts undefined storage and reuses joined slots...OK
+10/132 core.test.future: reclaimed parent fallback publishes descendant forks...OK
+11/132 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+12/132 core.test.pacing requires enough excess local work...OK
+13/132 core.test_0...OK
+14/132 parallel.test_0...OK
+15/132 cancel.test.cancel token transitions...OK
+16/132 sync.test_0...OK
+17/132 numa.test.numa allocator validates policy node sets and copies wide masks...OK
+18/132 numa.test.numa allocator preserves contents alignment and failed reallocations...OK
+19/132 numa.test.numa required policy either applies or reports allocation failure...OK
+20/132 numa.test.numa allocator handles every policy and init-time allocation failure...OK
+21/132 numa.test.numa VMA policy survives reallocating an anonymous mapping...OK
+22/132 sync.spsc.test.spsc queue: single-threaded order and bounds...OK
+23/132 sync.spsc.test.spsc queue: capacity boundaries and cached cursors survive wraparound...OK
+24/132 sync.spsc.test.spsc queue: mixed slice and scalar transfers match FIFO through wrap...OK
+25/132 sync.spsc.test.spsc queue: slice transfers support empty elements...OK
+26/132 sync.spsc.test.spsc queue: concurrent mixed batch transfer and length observer...SKIP
+27/132 sync.spsc.test.spsc queue: concurrent observer length stays within capacity...SKIP
+28/132 sync.spsc.test.spsc queue: repeated threaded FIFO across capacities and counter wrap...SKIP
+29/132 sync.mpsc.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+30/132 sync.mpsc.test.mpsc queue: single-threaded order and bounds...OK
+31/132 sync.mpsc.test.mpsc queue: mixed slice and scalar prefixes preserve FIFO across counter wrap...OK
+32/132 sync.mpsc.test.mpsc queue: ready batches cannot skip an earlier reserved slot...OK
+33/132 sync.mpsc.test.mpsc queue: slice transfers retain aligned payloads and empty elements...OK
+34/132 sync.mpsc.test.mpsc queue: concurrent scalar and batch producers retain every value and producer order...SKIP
+35/132 sync.mpsc.test.mpsc queue: singleton concurrent producers preserve every value and producer order...SKIP
+36/132 sync.mpsc.test.mpsc queue: threaded producers and consumer...SKIP
+37/132 sync.sharded_mpsc.test.sharded mpsc queue: single-threaded round robin...OK
+38/132 sync.sharded_mpsc.test.sharded consumer view preserves selected FIFO and leaves other shards queued...OK
+39/132 sync.sharded_mpsc.test.sparse sharded view concurrently preserves per producer order...SKIP
+40/132 sync.sharded_mpsc.test.sharded mpsc queue: mixed slice transfers preserve per-shard FIFO through wrap...OK
+41/132 sync.sharded_mpsc.test.sharded mpsc queue: initialization failures release completed shards...OK
+42/132 sync.sharded_mpsc.test.sharded mpsc queue: threaded producers and consumer...SKIP
+43/132 sync.sharded_mpsc.test.sharded mpsc queue: concurrent mixed scalar and batch transfers...SKIP
+44/132 sync.blocking_queue.test.blocking queue: single-threaded order and bounds...OK
+45/132 sync.blocking_queue.test.blocking queue cancelled waits remove registration and preserve mutex reuse...OK
+46/132 sync.blocking_queue.test.blocking batch wakes every blocked reader and writer without stranding...SKIP
+47/132 sync.blocking_queue.test.blocking queue: mixed slice transfers handle partial prefixes and wrap...OK
+48/132 sync.blocking_queue.test.blocking queue: threaded producers and consumers...SKIP
+49/132 sync.blocking_queue.test.blocking queue: threaded batch producers and consumers...SKIP
+50/132 sync.treiber_stack.test.uncounted stack preserves mixed scalar batch LIFO and node reuse...OK
+51/132 sync.treiber_stack.test.uncounted stack concurrent producers retain every caller owned node...SKIP
+52/132 sync.treiber_stack.test.treiber stack: single-threaded order...OK
+53/132 sync.treiber_stack.test.treiber stack: mixed slice operations preserve LIFO order...OK
+54/132 sync.treiber_stack.test.treiber stack: concurrent length does not underflow...SKIP
+55/132 sync.treiber_stack.test.treiber stack: threaded producers and consumer...SKIP
+56/132 sync.treiber_stack.test.treiber stack: concurrent mixed scalar and batch producers and consumer...SKIP
+57/132 sync.coordination.test.semaphore wakes a waiter...SKIP
+58/132 sync.coordination.test.semaphore batch permits wake scalar and batch waiters...SKIP
+59/132 sync.coordination.test.semaphore mixed permit waiters do not strand available permits...SKIP
+60/132 sync.coordination.test.wait group waits for all members...SKIP
+61/132 sync.coordination.test.wait group batch completion wakes cancelable waiters...SKIP
+62/132 sync.coordination.test.wait group concurrent last completions keep every waiter awake...SKIP
+63/132 parallel.cancellation.test.final callback cancellation is observed across flat APIs and serial fallbacks...OK
+64/132 parallel.cancellation.test.cancellation from final ordered reduction is observed...OK
+65/132 parallel.cancellation.test.callback errors retain chunk-index precedence over exit cancellation...OK
+66/132 parallel.cancellation.test.cancelled calls drain callbacks and select errors by chunk index...SKIP
+67/132 parallel.cancellation.test.parallelFor returns Cancelled for an already-cancelled token...OK
+68/132 parallel.cancellation.test.parallelFold cancels from a callback...OK
+69/132 parallel.cancellation.test.parallelFoldInfallible honors cancellation...OK
+70/132 parallel.cancellation.test.serial fold honors cancellation...OK
+71/132 parallel.cancellation.test.parallelFor cancellation from another thread...SKIP
+72/132 parallel.index.test.parallelFor covers every index exactly once...OK
+73/132 parallel.index.test.nested parallelFor...OK
+74/132 parallel.index.test.parallelFor returns the first error by index...OK
+75/132 parallel.index.test.parallelFor2D covers every cell exactly once...OK
+76/132 parallel.index.test.parallelFor2D handles empty dimensions and overflow...OK
+77/132 parallel.range.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+78/132 parallel.range.test.parallelForRange accepts usize limits and saturates lane planning...OK
+79/132 parallel.range.test.parallelForRange enforces worker caps including the caller...OK
+80/132 parallel.range.test.range folds preserve deterministic chunk-index order across worker counts...OK
+81/132 parallel.range.test.range fold errors are selected by chunk index...OK
+82/132 parallel.fold.test.balanced folds preserve sequence order across worker counts...OK
+83/132 parallel.fold.test.capped folds preserve ordered results and errors across worker counts...OK
+84/132 parallel.fold.test.parallelFold is deterministic and ordered...OK
+85/132 parallel.fold.test.parallelFold is deterministic across worker counts...OK
+86/132 parallel.fold.test.infallible value and cancellable folds preserve noncommutative order across lanes...OK
+87/132 parallel.fold.test.parallelFoldInfallible matches the fallible fold...OK
+88/132 parallel.dispatch.test.capped allocation failures release caller slots before invoking callbacks...SKIP
+89/132 parallel.dispatch.test.capped nested calls and cancellation drain their lane futures...OK
+90/132 parallel.dispatch.test.parallelFold covers stack and heap dispatch storage...OK
+91/132 parallel.dispatch.test.uncancelled infallible fold fits 256 u64 results and lane futures on the stack...OK
+92/132 parallel.dispatch.test.infallible value dispatch allocation failures release caller before callbacks...SKIP
+93/132 parallel.dispatch.test.pool dispatch scratch reuses storage for high chunk counts...OK
+94/132 parallel.dispatch.test.pool dispatch scratch is exclusive and falls back when all objects are busy...OK
+95/132 parallel.planning.test.cost estimate adds a saturating work guard without changing explicit dispatch...OK
+96/132 parallel.planning.test.work estimate caps lanes without changing plans that omit it...OK
+97/132 parallel.serial.test.serial fallback worker index matches its context initialization index...OK
+98/132 parallel.serial.test.already cancelled serial calls skip temporary context construction...OK
+99/132 parallel.serial.test.serial fallback kickstart leaves jobs local across worker counts...OK
+100/132 parallel.serial.test.serial fallback destroys the mutated worker context...OK
+101/132 parallel.serial.test.parallelFor serial fallback with no background workers...OK
+102/132 parallel.executor.test.explicit worker reuses context for every flat API and keeps its caller slot...OK
+103/132 parallel.executor.test.nested worker dispatch retains parent futures and ordered output across lanes...OK
+104/132 parallel.scratch.test.dispatch scratch nested leases do not reset outstanding storage...OK
+105/132 parallel.scratch.test.explicit dispatch scratch handles aligned results order and no heap across lanes...OK
+106/132 parallel.scratch.test.strict dispatch scratch rejects both allocation stages before callbacks and releases slots...OK
+107/132 parallel.scratch.test.nested scratch calls use independent storage and retain outer results...OK
+108/132 parallel.scratch.test.cancellation drains scratch callbacks before storage and caller are released...OK
+109/132 scheduler.pool.test.zero worker caller accounting preserves serial fallback...OK
+110/132 scheduler.pool.test.shared ready owners rotate fairly and state exhaustion preserves reclamation...OK
+111/132 scheduler.pool.test.shareMany bounds offered jobs and retains the local tail...OK
+112/132 scheduler.pool.test.pool: start and stop without workers...OK
+113/132 scheduler.pool.test.pool pins workers when requested...OK
+114/132 scheduler.pool.test.pool accepts performance-core and SMT placement policies...OK
+115/132 scheduler.pool.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+116/132 scheduler.pool.test.pool applies a preferred numa node...OK
+117/132 scheduler.pool.test.pool applies automatic numa policy...OK
+118/132 scheduler.pool.test.exhausted execution states wake ready work on capacity return across workers...SKIP
+119/132 scheduler.pool.test.multiple capacity returns wake blocked peers before any state is consumed...SKIP
+120/132 scheduler.context.test.pool: per-worker context init and deinit...OK
+121/132 scheduler.context.test.affinity: context initialization failure releases selected CPU storage...OK
+122/132 scheduler.heartbeat.test.heartbeat thread entry has a static pool parameter...OK
+123/132 scheduler.heartbeat.test.heartbeat parks with no callers wakes held callers and shuts down from park...SKIP
+124/132 scheduler.heartbeat.test.explicit idle shortcut skips worker writes and resumes periodic flags for callers...SKIP
+125/132 scheduler.heartbeat.test.default heartbeat preserves periodic idle lane flags...SKIP
+126/132 scheduler.heartbeat.test.flat callers keep heartbeat parked until recursive begin requests pacing...SKIP
+127/132 scheduler.heartbeat.test.adaptive heartbeat backs off while idle and wakes on caller demand...SKIP
+128/132 scheduler.ready_owners.test.ready owners preserve round robin and arbitrary reclamation order...OK
+129/132 scheduler.ready_owners.test.ready owner allocation failure and empty capacity...OK
+130/132 scheduler.ready_owners.test.ready owner priority bitmap crosses words and retains original index order...OK
+131/132 affinity.test.affinity: first allowed siblings survive restricted CPU sets...OK
+132/132 affinity.test.affinity: topology policies order physical cores, siblings and capacity...OK
+99 passed; 33 skipped; 0 failed.
+1/132 root.test_0...OK
+2/132 job.test.job list: push, shift, and remove preserve order...OK
+3/132 job.test.job list: shared list supports single-element pop...OK
+4/132 job.test.job list: remove middle node repairs tail...OK
+5/132 core.test.future: nested begin preserves outstanding local work on registered and temporary lanes...OK
+6/132 core.test.future: fork/join tree sum with caller fallback...OK
+7/132 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+8/132 core.test.Future shares input and output storage...OK
+9/132 core.test.future: initFork accepts undefined storage and reuses joined slots...OK
+10/132 core.test.future: reclaimed parent fallback publishes descendant forks...OK
+11/132 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+12/132 core.test.pacing requires enough excess local work...OK
+13/132 core.test_0...OK
+14/132 parallel.test_0...OK
+15/132 cancel.test.cancel token transitions...OK
+16/132 sync.test_0...OK
+17/132 numa.test.numa allocator validates policy node sets and copies wide masks...OK
+18/132 numa.test.numa allocator preserves contents alignment and failed reallocations...OK
+19/132 numa.test.numa required policy either applies or reports allocation failure...OK
+20/132 numa.test.numa allocator handles every policy and init-time allocation failure...OK
+21/132 numa.test.numa VMA policy survives reallocating an anonymous mapping...OK
+22/132 sync.spsc.test.spsc queue: single-threaded order and bounds...OK
+23/132 sync.spsc.test.spsc queue: capacity boundaries and cached cursors survive wraparound...OK
+24/132 sync.spsc.test.spsc queue: mixed slice and scalar transfers match FIFO through wrap...OK
+25/132 sync.spsc.test.spsc queue: slice transfers support empty elements...OK
+26/132 sync.spsc.test.spsc queue: concurrent mixed batch transfer and length observer...OK
+27/132 sync.spsc.test.spsc queue: concurrent observer length stays within capacity...OK
+28/132 sync.spsc.test.spsc queue: repeated threaded FIFO across capacities and counter wrap...OK
+29/132 sync.mpsc.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+30/132 sync.mpsc.test.mpsc queue: single-threaded order and bounds...OK
+31/132 sync.mpsc.test.mpsc queue: mixed slice and scalar prefixes preserve FIFO across counter wrap...OK
+32/132 sync.mpsc.test.mpsc queue: ready batches cannot skip an earlier reserved slot...OK
+33/132 sync.mpsc.test.mpsc queue: slice transfers retain aligned payloads and empty elements...OK
+34/132 sync.mpsc.test.mpsc queue: concurrent scalar and batch producers retain every value and producer order...OK
+35/132 sync.mpsc.test.mpsc queue: singleton concurrent producers preserve every value and producer order...OK
+36/132 sync.mpsc.test.mpsc queue: threaded producers and consumer...OK
+37/132 sync.sharded_mpsc.test.sharded mpsc queue: single-threaded round robin...OK
+38/132 sync.sharded_mpsc.test.sharded consumer view preserves selected FIFO and leaves other shards queued...OK
+39/132 sync.sharded_mpsc.test.sparse sharded view concurrently preserves per producer order...OK
+40/132 sync.sharded_mpsc.test.sharded mpsc queue: mixed slice transfers preserve per-shard FIFO through wrap...OK
+41/132 sync.sharded_mpsc.test.sharded mpsc queue: initialization failures release completed shards...OK
+42/132 sync.sharded_mpsc.test.sharded mpsc queue: threaded producers and consumer...OK
+43/132 sync.sharded_mpsc.test.sharded mpsc queue: concurrent mixed scalar and batch transfers...OK
+44/132 sync.blocking_queue.test.blocking queue: single-threaded order and bounds...OK
+45/132 sync.blocking_queue.test.blocking queue cancelled waits remove registration and preserve mutex reuse...OK
+46/132 sync.blocking_queue.test.blocking batch wakes every blocked reader and writer without stranding...OK
+47/132 sync.blocking_queue.test.blocking queue: mixed slice transfers handle partial prefixes and wrap...OK
+48/132 sync.blocking_queue.test.blocking queue: threaded producers and consumers...OK
+49/132 sync.blocking_queue.test.blocking queue: threaded batch producers and consumers...OK
+50/132 sync.treiber_stack.test.uncounted stack preserves mixed scalar batch LIFO and node reuse...OK
+51/132 sync.treiber_stack.test.uncounted stack concurrent producers retain every caller owned node...OK
+52/132 sync.treiber_stack.test.treiber stack: single-threaded order...OK
+53/132 sync.treiber_stack.test.treiber stack: mixed slice operations preserve LIFO order...OK
+54/132 sync.treiber_stack.test.treiber stack: concurrent length does not underflow...OK
+55/132 sync.treiber_stack.test.treiber stack: threaded producers and consumer...OK
+56/132 sync.treiber_stack.test.treiber stack: concurrent mixed scalar and batch producers and consumer...OK
+57/132 sync.coordination.test.semaphore wakes a waiter...OK
+58/132 sync.coordination.test.semaphore batch permits wake scalar and batch waiters...OK
+59/132 sync.coordination.test.semaphore mixed permit waiters do not strand available permits...OK
+60/132 sync.coordination.test.wait group waits for all members...OK
+61/132 sync.coordination.test.wait group batch completion wakes cancelable waiters...OK
+62/132 sync.coordination.test.wait group concurrent last completions keep every waiter awake...OK
+63/132 parallel.cancellation.test.final callback cancellation is observed across flat APIs and serial fallbacks...OK
+64/132 parallel.cancellation.test.cancellation from final ordered reduction is observed...OK
+65/132 parallel.cancellation.test.callback errors retain chunk-index precedence over exit cancellation...OK
+66/132 parallel.cancellation.test.cancelled calls drain callbacks and select errors by chunk index...OK
+67/132 parallel.cancellation.test.parallelFor returns Cancelled for an already-cancelled token...OK
+68/132 parallel.cancellation.test.parallelFold cancels from a callback...OK
+69/132 parallel.cancellation.test.parallelFoldInfallible honors cancellation...OK
+70/132 parallel.cancellation.test.serial fold honors cancellation...OK
+71/132 parallel.cancellation.test.parallelFor cancellation from another thread...OK
+72/132 parallel.index.test.parallelFor covers every index exactly once...OK
+73/132 parallel.index.test.nested parallelFor...OK
+74/132 parallel.index.test.parallelFor returns the first error by index...OK
+75/132 parallel.index.test.parallelFor2D covers every cell exactly once...OK
+76/132 parallel.index.test.parallelFor2D handles empty dimensions and overflow...OK
+77/132 parallel.range.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+78/132 parallel.range.test.parallelForRange accepts usize limits and saturates lane planning...OK
+79/132 parallel.range.test.parallelForRange enforces worker caps including the caller...OK
+80/132 parallel.range.test.range folds preserve deterministic chunk-index order across worker counts...OK
+81/132 parallel.range.test.range fold errors are selected by chunk index...OK
+82/132 parallel.fold.test.balanced folds preserve sequence order across worker counts...OK
+83/132 parallel.fold.test.capped folds preserve ordered results and errors across worker counts...OK
+84/132 parallel.fold.test.parallelFold is deterministic and ordered...OK
+85/132 parallel.fold.test.parallelFold is deterministic across worker counts...OK
+86/132 parallel.fold.test.infallible value and cancellable folds preserve noncommutative order across lanes...OK
+87/132 parallel.fold.test.parallelFoldInfallible matches the fallible fold...OK
+88/132 parallel.dispatch.test.capped allocation failures release caller slots before invoking callbacks...OK
+89/132 parallel.dispatch.test.capped nested calls and cancellation drain their lane futures...OK
+90/132 parallel.dispatch.test.parallelFold covers stack and heap dispatch storage...OK
+91/132 parallel.dispatch.test.uncancelled infallible fold fits 256 u64 results and lane futures on the stack...OK
+92/132 parallel.dispatch.test.infallible value dispatch allocation failures release caller before callbacks...OK
+93/132 parallel.dispatch.test.pool dispatch scratch reuses storage for high chunk counts...OK
+94/132 parallel.dispatch.test.pool dispatch scratch is exclusive and falls back when all objects are busy...OK
+95/132 parallel.planning.test.cost estimate adds a saturating work guard without changing explicit dispatch...OK
+96/132 parallel.planning.test.work estimate caps lanes without changing plans that omit it...OK
+97/132 parallel.serial.test.serial fallback worker index matches its context initialization index...OK
+98/132 parallel.serial.test.already cancelled serial calls skip temporary context construction...OK
+99/132 parallel.serial.test.serial fallback kickstart leaves jobs local across worker counts...OK
+100/132 parallel.serial.test.serial fallback destroys the mutated worker context...OK
+101/132 parallel.serial.test.parallelFor serial fallback with no background workers...OK
+102/132 parallel.executor.test.explicit worker reuses context for every flat API and keeps its caller slot...OK
+103/132 parallel.executor.test.nested worker dispatch retains parent futures and ordered output across lanes...OK
+104/132 parallel.scratch.test.dispatch scratch nested leases do not reset outstanding storage...OK
+105/132 parallel.scratch.test.explicit dispatch scratch handles aligned results order and no heap across lanes...OK
+106/132 parallel.scratch.test.strict dispatch scratch rejects both allocation stages before callbacks and releases slots...OK
+107/132 parallel.scratch.test.nested scratch calls use independent storage and retain outer results...OK
+108/132 parallel.scratch.test.cancellation drains scratch callbacks before storage and caller are released...OK
+109/132 scheduler.pool.test.zero worker caller accounting preserves serial fallback...OK
+110/132 scheduler.pool.test.shared ready owners rotate fairly and state exhaustion preserves reclamation...OK
+111/132 scheduler.pool.test.shareMany bounds offered jobs and retains the local tail...OK
+112/132 scheduler.pool.test.pool: start and stop without workers...OK
+113/132 scheduler.pool.test.pool pins workers when requested...OK
+114/132 scheduler.pool.test.pool accepts performance-core and SMT placement policies...OK
+115/132 scheduler.pool.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+116/132 scheduler.pool.test.pool applies a preferred numa node...OK
+117/132 scheduler.pool.test.pool applies automatic numa policy...OK
+118/132 scheduler.pool.test.exhausted execution states wake ready work on capacity return across workers...OK
+119/132 scheduler.pool.test.multiple capacity returns wake blocked peers before any state is consumed...OK
+120/132 scheduler.context.test.pool: per-worker context init and deinit...OK
+121/132 scheduler.context.test.affinity: context initialization failure releases selected CPU storage...OK
+122/132 scheduler.heartbeat.test.heartbeat thread entry has a static pool parameter...OK
+123/132 scheduler.heartbeat.test.heartbeat parks with no callers wakes held callers and shuts down from park...OK
+124/132 scheduler.heartbeat.test.explicit idle shortcut skips worker writes and resumes periodic flags for callers...OK
+125/132 scheduler.heartbeat.test.default heartbeat preserves periodic idle lane flags...OK
+126/132 scheduler.heartbeat.test.flat callers keep heartbeat parked until recursive begin requests pacing...OK
+127/132 scheduler.heartbeat.test.adaptive heartbeat backs off while idle and wakes on caller demand...OK
+128/132 scheduler.ready_owners.test.ready owners preserve round robin and arbitrary reclamation order...OK
+129/132 scheduler.ready_owners.test.ready owner allocation failure and empty capacity...OK
+130/132 scheduler.ready_owners.test.ready owner priority bitmap crosses words and retains original index order...OK
+131/132 affinity.test.affinity: first allowed siblings survive restricted CPU sets...OK
+132/132 affinity.test.affinity: topology policies order physical cores, siblings and capacity...OK
+All 132 tests passed.
+spsc count=1000000 ns=6994454 ops_per_sec=142970416
+spsc checksum=499999500000
+mpsc count=1000000 ns=158564804 ops_per_sec=6306570
+mpsc-1p count=1000000 ns=56541109 ops_per_sec=17686247
+mpsc-sharded count=1000000 ns=39554976 ops_per_sec=25281269
+mpsc-mutex count=1000000 ns=317042644 ops_per_sec=3154150
+treiber count=1000000 ns=61157022 ops_per_sec=16351352
+blocking count=1000000 ns=138405335 ops_per_sec=7225155
+wait-group count=1000000 ns=9431972 ops_per_sec=106022367
+sample=0 serial_ns=15740129 parallel_ns=11278676 speedup=1.396
+sample=1 serial_ns=15101128 parallel_ns=10025126 speedup=1.506
+sample=2 serial_ns=14978693 parallel_ns=10979117 speedup=1.364
+sample=3 serial_ns=15033029 parallel_ns=10036012 speedup=1.498
+sample=4 serial_ns=15024285 parallel_ns=10970011 speedup=1.370
+sample=5 serial_ns=14865107 parallel_ns=9936580 speedup=1.496
+sample=6 serial_ns=14916878 parallel_ns=9587694 speedup=1.556
+sample=7 serial_ns=14842594 parallel_ns=9733181 speedup=1.525
+sample=8 serial_ns=15385895 parallel_ns=9867474 speedup=1.559
+parallel_for_2d rows=4096 cols=4096 workers=31 checksum=140737479966720 serial_ns=15024285 parallel_ns=10025126 speedup=1.499 statistic=median timing=fill+checksum
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed checksum=10537150549972823889
+sample=0 serial_ns=280770 parallel_ns=279585 speedup=1.004
+sample=1 serial_ns=280098 parallel_ns=282731 speedup=0.991
+sample=2 serial_ns=280851 parallel_ns=278825 speedup=1.007
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed serial_ns=280770 parallel_ns=279585 speedup=1.004 statistic=median
+numa policy=local node=0 native=true applied=1 fallback=0 failures=0 errno=0 live=0 checksum=499999500000
++ zig build bench-compare -Doptimize=ReleaseFast -Dspice-dir=/tmp/spice
++ cargo build --release
++ gcc -O3 -march=native -fno-tree-vectorize -fopenmp -o /home/passchaos/project-z/parz/bench/compare/omp_bench /home/passchaos/project-z/parz/bench/compare/omp_bench.c
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 1000 32
+r01 parz   tree-1000        serial=      1524 parallel=      1535 speedup=0.99
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 1000 32
+r01 spice  tree-1000        serial=      2081 parallel=      2897 speedup=0.72
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 1000 32
+r01 rayon  tree-1000        serial=      2599 parallel=     28832 speedup=0.09
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 1000 32
+r01 openmp tree-1000        serial=      1443 parallel=    467171 speedup=0.00
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 100000 32
+r01 parz   tree-100000      serial=    223928 parallel=     55578 speedup=4.03
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 100000 32
+r01 spice  tree-100000      serial=    156771 parallel=    217889 speedup=0.72
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 100000 32
+r01 rayon  tree-100000      serial=    183035 parallel=    338873 speedup=0.54
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 100000 32
+r01 openmp tree-100000      serial=    113973 parallel=    488244 speedup=0.23
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 10000000 32
+r01 parz   tree-10000000    serial=  16102975 parallel=   3475161 speedup=4.63
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 10000000 32
+r01 spice  tree-10000000    serial=  16659320 parallel=   7118215 speedup=2.34
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 10000000 32
+r01 rayon  tree-10000000    serial=  15832640 parallel=   4779356 speedup=3.31
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 10000000 32
+r01 openmp tree-10000000    serial=  13072606 parallel=   3490861 speedup=3.74
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz flat 16000000 32
+r01 parz   flat-16000000    serial=   6721365 parallel=   1584140 speedup=4.24
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice flat 16000000 32
+r01 spice  flat-16000000    serial=   6588495 parallel=   4291571 speedup=1.54
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench flat 16000000 32
+r01 rayon  flat-16000000    serial=   5375127 parallel=   1803156 speedup=2.98
++ /home/passchaos/project-z/parz/bench/compare/omp_bench flat 16000000 32
+r01 openmp flat-16000000    serial=   6914346 parallel=   1932852 speedup=3.58
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz compute-inf 1000000 32
+r01 parz   compute-1000000  serial=  61829006 parallel=   3466818 speedup=17.83
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice compute 1000000 32
+r01 spice  compute-1000000  serial=  61868795 parallel=   9263043 speedup=6.68
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench compute 1000000 32
+r01 rayon  compute-1000000  serial=  61505673 parallel=   3739604 speedup=16.45
++ /home/passchaos/project-z/parz/bench/compare/omp_bench compute 1000000 32
+r01 openmp compute-1000000  serial=  64438417 parallel=   6793386 speedup=9.49
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 1000 32
+r02 spice  tree-1000        serial=      1391 parallel=      2273 speedup=0.61
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 1000 32
+r02 rayon  tree-1000        serial=      2025 parallel=     30897 speedup=0.07
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 1000 32
+r02 openmp tree-1000        serial=      2483 parallel=    452996 speedup=0.01
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 1000 32
+r02 parz   tree-1000        serial=      2141 parallel=      2144 speedup=1.00
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 100000 32
+r02 spice  tree-100000      serial=    157709 parallel=    239304 speedup=0.66
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 100000 32
+r02 rayon  tree-100000      serial=    191427 parallel=    247345 speedup=0.77
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 100000 32
+r02 openmp tree-100000      serial=    131421 parallel=    466734 speedup=0.28
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 100000 32
+r02 parz   tree-100000      serial=    219918 parallel=     59445 speedup=3.70
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice tree 10000000 32
+r02 spice  tree-10000000    serial=  16282731 parallel=   7562509 speedup=2.15
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench tree 10000000 32
+r02 rayon  tree-10000000    serial=  15861132 parallel=   5144101 speedup=3.08
++ /home/passchaos/project-z/parz/bench/compare/omp_bench tree 10000000 32
+r02 openmp tree-10000000    serial=  12923046 parallel=   3606142 speedup=3.58
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz tree 10000000 32
+r02 parz   tree-10000000    serial=  15657310 parallel=   3393153 speedup=4.61
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice flat 16000000 32
+r02 spice  flat-16000000    serial=   6923201 parallel=   4546653 speedup=1.52
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench flat 16000000 32
+r02 rayon  flat-16000000    serial=   5328406 parallel=   1962540 speedup=2.72
++ /home/passchaos/project-z/parz/bench/compare/omp_bench flat 16000000 32
+r02 openmp flat-16000000    serial=   7162064 parallel=   1995906 speedup=3.59
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz flat 16000000 32
+r02 parz   flat-16000000    serial=   6911889 parallel=   1629222 speedup=4.24
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice compute 1000000 32
+r02 spice  compute-1000000  serial=  61799885 parallel=   8976616 speedup=6.88
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench compute 1000000 32
+r02 rayon  compute-1000000  serial=  61568285 parallel=   3542979 speedup=17.38
++ /home/passchaos/project-z/parz/bench/compare/omp_bench compute 1000000 32
+r02 openmp compute-1000000  serial=  64019795 parallel=   6477733 speedup=9.88
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz compute-inf 1000000 32
+r02 parz   compute-1000000  serial=  61810766 parallel=   3431504 speedup=18.01
+
+=== median time per implementation ===
+workload                       parz              spice              rayon             openmp
+tree-1000             0.002ms/ 1.00x      0.003ms/ 0.67x      0.030ms/ 0.08x      0.460ms/ 0.00x
+tree-100000           0.058ms/ 3.86x      0.229ms/ 0.69x      0.293ms/ 0.64x      0.477ms/ 0.26x
+tree-10000000         3.434ms/ 4.62x      7.340ms/ 2.24x      4.962ms/ 3.19x      3.549ms/ 3.66x
+flat-16000000         1.607ms/ 4.24x      4.419ms/ 1.53x      1.883ms/ 2.84x      1.964ms/ 3.58x
+compute-1000000       3.449ms/17.92x      9.120ms/ 6.78x      3.641ms/16.90x      6.636ms/ 9.68x
+gate passed

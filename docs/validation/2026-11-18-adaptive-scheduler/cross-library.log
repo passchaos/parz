@@ -1,0 +1,21 @@
+exit=0
+r02 openmp flat-16000000    serial=   7899342 parallel=   2264016 speedup=3.49
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz flat 16000000 32
+r02 parz   flat-16000000    serial=   7340549 parallel=   1916434 speedup=3.83
++ /home/passchaos/project-z/parz/zig-out/bin/compare-spice compute 1000000 32
+r02 spice  compute-1000000  serial=  61588243 parallel=  10132619 speedup=6.08
++ /home/passchaos/project-z/parz/bench/compare/rayon-bench/target/release/rayon-bench compute 1000000 32
+r02 rayon  compute-1000000  serial=  61562340 parallel=   4519603 speedup=13.62
++ /home/passchaos/project-z/parz/bench/compare/omp_bench compute 1000000 32
+r02 openmp compute-1000000  serial=  64703565 parallel=   6630378 speedup=9.76
++ /home/passchaos/project-z/parz/zig-out/bin/compare-parz compute-inf 1000000 32
+r02 parz   compute-1000000  serial=  61896050 parallel=   3720146 speedup=16.64
+
+=== median time per implementation ===
+workload                       parz              spice              rayon             openmp
+tree-1000             0.002ms/ 1.00x      0.003ms/ 0.68x      0.031ms/ 0.06x      0.480ms/ 0.00x
+tree-100000           0.060ms/ 2.75x      0.216ms/ 0.72x      0.322ms/ 0.56x      0.506ms/ 0.29x
+tree-10000000         3.788ms/ 4.38x      7.331ms/ 2.30x      5.412ms/ 3.01x      3.693ms/ 3.60x
+flat-16000000         1.867ms/ 4.02x      4.419ms/ 1.72x      1.970ms/ 2.96x      2.149ms/ 3.59x
+compute-1000000       3.898ms/15.95x      9.707ms/ 6.34x      4.220ms/14.60x      6.323ms/10.22x
+gate passed

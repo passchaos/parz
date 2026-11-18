@@ -17,6 +17,12 @@ pub const heartbeat_idle: u8 = 0;
 pub const heartbeat_pacing: u8 = 1;
 pub const heartbeat_share: u8 = 2;
 
+/// Queued local jobs a lane needs before it asks the heartbeat to share.
+/// Waking an idle lane costs several microseconds, so a tree that never
+/// queues this many jobs keeps the serial cost of its local list. Flat loops
+/// use `kickstart` and are unaffected.
+pub const pacing_min_depth: usize = 4;
+
 pub fn Worker(comptime Ctx: type) type {
     return struct {
         const Self = @This();
@@ -67,14 +73,37 @@ pub fn Worker(comptime Ctx: type) type {
 
         noinline fn tickSlow(self: *Self, state: u8) void {
             if (state == heartbeat_pacing) {
-                // Request pacing only when this lane actually has local work
-                // to offer; tiny serial kernels stay quiet.
-                if (!self.job_head.isTail() and !self.pool.heartbeat_demand.load(.monotonic))
+                // Request pacing only when this lane has enough excess local
+                // work to justify waking idle lanes. A small fork/join tree
+                // never reaches the threshold, so it keeps the serial cost of
+                // its local list instead of paying a worker wake-up.
+                if (!self.hasExcessWork()) return;
+                if (!self.pool.heartbeat_demand.load(.monotonic))
                     self.pool.requestPacing();
+                // Offer the batch on the next tick instead of waiting for the
+                // heartbeat round trip. The heartbeat still paces lanes that
+                // do not tick (for example while running a long serial leaf).
+                self.heartbeat.store(heartbeat_share, .monotonic);
                 return;
             }
             self.heartbeat.store(if (self.pacing_enabled) heartbeat_pacing else heartbeat_idle, .monotonic);
             self.maybeShare();
+        }
+
+        /// Count local jobs up to `pacing_min_depth`. Owner-only state: the
+        /// caller runs on the lane that owns the list, so the walk needs no
+        /// atomics and stops before touching a link another lane could
+        /// observe.
+        pub fn hasExcessWork(self: *const Self) bool {
+            var remaining = pacing_min_depth;
+            var raw = self.job_head.next_or_null;
+            while (raw) |pointer| {
+                remaining -= 1;
+                if (remaining == 0) return true;
+                const job: *const Job = @ptrCast(@alignCast(pointer));
+                raw = job.next_or_null;
+            }
+            return false;
         }
 
         fn maybeShare(self: *Self) void {
@@ -585,6 +614,36 @@ test "future: tryJoin/result and joinOrCall with a large payload" {
     const value = second.joinOrCall(&task, produce);
     try std.testing.expectEqual(@as(u64, 7), value.a);
     try std.testing.expectEqual(@as(u64, 10), value.d);
+}
+
+test "pacing requires enough excess local work" {
+    const F = Future(void, u64, u64);
+    const Run = struct {
+        fn leaf(_: *Task(void), value: u64) u64 {
+            return value;
+        }
+    };
+    var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .workers = 0,
+        .max_workers = 0,
+        .max_callers = 1,
+    });
+    defer pool.deinit();
+    try pool.start();
+    var worker = Worker(void){ .pool = &pool, .ctx = {} };
+    try std.testing.expect(!worker.hasExcessWork());
+    var task = worker.begin();
+    var futures: [pacing_min_depth + 1]F = undefined;
+    for (&futures, 0..) |*future, index| {
+        future.initFork(&task, Run.leaf, index);
+        const queued = index + 1;
+        try std.testing.expectEqual(queued >= pacing_min_depth, worker.hasExcessWork());
+    }
+    for (&futures, 0..) |*future, index| {
+        try std.testing.expectEqual(@as(u64, index), future.joinOrCall(&task, Run.leaf));
+    }
+    try std.testing.expect(!worker.hasExcessWork());
+    try std.testing.expect(worker.job_head.isTail());
 }
 
 test {

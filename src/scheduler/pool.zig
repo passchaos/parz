@@ -184,7 +184,8 @@ pub fn Pool(comptime Ctx: type) type {
                 .caller_count = caller_count,
                 .caller_busy = caller_busy,
                 .pacing_enabled = options.adaptive_heartbeat and options.enable_heartbeat and
-                    !options.park_idle_heartbeat,
+                    !options.park_idle_heartbeat and background_count != 0 and
+                    !builtin.single_threaded,
                 .pinned_cpus = pinned_cpus,
                 .execute_states = execute_states,
                 .execute_free = if (execute_states.len != 0) 0 else null,
@@ -246,6 +247,20 @@ pub fn Pool(comptime Ctx: type) type {
             }
             self.spawned_background = spawned;
             for (self.background_storage[spawned..]) |*w| w.active.store(false, .monotonic);
+            if (spawned == 0 and self.pacing_enabled) {
+                // Thread spawn failed: no lane can consume shared work, so
+                // keep the one-load tick fast path instead of requesting
+                // pacing on every callback.
+                self.pacing_enabled = false;
+                for (self.background_storage) |*w| {
+                    w.pacing_enabled = false;
+                    w.heartbeat.store(heartbeat_idle, .monotonic);
+                }
+                for (self.caller_storage) |*w| {
+                    w.pacing_enabled = false;
+                    w.heartbeat.store(heartbeat_idle, .monotonic);
+                }
+            }
 
             var ready: usize = 0;
             while (ready < spawned) : (ready += 1) {

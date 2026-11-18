@@ -28,6 +28,7 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Adaptive heartbeat default | Complete | Demand-woken timeout waits, tri-state worker flag and out-of-line slow path; E/P tree and idle evidence |
 | Topology-aware placement policies | Complete | Opt-in `prefer_performance_cores` and `use_smt_siblings` with pure ordering tests |
 | Configurable heartbeat share batch | Complete | `share_batch` option with bound/tail-retention test; default 4 preserves prior behavior |
+| Small-tree pacing depth and serial tick | Complete | `pacing_min_depth` gate, next-tick self-share and zero-lane pacing disable; tree-10k parity 0.81 -> 1.01, tree-100k -6%, zero-worker tick 1.92x -> 0.99x ([report](validation/2026-11-18-pacing-depth/README.md)) |
 | Pool-owned dispatch storage | Complete | High-chunk flat calls reuse pool scratch; cpw=1024 allocations 1 -> 0; small calls keep the 4 KiB stack path |
 | Future-embedded completion event | Evaluated | Retained bounded state pool: cold dispatch is wake-dominated, release is one uncontended CAS, and the pool preserves the `max_execute_states` fallback contract |
 | Per-owner locking / shared heartbeat mask | Evaluated | Claim/release is ~0.1-0.6 us and adaptive pacing already cuts idle ticks; no measured pool-mutex or flag-write bottleneck |

@@ -129,13 +129,14 @@ Raw data: `sync-treiber-confirmation.json`, `sync-mpsc-confirmation.json`,
 
 ## Correctness
 
-- `zig build test` (Debug) and `zig build test -Doptimize=ReleaseSafe`: 129
+- `zig build test` (Debug) and `zig build test -Doptimize=ReleaseSafe`: 131
   tests each.
-- `zig test src/root.zig -fsanitize-thread -OReleaseSafe`: 129 tests.
+- `zig test src/root.zig -fsanitize-thread -OReleaseSafe`: 131 tests.
 - `scripts/check.sh`: Debug/ReleaseSafe, small-tree parity, single-threaded,
   TSan, WASM compile, Windows/macOS/musl cross-target compiles, sync/2D/
   irregular/NUMA smoke checks.
-- `checks.log` in this directory records the final run.
+- `checks.log` in this directory records the final run. `cross-library.log`
+  records the parz/spice/Rayon/OpenMP comparison for the same code state.
 
 ## Reproduction
 

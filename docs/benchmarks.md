@@ -248,13 +248,14 @@ The regression runner compiles identical current benchmark sources against
 both core checkouts, alternates process order and saves every inner sample.
 It rejects a median parallel-time increase above the requested allowance
 (5% default, accounting for noisy hosts) and enforces 0.9x parity whenever the
-1000-node row is selected. A failed row requires investigation and a repeated
-comparison; a passing row only supports the inputs and CPU placement measured. Set
-`PARZ_BENCH_CPUS` to fix the default check script's CPU set; otherwise it
-selects up to eight allowed physical cores and reserves the last for caller.
-Use `--only tree-100k,tree-1m --rounds 7` for a focused confirmation of those
-rows; case names are checked against the selected mode before anything builds.
-The full default run remains the cumulative regression gate.
+1000-node or 10,000-node row is selected. A failed row requires investigation
+and a repeated comparison; a passing row only supports the inputs and CPU
+placement measured. Set `PARZ_BENCH_CPUS` to fix the default check script's CPU
+set; otherwise it selects up to eight allowed physical cores and reserves the
+last for caller. Use `--only tree-10k,tree-100k,tree-1m --rounds 7` for a
+focused confirmation of those rows; case names are checked against the selected
+mode before anything builds. The full default run remains the cumulative
+regression gate.
 
 `bench-flat-dispatch` measures the opt-in cost guard, borrowed worker context
 and strict scratch against the old core with the same harness. Arguments are

@@ -9,6 +9,7 @@ const Future = @import("../core.zig").Future;
 const heartbeat_idle = @import("../core.zig").heartbeat_idle;
 const heartbeat_pacing = @import("../core.zig").heartbeat_pacing;
 const heartbeat_share = @import("../core.zig").heartbeat_share;
+const pacing_min_depth = @import("../core.zig").pacing_min_depth;
 
 /// Periodically mark every active worker as ready to share one batch
 /// of local work. Small fork/join trees finish before the first
@@ -330,10 +331,12 @@ test "adaptive heartbeat backs off while idle and wakes on caller demand" {
         }
     };
     var task = caller.begin();
-    var future: Future(void, u64, u64) = undefined;
-    future.initFork(&task, Run.leaf, 7);
-    // Local work requests pacing; the backed-off wait wakes and consumes it.
+    var futures: [pacing_min_depth]Future(void, u64, u64) = undefined;
+    for (&futures, 0..) |*future, index| future.initFork(&task, Run.leaf, 7 + index);
+    // Enough local work requests pacing synchronously; the backed-off wait
+    // wakes and consumes the demand.
     task.tick();
+    try std.testing.expect(pool.heartbeat_demand.load(.monotonic));
     var consumed = false;
     for (0..20000) |_| {
         if (!pool.heartbeat_demand.load(.monotonic)) {
@@ -343,5 +346,7 @@ test "adaptive heartbeat backs off while idle and wakes on caller demand" {
         try pool.io.sleep(std.Io.Duration.fromNanoseconds(50 * std.time.ns_per_us), .awake);
     }
     try std.testing.expect(consumed);
-    try std.testing.expectEqual(@as(u64, 7), future.joinOrCall(&task, Run.leaf));
+    for (&futures, 0..) |*future, index| {
+        try std.testing.expectEqual(@as(u64, 7 + index), future.joinOrCall(&task, Run.leaf));
+    }
 }

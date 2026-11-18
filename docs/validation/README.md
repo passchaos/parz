@@ -5,6 +5,9 @@ summaries where applicable, and raw logs, patches, or assembly snapshots. The
 reports describe the code state and host at measurement time; re-run the
 benchmarks to verify a claim on another machine.
 
+- [2026-11-18 pacing depth and serial tick](2026-11-18-pacing-depth/README.md):
+  local-depth pacing gate, next-tick self-share, zero-lane pacing disable,
+  small-tree parity restoration and large-tree gains.
 - [2026-11-18 adaptive scheduler and cold-path optimization](2026-11-18-adaptive-scheduler/README.md):
   work-aware lane planning, lock-free caller/execute-state paths, adaptive
   heartbeat default, topology policies and E/P/core/sync gates.

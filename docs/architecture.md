@@ -70,15 +70,25 @@ before a worker resumes require multiple notifications, which is covered by
 blocked-peer tests and an intentionally failing transition-only control.
 
 Default heartbeats use adaptive pacing. The heartbeat thread waits on a
-timeout event; a lane with local work requests pacing through an out-of-line
-tick slow path, which wakes a backed-off wait immediately. Idle waits double
-up to `max_idle_heartbeat_interval_ns` (1 ms default). A tri-state worker flag
-encodes `idle`, `pacing` and `share`, so pools without adaptive pacing keep the
-original single-load `Task.call` fast path. `share_batch` bounds jobs offered
-per tick. `skip_idle_heartbeat_metadata` and complete parking through
-`park_idle_heartbeat` remain explicit alternatives. Flat calls kickstart work
-directly; a held normal caller keeps pacing active, and
+timeout event; a lane with enough excess local work requests pacing through an
+out-of-line tick slow path, which wakes a backed-off wait immediately. Idle
+waits double up to `max_idle_heartbeat_interval_ns` (1 ms default). A tri-state
+worker flag encodes `idle`, `pacing` and `share`, so pools without adaptive
+pacing keep the original single-load `Task.call` fast path. `share_batch`
+bounds jobs offered per tick. `skip_idle_heartbeat_metadata` and complete
+parking through `park_idle_heartbeat` remain explicit alternatives. Flat calls
+kickstart work directly; a held normal caller keeps pacing active, and
 `idle_heartbeat_grace_ns` retains parking across short idle gaps.
+
+Pacing is gated by the owner's queued local depth (`pacing_min_depth`, four
+jobs). Waking an idle lane costs several microseconds, so a recursive tree that
+never queues four jobs runs through its local list at serial cost instead of
+paying a worker wake-up. Once the threshold is met, the owner also flags its
+own lane for sharing, so the batch leaves on the next `Task.call` instead of
+waiting for the heartbeat round trip; the heartbeat still paces lanes that do
+not tick, for example while running a long serial leaf. Pools with no
+background lanes disable pacing entirely, which keeps the single-threaded,
+WASM and thread-spawn-failure fallbacks on the one-load tick path.
 
 Each worker owns a truly local intrusive job list:
 
@@ -104,7 +114,10 @@ caller. Recursive algorithms should also stop creating `Future`s below a useful
 grain size and call a serial kernel directly for those subtrees. Heartbeat
 pacing avoids worker wake-ups, but it cannot remove local Future bookkeeping.
 The tree gate uses a 2047-node leaf bound and keeps 1000-node traversal at
-serial parity while retaining parallelism above that bound.
+serial parity while retaining parallelism above that bound. A ten-thousand-node
+tree with only three fork levels also stays at serial parity because it never
+reaches the pacing depth; deeper trees cross the threshold during their descent
+and keep the full sharing path.
 
 ## Fork/join protocol
 

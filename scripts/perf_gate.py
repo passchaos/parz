@@ -99,6 +99,7 @@ def main():
         ])
     if not args.parity_only and not args.flat_only:
         cases.extend([
+            ('tree-10k', 'tree_sum.zig', ['10000', 'heartbeat', 'measure', caller]),
             ('tree-100k', 'tree_sum.zig', ['100000', 'heartbeat', 'measure', caller]),
             ('tree-1m', 'tree_sum.zig', ['1000000', 'heartbeat', 'measure', caller]),
             ('micro', 'micro.zig', ['1000', lanes, caller, '1000']),
@@ -180,7 +181,7 @@ def main():
             selected = [s for s in samples if s['case'] == case and s['revision'] == revision]
             row[revision] = {key: aggregate(float(s[key]) for s in selected)
                              for key in ('serial_ns', 'parallel_ns', 'speedup')}
-        if case == 'tree-1k' and row['candidate']['speedup'] < 0.9:
+        if not args.negative_control and case in ('tree-1k', 'tree-10k') and row['candidate']['speedup'] < 0.9:
             failures.append(f'{case}: parity below 0.9')
         if 'baseline' in row:
             ratio = row['candidate']['parallel_ns'] / row['baseline']['parallel_ns']
