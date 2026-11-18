@@ -180,6 +180,10 @@ The candidate's tree ratios (0.800, 0.858, 0.883) are well outside this
   fast path is already small enough. Aligning the benchmark's parallel
   callbacks to 64 bytes did not change the shift, so it is not just the
   callback entry address. Rejected.
+- **Hot-function alignment.** Aligning `callWithContext` to 64, 128 or 256
+  bytes made micro-plain 6-10% slower while micro-error-union improved 2-4%;
+  the two instantiations prefer different I-cache placements, so alignment is
+  not a neutral stabilizer for future experiments.
 - **Unconditional self-share.** Starting a share batch on every pacing tick
   is retained: it improves the 100k and 1M trees and costs 4.6% / 0.5% on the
   mixed and skewed irregular-tree profiles, inside the 5% allowance.
