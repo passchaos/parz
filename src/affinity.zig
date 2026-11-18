@@ -8,10 +8,21 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
+/// Placement policy for `pinnedCpuList`. Defaults preserve the original
+/// one-logical-CPU-per-physical-core order.
+pub const CpuPolicy = struct {
+    /// Sort selected CPUs by descending sysfs `cpu_capacity`, so hybrid CPUs
+    /// use performance cores before efficiency cores. Missing sysfs data keeps
+    /// the original order.
+    prefer_performance_cores: bool = false,
+    /// Append SMT siblings after every physical core has one logical CPU.
+    use_smt_siblings: bool = false,
+};
+
 /// Build a CPU list with one logical CPU per physical core (best effort).
 /// On Linux, read the SMT sibling list from sysfs; fall back to the allowed
 /// affinity set when sysfs is unavailable.
-pub fn pinnedCpuList(allocator: std.mem.Allocator, io: std.Io) ![]u32 {
+pub fn pinnedCpuList(allocator: std.mem.Allocator, io: std.Io, policy: CpuPolicy) ![]u32 {
     if (comptime builtin.os.tag != .linux) return &.{};
 
     const affinity = std.posix.sched_getaffinity(0) catch return &.{};
@@ -28,34 +39,98 @@ pub fn pinnedCpuList(allocator: std.mem.Allocator, io: std.Io) ![]u32 {
     }
     if (allowed.items.len == 0) return &.{};
 
-    var selected = std.ArrayList(u32).empty;
-    defer selected.deinit(allocator);
+    const first = try allocator.alloc(bool, allowed.items.len);
+    defer allocator.free(first);
+    const capacity = try allocator.alloc(u64, allowed.items.len);
+    defer allocator.free(capacity);
+    @memset(capacity, 0);
     var path_buf: [128]u8 = undefined;
-    for (allowed.items) |cpu| {
+    for (allowed.items, 0..) |cpu, index| {
+        first[index] = true;
         const path = std.fmt.bufPrint(
             &path_buf,
             "/sys/devices/system/cpu/cpu{d}/topology/thread_siblings_list",
             .{cpu},
-        ) catch {
-            try selected.append(allocator, cpu);
-            continue;
-        };
+        ) catch continue;
         const content = std.Io.Dir.cwd().readFileAlloc(
             io,
             path,
             allocator,
             .limited(64),
-        ) catch {
-            try selected.append(allocator, cpu);
-            continue;
-        };
+        ) catch continue;
         defer allocator.free(content);
-
-        if (!hasEarlierAllowedSibling(allowed.items, cpu, content)) try selected.append(allocator, cpu);
+        first[index] = !hasEarlierAllowedSibling(allowed.items, cpu, content);
+        if (policy.prefer_performance_cores) {
+            capacity[index] = readCpuCapacity(io, allocator, cpu) orelse 0;
+        }
     }
 
-    if (selected.items.len == 0) return try allowed.toOwnedSlice(allocator);
-    return try selected.toOwnedSlice(allocator);
+    const selected = try allocator.alloc(u32, allowed.items.len);
+    errdefer allocator.free(selected);
+    const count = buildCpuOrder(allowed.items, first, capacity, policy, selected);
+    if (count == 0) return try allowed.toOwnedSlice(allocator);
+    if (count != selected.len) return try allocator.realloc(selected, count);
+    return selected;
+}
+
+/// Pure ordering step, separated so placement policies can be tested without
+/// depending on the host topology.
+pub fn buildCpuOrder(
+    allowed: []const u32,
+    first: []const bool,
+    capacity: []const u64,
+    policy: CpuPolicy,
+    out: []u32,
+) usize {
+    std.debug.assert(allowed.len == first.len and allowed.len == capacity.len);
+    var count: usize = 0;
+    for (allowed, 0..) |cpu, index| {
+        if (first[index]) {
+            out[count] = cpu;
+            count += 1;
+        }
+    }
+    if (policy.use_smt_siblings) {
+        for (allowed, 0..) |cpu, index| {
+            if (!first[index]) {
+                out[count] = cpu;
+                count += 1;
+            }
+        }
+    }
+    if (policy.prefer_performance_cores) {
+        // Stable insertion sort by descending capacity; CPU lists are tiny.
+        var i: usize = 1;
+        while (i < count) : (i += 1) {
+            const cpu = out[i];
+            const cpu_capacity = capacityOf(allowed, capacity, cpu);
+            var j = i;
+            while (j > 0 and capacityOf(allowed, capacity, out[j - 1]) < cpu_capacity) : (j -= 1) {
+                out[j] = out[j - 1];
+            }
+            out[j] = cpu;
+        }
+    }
+    return count;
+}
+
+fn capacityOf(allowed: []const u32, capacity: []const u64, cpu: u32) u64 {
+    for (allowed, 0..) |candidate, index| {
+        if (candidate == cpu) return capacity[index];
+    }
+    return 0;
+}
+
+fn readCpuCapacity(io: std.Io, allocator: std.mem.Allocator, cpu: u32) ?u64 {
+    var path_buf: [128]u8 = undefined;
+    const path = std.fmt.bufPrint(
+        &path_buf,
+        "/sys/devices/system/cpu/cpu{d}/cpu_capacity",
+        .{cpu},
+    ) catch return null;
+    const content = std.Io.Dir.cwd().readFileAlloc(io, path, allocator, .limited(32)) catch return null;
+    defer allocator.free(content);
+    return std.fmt.parseInt(u64, std.mem.trim(u8, content, " \n\r\t"), 10) catch null;
 }
 
 /// Sysfs lists all siblings, including CPUs outside the caller's affinity.
@@ -136,4 +211,34 @@ test "affinity: first allowed siblings survive restricted CPU sets" {
     try std.testing.expect(!hasEarlierAllowedSibling(&.{ 0, 17, 18 }, 17, "1,17\n"));
     try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17 }, 17, "1,17\n"));
     try std.testing.expect(hasEarlierAllowedSibling(&.{ 1, 17, 18 }, 18, "0-3,16-19\n"));
+}
+
+test "affinity: topology policies order physical cores, siblings and capacity" {
+    const allowed = [_]u32{ 0, 1, 2, 3 };
+    const first = [_]bool{ true, false, true, false };
+    const capacity = [_]u64{ 100, 50, 200, 60 };
+    var out: [4]u32 = undefined;
+
+    try std.testing.expectEqual(@as(usize, 2), buildCpuOrder(&allowed, &first, &capacity, .{}, &out));
+    try std.testing.expectEqualSlices(u32, &.{ 0, 2 }, out[0..2]);
+
+    try std.testing.expectEqual(@as(usize, 4), buildCpuOrder(&allowed, &first, &capacity, .{ .use_smt_siblings = true }, &out));
+    try std.testing.expectEqualSlices(u32, &.{ 0, 2, 1, 3 }, &out);
+
+    try std.testing.expectEqual(@as(usize, 2), buildCpuOrder(&allowed, &first, &capacity, .{ .prefer_performance_cores = true }, &out));
+    try std.testing.expectEqualSlices(u32, &.{ 2, 0 }, out[0..2]);
+
+    try std.testing.expectEqual(@as(usize, 4), buildCpuOrder(&allowed, &first, &capacity, .{
+        .prefer_performance_cores = true,
+        .use_smt_siblings = true,
+    }, &out));
+    try std.testing.expectEqualSlices(u32, &.{ 2, 0, 3, 1 }, &out);
+
+    // Unknown capacities (all zero) keep the original stable order.
+    const unknown = [_]u64{ 0, 0, 0, 0 };
+    try std.testing.expectEqual(@as(usize, 4), buildCpuOrder(&allowed, &first, &unknown, .{
+        .prefer_performance_cores = true,
+        .use_smt_siblings = true,
+    }, &out));
+    try std.testing.expectEqualSlices(u32, &.{ 0, 2, 1, 3 }, &out);
 }

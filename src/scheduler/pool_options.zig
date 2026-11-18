@@ -49,6 +49,13 @@ pub fn Options(comptime Ctx: type) type {
         /// Pin each background worker to a distinct allowed CPU. Linux only;
         /// a no-op elsewhere. The caller thread is not pinned.
         pin_workers: bool = false,
+        /// On hybrid CPUs, order pinned CPUs by sysfs `cpu_capacity` so
+        /// performance cores are used before efficiency cores. Best effort;
+        /// missing sysfs data preserves the original order.
+        prefer_performance_cores: bool = false,
+        /// Include SMT siblings after every physical core has one logical CPU.
+        /// The default keeps one logical CPU per physical core.
+        use_smt_siblings: bool = false,
         /// Prefer allocations on this NUMA node for background workers
         /// (Linux MPOL_PREFERRED). The caller thread is not affected.
         numa_node: ?u16 = null,

@@ -75,7 +75,10 @@ pub fn Pool(comptime Ctx: type) type {
             }
 
             const pinned_cpus: []u32 = if (options.pin_workers)
-                try affinity.pinnedCpuList(allocator, io)
+                try affinity.pinnedCpuList(allocator, io, .{
+                    .prefer_performance_cores = options.prefer_performance_cores,
+                    .use_smt_siblings = options.use_smt_siblings,
+                })
             else
                 &.{};
             errdefer allocator.free(pinned_cpus);
@@ -629,6 +632,26 @@ test "pool pins workers when requested" {
     try pool.start();
     try std.testing.expectEqual(@as(usize, if (builtin.single_threaded) 0 else @min(2, pool.pinned_cpus.len)), pool.spawned_background);
     try std.testing.expect(pool.pinned_cpus.len > 0);
+}
+
+test "pool accepts performance-core and SMT placement policies" {
+    if (comptime builtin.os.tag != .linux) return error.SkipZigTest;
+    var pool = try Pool(void).init(std.testing.allocator, std.testing.io, .{
+        .workers = 2,
+        .max_workers = 2,
+        .max_callers = 1,
+        .max_execute_states = 8,
+        .pin_workers = true,
+        .prefer_performance_cores = true,
+        .use_smt_siblings = true,
+    });
+    defer pool.deinit();
+    try pool.start();
+    try std.testing.expect(pool.pinned_cpus.len > 0);
+    try std.testing.expect(pool.spawned_background <= pool.pinned_cpus.len);
+    for (pool.pinned_cpus, 0..) |cpu, index| {
+        for (pool.pinned_cpus[0..index]) |previous| try std.testing.expect(cpu != previous);
+    }
 }
 
 test "affinity: pinned worker counts fit selected CPUs before startup" {
