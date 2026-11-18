@@ -1503,7 +1503,7 @@ test "serial fallback worker index matches its context initialization index" {
     const Run = struct {
         fn range(w: *core.Worker(Context), _: void, _: Chunk) anyerror!void {
             try std.testing.expectEqual(w.context().index, w.index);
-            try std.testing.expect(!w.active);
+            try std.testing.expect(!w.active.load(.monotonic));
         }
         fn map(w: *core.Worker(Context), _: void, index: usize) anyerror!u64 {
             try std.testing.expectEqual(w.context().index, w.index);
@@ -1607,7 +1607,7 @@ test "serial fallback kickstart leaves jobs local across worker counts" {
             return value + 1;
         }
         fn range(w: *core.Worker(void), _: void, _: Chunk) anyerror!void {
-            try std.testing.expect(!w.active);
+            try std.testing.expect(!w.active.load(.monotonic));
             var task = w.begin();
             var first: core.Future(void, usize, usize) = undefined;
             var second: core.Future(void, usize, usize) = undefined;

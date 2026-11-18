@@ -101,7 +101,8 @@ pub fn Pool(comptime Ctx: type) type {
         mutex: std.Io.Mutex = .init,
         job_ready: std.Io.Condition = .init,
         heartbeat_ready: std.Io.Condition = .init,
-        /// Protected by mutex, as are caller_busy and Worker.active.
+        /// Protected by mutex, as is caller_busy. Worker.active is atomic
+        /// because the default heartbeat reads it without the mutex.
         active_callers: usize = 0,
         has_callers: std.atomic.Value(bool) = .init(false),
         caller_epoch: usize = 0,
@@ -184,7 +185,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.* = .{
                     .pool = undefined,
                     .index = i,
-                    .active = true,
+                    .active = .init(true),
                     .ctx = try initContext(options, allocator, i),
                 };
                 bg_initialized += 1;
@@ -193,7 +194,7 @@ pub fn Pool(comptime Ctx: type) type {
                 w.* = .{
                     .pool = undefined,
                     .index = background_count + i,
-                    .active = false,
+                    .active = .init(false),
                     .caller_slot = i,
                     .ctx = try initContext(options, allocator, background_count + i),
                 };
@@ -232,7 +233,7 @@ pub fn Pool(comptime Ctx: type) type {
             for (self.background_storage, 0..) |*w, i| {
                 w.pool = self;
                 w.index = i;
-                w.active = true;
+                w.active.store(true, .monotonic);
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
                 w.shared_head = Job.head();
@@ -241,7 +242,7 @@ pub fn Pool(comptime Ctx: type) type {
             for (self.caller_storage, 0..) |*w, i| {
                 w.pool = self;
                 w.index = self.background_count + i;
-                w.active = false;
+                w.active.store(false, .monotonic);
                 w.caller_slot = i;
                 w.job_head = Job.head();
                 w.local_tail = &w.job_head;
@@ -271,7 +272,7 @@ pub fn Pool(comptime Ctx: type) type {
                 }
             }
             self.spawned_background = spawned;
-            for (self.background_storage[spawned..]) |*w| w.active = false;
+            for (self.background_storage[spawned..]) |*w| w.active.store(false, .monotonic);
 
             var ready: usize = 0;
             while (ready < spawned) : (ready += 1) {
@@ -350,7 +351,7 @@ pub fn Pool(comptime Ctx: type) type {
                         self.heartbeat_demand.store(true, .monotonic);
                         if (self.heartbeat_parked) self.heartbeat_ready.signal(self.io);
                     }
-                    w.active = true;
+                    w.active.store(true, .monotonic);
                     w.job_head = Job.head();
                     w.local_tail = &w.job_head;
                     w.shared_head = Job.head();
@@ -385,7 +386,7 @@ pub fn Pool(comptime Ctx: type) type {
                     self.caller_busy[slot] = false;
                 }
             }
-            w.active = false;
+            w.active.store(false, .monotonic);
             w.heartbeat.store(false, .monotonic);
             w.job_head = Job.head();
             w.local_tail = &w.job_head;
@@ -412,7 +413,7 @@ pub fn Pool(comptime Ctx: type) type {
             self.mutex.lockUncancelable(self.io);
             defer self.mutex.unlock(self.io);
 
-            if (self.is_stopping.load(.monotonic) or !owner.active) return;
+            if (self.is_stopping.load(.monotonic) or !owner.active.load(.monotonic)) return;
             if (@atomicLoad(?*anyopaque, &owner.shared_head.next_or_null, .acquire) != null) return;
 
             var shared: usize = 0;
@@ -490,7 +491,7 @@ pub fn Pool(comptime Ctx: type) type {
             const state = self.acquireExecuteStateLocked() orelse return null;
             if (self.options.fair_shared_owners) self.ready_owners.remove(index);
             const w = self.workers[index];
-            std.debug.assert(w.active);
+            std.debug.assert(w.active.load(.monotonic));
             const job = Job.popHead(&w.shared_head, &w.shared_tail).?;
             if (self.options.fair_shared_owners) {
                 if (!w.shared_head.isTail()) self.ready_owners.push(index);
@@ -543,8 +544,12 @@ pub fn Pool(comptime Ctx: type) type {
                     interval = self.options.idle_heartbeat_interval_ns;
                     continue;
                 }
-                self.mutex.lockUncancelable(self.io);
-                if (self.options.park_idle_heartbeat) {
+                // `active` is atomic, so the default periodic path publishes
+                // flags without taking the pool mutex. Parking still needs the
+                // mutex for its demand/park state.
+                const parking = self.options.park_idle_heartbeat;
+                if (parking) {
+                    self.mutex.lockUncancelable(self.io);
                     if (observed_epoch != self.caller_epoch) {
                         observed_epoch = self.caller_epoch;
                         idle_since = null;
@@ -566,20 +571,20 @@ pub fn Pool(comptime Ctx: type) type {
                         idle_since = null;
                         observed_epoch = self.caller_epoch;
                     }
-                }
-                if (self.is_stopping.load(.monotonic)) {
-                    self.mutex.unlock(self.io);
-                    return;
+                    if (self.is_stopping.load(.monotonic)) {
+                        self.mutex.unlock(self.io);
+                        return;
+                    }
                 }
                 for (self.workers[0..self.worker_count]) |w| {
-                    if (w.active) w.heartbeat.store(true, .monotonic);
+                    if (w.active.load(.monotonic)) w.heartbeat.store(true, .monotonic);
                 }
                 const idle = self.idle_workers.load(.monotonic);
                 interval = if (idle >= self.spawned_background)
                     self.options.idle_heartbeat_interval_ns
                 else
                     self.options.heartbeat_interval_ns;
-                self.mutex.unlock(self.io);
+                if (parking) self.mutex.unlock(self.io);
             }
         }
 
@@ -618,7 +623,9 @@ pub fn Worker(comptime Ctx: type) type {
         pool: *Pool(Ctx),
         /// Registered lane index. Serial flat fallbacks use pool.worker_count.
         index: usize = 0,
-        active: bool = false,
+        /// Atomic so the heartbeat can publish flags without the pool mutex.
+        /// Mutex-protected readers still see the same value.
+        active: std.atomic.Value(bool) = .init(false),
         caller_slot: ?usize = null,
         ctx: Ctx = undefined,
         job_head: Job = Job.head(),
@@ -633,7 +640,7 @@ pub fn Worker(comptime Ctx: type) type {
         }
 
         pub fn begin(self: *Self) Task(Ctx) {
-            if (self.active) self.pool.requestHeartbeat();
+            if (self.active.load(.monotonic)) self.pool.requestHeartbeat();
             return self.beginFlat();
         }
 

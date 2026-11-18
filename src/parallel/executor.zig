@@ -28,7 +28,7 @@ pub fn SerialLane(comptime Executor: type) type {
             return .{ .storage = .{
                 .pool = pool,
                 .index = pool.worker_count,
-                .active = false,
+                .active = .init(false),
                 .ctx = try pool.createTempContext(),
             } };
         }
