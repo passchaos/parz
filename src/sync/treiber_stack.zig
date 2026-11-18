@@ -44,7 +44,9 @@ fn StackImpl(comptime T: type, comptime track_count: bool) type {
                     .release,
                     .monotonic,
                 )) |actual| {
-                    old = if (track_count) self.head.load(.monotonic) else actual;
+                    // The failed CAS already returned the current head; a
+                    // reload would only add contention to the retry path.
+                    old = actual;
                 } else return;
             }
         }
@@ -82,7 +84,7 @@ fn StackImpl(comptime T: type, comptime track_count: bool) type {
                 const node: *Node = @ptrFromInt(old);
                 const next: usize = if (node.next) |n| @intFromPtr(n) else 0;
                 if (self.head.cmpxchgWeak(old, next, .acq_rel, .acquire)) |actual| {
-                    old = if (track_count) self.head.load(.acquire) else actual;
+                    old = actual;
                 } else {
                     if (track_count) _ = self.count.fetchSub(1, .monotonic);
                     return node;
