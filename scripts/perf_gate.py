@@ -66,8 +66,11 @@ def main():
     parser.add_argument('--flat-only', action='store_true')
     parser.add_argument('--first-call-only', action='store_true')
     parser.add_argument('--callers-only', action='store_true')
+    parser.add_argument('--only', help='comma-separated case names for focused confirmation runs')
     parser.add_argument('--fair', action='store_true')
     parser.add_argument('--idle-ms', type=int, default=100)
+    parser.add_argument('--cold-samples', type=int, default=9, help='inner samples per process in cold mode')
+    parser.add_argument('--heartbeat-cpu', type=int, help='dedicated physical CPU for cold-mode heartbeat')
     parser.add_argument('--max-regression', type=float, default=0.05)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -103,18 +106,34 @@ def main():
     if args.first_call_only:
         if args.idle_ms <= 0:
             parser.error('first-call idle interval must be positive')
+        if args.cold_samples < 3:
+            parser.error('at least three alternating inner cold samples are required')
         cases = [
-            ('first-scan', 'flat_dispatch.zig', ['scan', '65536', lanes, caller, '16', '9', '1', str(args.idle_ms)]),
-            ('first-heavy', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', '9', '1', str(args.idle_ms)]),
+            ('first-scan', 'flat_dispatch.zig', ['scan', '65536', lanes, caller, '16', str(args.cold_samples), '1', str(args.idle_ms)]),
+            ('first-heavy', 'flat_dispatch.zig', ['compute', '8192', lanes, caller, '16', str(args.cold_samples), '1', str(args.idle_ms)]),
         ]
     if args.callers_only:
         cases = [(f'callers-{count}', 'multi_caller.zig', [str(count), '4096', '8', cpu_arg, '9', 'fair' if args.fair else 'priority'])
                  for count in (1, 2, 4, 8) if count <= len(cpus)]
+    if args.only:
+        requested = set(args.only.split(','))
+        unknown = requested - {case[0] for case in cases}
+        if unknown:
+            parser.error(f'unknown case names for this mode: {", ".join(sorted(unknown))}')
+        cases = [case for case in cases if case[0] in requested]
+    if args.heartbeat_cpu is not None:
+        if not args.first_call_only:
+            parser.error('--heartbeat-cpu currently requires --first-call-only')
+        placement(str(args.heartbeat_cpu))
+        if args.heartbeat_cpu in cpus:
+            parser.error('heartbeat CPU must be outside the worker/caller CPU set')
+        cases = [(name, source, parameters + [str(args.heartbeat_cpu)]) for name, source, parameters in cases]
     args.output.mkdir(parents=True, exist_ok=True)
     sources = {'candidate': args.candidate.resolve()}
     if args.baseline:
         sources['baseline'] = args.baseline.resolve()
     samples = []
+    code_hashes = {}
     with tempfile.TemporaryDirectory(prefix='parz-perf-') as temp:
         binaries = {}
         for revision, core in sources.items():
@@ -123,6 +142,9 @@ def main():
                 print(f'build {revision} {source}', flush=True)
                 build(REPO / 'bench' / source, core, binary)
                 binaries[revision, source] = binary
+                section = Path(temp) / f'{revision}-{source}.text'
+                command(['objcopy', '--dump-section', f'.text={section}', str(binary)])
+                code_hashes[f'{revision}:{source}'] = hashlib.sha256(section.read_bytes()).hexdigest()
         for round_index in range(args.rounds):
             revisions = list(sources)
             if round_index % 2:
@@ -159,10 +181,16 @@ def main():
         summaries.append(row)
         print(json.dumps(row), flush=True)
     metadata = {'cpus': cpus, 'caller_cpu': int(caller), 'rounds': args.rounds,
+                'heartbeat_cpu': args.heartbeat_cpu,
+                'selected_cases': [case[0] for case in cases],
+                'binary_text_hashes': code_hashes,
                 'zig': command(['zig', 'version']).strip(),
                 'max_regression': args.max_regression,
                 'harness_hashes': {source: hashlib.sha256((REPO / 'bench' / source).read_bytes()).hexdigest()
                                   for source in {case[1] for case in cases}},
+                'source_hashes': {name: {str(file.relative_to(path)): hashlib.sha256(file.read_bytes()).hexdigest()
+                                         for file in sorted((path / 'src').rglob('*.zig'))}
+                                  for name, path in sources.items()},
                 'source_roots': {name: str(path) for name, path in sources.items()}}
     (args.output / 'results.json').write_text(json.dumps({'environment': metadata, 'summary': summaries,
                                                        'samples': samples, 'failures': failures}, indent=2))

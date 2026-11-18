@@ -1,0 +1,4 @@
+sample=0 serial_ns=84375 parallel_ns=93095 speedup=0.906 prepared=true
+sample=1 serial_ns=133570 parallel_ns=94343 speedup=1.416 prepared=true
+sample=2 serial_ns=158050 parallel_ns=85183 speedup=1.855 prepared=true
+flat-dispatch kind=scan count=65536 lanes=8 cpw=16 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=2147450880 allocations=0 allocated_bytes=0 serial_ns=133570 parallel_ns=93095 speedup=1.435 statistic=median repetitions=1 idle_ms=100 heartbeat_cpu=23

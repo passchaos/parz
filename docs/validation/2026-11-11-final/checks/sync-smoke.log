@@ -1,0 +1,9 @@
+command: taskset -c 24-31 zig build bench-sync -Doptimize=ReleaseFast
+spsc count=1000000 ns=17390316 ops_per_sec=57503268
+spsc checksum=499999500000
+mpsc count=1000000 ns=148522815 ops_per_sec=6732972
+mpsc-1p count=1000000 ns=72515218 ops_per_sec=13790209
+mpsc-sharded count=1000000 ns=65138290 ops_per_sec=15351954
+mpsc-mutex count=1000000 ns=331510935 ops_per_sec=3016492
+treiber count=1000000 ns=73687053 ops_per_sec=13570905
+blocking count=1000000 ns=142183103 ops_per_sec=7033185

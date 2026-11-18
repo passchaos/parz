@@ -1,0 +1,15 @@
+command: zig test /tmp/parz-opt-20261111/transition-only-regression/src/root.zig --test-filter multiple capacity returns
+1/5 root.test_0...OK
+2/5 core.test_0...OK
+3/5 parallel.test_0...OK
+4/5 sync.test_0...OK
+5/5 scheduler.pool.test.multiple capacity returns wake blocked peers before any state is consumed...FAIL (ReadyPeerWasStranded)
+/tmp/parz-opt-20261111/transition-only-regression/src/scheduler/pool.zig:739:13: 0x123dd0c in bothStarted (root.zig)
+            return error.ReadyPeerWasStranded;
+            ^
+/tmp/parz-opt-20261111/transition-only-regression/src/scheduler/pool.zig:784:13: 0x1241832 in test.multiple capacity returns wake blocked peers before any state is consumed (root.zig)
+            try Run.bothStarted(&pool, &barrier);
+            ^
+4 passed; 0 skipped; 1 failed.
+error: the following test command failed with exit code 1:
+.zig-cache/o/ef3eaba5f859b252485379ca7a68035e/test --seed=0xc3d8282

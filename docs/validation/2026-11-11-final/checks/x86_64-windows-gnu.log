@@ -1,0 +1,1 @@
+command: zig test src/root.zig -target x86_64-windows-gnu -OReleaseSafe --test-no-exec -femit-bin=/tmp/parz-final-x86_64-windows-gnu-test

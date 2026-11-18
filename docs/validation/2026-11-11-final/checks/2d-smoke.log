@@ -1,0 +1,12 @@
+command: taskset -c 24-31 zig build bench-2d -Doptimize=ReleaseFast -- 1024 1024 8 31 9
+placement caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 }
+sample=0 serial_ns=1052259 parallel_ns=809239 speedup=1.300
+sample=1 serial_ns=982964 parallel_ns=705506 speedup=1.393
+sample=2 serial_ns=1432324 parallel_ns=639557 speedup=2.240
+sample=3 serial_ns=807438 parallel_ns=643905 speedup=1.254
+sample=4 serial_ns=1048938 parallel_ns=632693 speedup=1.658
+sample=5 serial_ns=957540 parallel_ns=711306 speedup=1.346
+sample=6 serial_ns=1571795 parallel_ns=685730 speedup=2.292
+sample=7 serial_ns=812560 parallel_ns=658618 speedup=1.234
+sample=8 serial_ns=920923 parallel_ns=657831 speedup=1.400
+parallel_for_2d rows=1024 cols=1024 workers=7 checksum=549755289600 serial_ns=982964 parallel_ns=658618 speedup=1.492 statistic=median timing=fill+checksum

@@ -1,0 +1,24 @@
+placement caller_cpu=14 worker_cpus={ 0, 2, 4, 6, 8, 10, 12 }
+micro nodes=1000 workers=7 checksum=1000 callback=plain
+measurement repetitions=1000 unit=ns_per_call
+sample=0 serial_ns=1928 parallel_ns=3905 speedup=0.494 repetitions=1000 unit=ns_per_call
+sample=1 serial_ns=1984 parallel_ns=3885 speedup=0.511 repetitions=1000 unit=ns_per_call
+sample=2 serial_ns=1957 parallel_ns=3581 speedup=0.546 repetitions=1000 unit=ns_per_call
+sample=3 serial_ns=1953 parallel_ns=3635 speedup=0.537 repetitions=1000 unit=ns_per_call
+sample=4 serial_ns=1921 parallel_ns=3572 speedup=0.538 repetitions=1000 unit=ns_per_call
+sample=5 serial_ns=1964 parallel_ns=3649 speedup=0.538 repetitions=1000 unit=ns_per_call
+sample=6 serial_ns=1967 parallel_ns=3633 speedup=0.541 repetitions=1000 unit=ns_per_call
+sample=7 serial_ns=1979 parallel_ns=3633 speedup=0.545 repetitions=1000 unit=ns_per_call
+sample=8 serial_ns=1973 parallel_ns=3563 speedup=0.554 repetitions=1000 unit=ns_per_call
+micro callback=plain serial_ns=1964 parallel_ns=3633 speedup=0.541 statistic=median
+micro nodes=1000 workers=7 checksum=1000 callback=error-union
+sample=0 serial_ns=1969 parallel_ns=3819 speedup=0.516 repetitions=1000 unit=ns_per_call
+sample=1 serial_ns=1980 parallel_ns=3838 speedup=0.516 repetitions=1000 unit=ns_per_call
+sample=2 serial_ns=1969 parallel_ns=3823 speedup=0.515 repetitions=1000 unit=ns_per_call
+sample=3 serial_ns=2000 parallel_ns=3886 speedup=0.515 repetitions=1000 unit=ns_per_call
+sample=4 serial_ns=1999 parallel_ns=3863 speedup=0.517 repetitions=1000 unit=ns_per_call
+sample=5 serial_ns=2005 parallel_ns=3830 speedup=0.523 repetitions=1000 unit=ns_per_call
+sample=6 serial_ns=2002 parallel_ns=3836 speedup=0.522 repetitions=1000 unit=ns_per_call
+sample=7 serial_ns=1999 parallel_ns=3856 speedup=0.518 repetitions=1000 unit=ns_per_call
+sample=8 serial_ns=1986 parallel_ns=3850 speedup=0.516 repetitions=1000 unit=ns_per_call
+micro callback=error-union serial_ns=1999 parallel_ns=3838 speedup=0.521 statistic=median

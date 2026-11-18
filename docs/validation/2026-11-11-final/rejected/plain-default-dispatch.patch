@@ -1,0 +1,184 @@
+--- a/src/parallel/dispatch.zig
++++ b/src/parallel/dispatch.zig
+@@ -12,8 +12,9 @@
+ const ScratchLease = @import("scratch.zig").Lease;
+ const ChunkCursor = @import("planning.zig").ChunkCursor;
+ 
+-// Keep dispatch storage in one bounded buffer, outside the serial fallback frame.
+-pub noinline fn dispatchRange(
++// Default calls retain the original outlined allocator frame and argument ABI.
++// Scratch ownership/lifetime stays in the explicitly selected scratch path.
++pub fn dispatchRange(
+     pool: anytype,
+     task: anytype,
+     comptime Input: type,
+@@ -23,6 +24,41 @@
+     lanes: usize,
+     schedule: Schedule,
+     scratch: ?*Scratch,
++    comptime exec: anytype,
++) anyerror!void {
++    if (scratch) |requested| return dispatchRangeScratch(pool, task, Input, runner, count, chunks, lanes, schedule, requested, exec);
++    return dispatchRangeDefault(pool, task, Input, runner, count, chunks, lanes, schedule, exec);
++}
++
++noinline fn dispatchRangeDefault(
++    pool: anytype,
++    task: anytype,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    comptime exec: anytype,
++) anyerror!void {
++    var fallback = std.heap.stackFallback(4096, pool.allocator);
++    const allocator = fallback.get();
++    const results = try allocator.alloc(anyerror!void, chunks);
++    defer allocator.free(results);
++    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
++    for (results) |result| try result;
++}
++
++noinline fn dispatchRangeScratch(
++    pool: anytype,
++    task: anytype,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    scratch: *Scratch,
+     comptime exec: anytype,
+ ) anyerror!void {
+     var fallback = std.heap.stackFallback(4096, pool.allocator);
+@@ -35,7 +71,7 @@
+     for (results) |result| try result;
+ }
+ 
+-pub noinline fn dispatchFold(
++pub fn dispatchFold(
+     pool: anytype,
+     task: anytype,
+     comptime T: type,
+@@ -46,6 +82,49 @@
+     lanes: usize,
+     schedule: Schedule,
+     scratch: ?*Scratch,
++    identity: T,
++    comptime exec: anytype,
++    comptime combine: anytype,
++) anyerror!T {
++    if (scratch) |requested| return dispatchFoldScratch(pool, task, T, Input, runner, count, chunks, lanes, schedule, requested, identity, exec, combine);
++    return dispatchFoldDefault(pool, task, T, Input, runner, count, chunks, lanes, schedule, identity, exec, combine);
++}
++
++noinline fn dispatchFoldDefault(
++    pool: anytype,
++    task: anytype,
++    comptime T: type,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    identity: T,
++    comptime exec: anytype,
++    comptime combine: anytype,
++) anyerror!T {
++    var fallback = std.heap.stackFallback(4096, pool.allocator);
++    const allocator = fallback.get();
++    const results = try allocator.alloc(anyerror!T, chunks);
++    defer allocator.free(results);
++    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
++    var total = identity;
++    for (results) |result| total = combine(total, try result);
++    return total;
++}
++
++noinline fn dispatchFoldScratch(
++    pool: anytype,
++    task: anytype,
++    comptime T: type,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    scratch: *Scratch,
+     identity: T,
+     comptime exec: anytype,
+     comptime combine: anytype,
+@@ -62,9 +141,7 @@
+     return total;
+ }
+ 
+-/// Without callback errors or cancellation, store only values and use the
+-/// plain-return chunk callback. Allocation errors still propagate to callers.
+-pub noinline fn dispatchFoldValue(
++pub fn dispatchFoldValue(
+     pool: anytype,
+     task: anytype,
+     comptime T: type,
+@@ -75,6 +152,49 @@
+     lanes: usize,
+     schedule: Schedule,
+     scratch: ?*Scratch,
++    identity: T,
++    comptime exec: anytype,
++    comptime combine: anytype,
++) anyerror!T {
++    if (scratch) |requested| return dispatchFoldValueScratch(pool, task, T, Input, runner, count, chunks, lanes, schedule, requested, identity, exec, combine);
++    return dispatchFoldValueDefault(pool, task, T, Input, runner, count, chunks, lanes, schedule, identity, exec, combine);
++}
++
++noinline fn dispatchFoldValueDefault(
++    pool: anytype,
++    task: anytype,
++    comptime T: type,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    identity: T,
++    comptime exec: anytype,
++    comptime combine: anytype,
++) anyerror!T {
++    var fallback = std.heap.stackFallback(4096, pool.allocator);
++    const allocator = fallback.get();
++    const results = try allocator.alloc(T, chunks);
++    defer allocator.free(results);
++    try runLanes(pool, task, Input, runner, count, lanes, schedule, results, allocator, exec);
++    var total = identity;
++    for (results) |result| total = combine(total, result);
++    return total;
++}
++
++noinline fn dispatchFoldValueScratch(
++    pool: anytype,
++    task: anytype,
++    comptime T: type,
++    comptime Input: type,
++    runner: anytype,
++    count: usize,
++    chunks: usize,
++    lanes: usize,
++    schedule: Schedule,
++    scratch: *Scratch,
+     identity: T,
+     comptime exec: anytype,
+     comptime combine: anytype,
+@@ -90,7 +210,6 @@
+     for (results) |result| total = combine(total, result);
+     return total;
+ }
+-
+ /// One future per lane bounds the number of simultaneous chunk callbacks.
+ /// Dynamic lanes claim disjoint result slots; static lanes own contiguous
+ /// spans. All futures are joined before ordered reduction. The caller's

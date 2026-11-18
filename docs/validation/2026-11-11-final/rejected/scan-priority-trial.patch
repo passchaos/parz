@@ -1,0 +1,25 @@
+--- a/src/scheduler/pool.zig
++++ b/src/scheduler/pool.zig
+@@ -416,12 +416,21 @@
+                 self.job_ready.signal(self.io);
+         }
+ 
++        fn scanPriorityOwner(self: *Self) ?usize {
++            for (self.workers[0..self.worker_count]) |w| {
++                if (!w.active) continue;
++                if (@atomicLoad(?*anyopaque, &w.shared_head.next_or_null, .acquire) == null) continue;
++                return w.index;
++            }
++            return null;
++        }
++
+         /// Pick one shared job. Called with the pool mutex held.
+         fn popReadyJob(self: *Self) ?*Job {
+             const index = (if (self.options.fair_shared_owners)
+                 self.ready_owners.head
+             else
+-                self.ready_owners.firstPriority()) orelse return null;
++                self.scanPriorityOwner()) orelse return null;
+             const state = self.acquireExecuteStateLocked() orelse return null;
+             if (self.options.fair_shared_owners) self.ready_owners.remove(index);
+             const w = self.workers[index];

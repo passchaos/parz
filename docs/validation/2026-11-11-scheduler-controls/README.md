@@ -1,5 +1,12 @@
 # Bounded ready-owner indexing and compatible idle heartbeat
 
+This report records checkpoint `0c8baaf`. The cumulative audit later found
+repeatable cold-scan regressions: final defaults restore the original periodic
+idle metadata path, and `skip_idle_heartbeat_metadata` is explicitly opt-in.
+See [final validation](../2026-11-11-final/README.md) for the final policy and
+the preserved trials below. Descriptions of the default shortcut in this
+checkpoint report are historical.
+
 Default shared-job pickup uses an init-time priority bitmap instead of
 scanning every registered worker. It retains the original worker-index order;
 empty/reclaimed owners leave the bitmap and intrusive index list. Optional

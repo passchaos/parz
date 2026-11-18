@@ -1,0 +1,1 @@
+command: zig test src/root.zig -target aarch64-linux-musl -OReleaseSafe --test-no-exec -femit-bin=/tmp/parz-final-aarch64-linux-musl-test

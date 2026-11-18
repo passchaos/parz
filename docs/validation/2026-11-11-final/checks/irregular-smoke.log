@@ -1,0 +1,6 @@
+command: taskset -c 24-31 zig build bench-irregular -Doptimize=ReleaseFast -- 1000 1 3 skewed
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed checksum=10537150549972823889
+sample=0 serial_ns=304247 parallel_ns=297444 speedup=1.023
+sample=1 serial_ns=305697 parallel_ns=297196 speedup=1.029
+sample=2 serial_ns=298760 parallel_ns=298095 speedup=1.002
+irregular_tree nodes=1000 workers=0 rounds=3 profile=skewed serial_ns=304247 parallel_ns=297444 speedup=1.023 statistic=median

@@ -1,0 +1,10 @@
+sample=0 serial_ns=921241 parallel_ns=167137 speedup=5.512 prepared=true
+sample=1 serial_ns=946624 parallel_ns=450425 speedup=2.102 prepared=true
+sample=2 serial_ns=919002 parallel_ns=158999 speedup=5.780 prepared=true
+sample=3 serial_ns=924979 parallel_ns=133805 speedup=6.913 prepared=true
+sample=4 serial_ns=921618 parallel_ns=133195 speedup=6.919 prepared=true
+sample=5 serial_ns=917972 parallel_ns=134423 speedup=6.829 prepared=true
+sample=6 serial_ns=920869 parallel_ns=152101 speedup=6.054 prepared=true
+sample=7 serial_ns=923583 parallel_ns=138328 speedup=6.677 prepared=true
+sample=8 serial_ns=920327 parallel_ns=219617 speedup=4.191 prepared=true
+flat-dispatch kind=compute count=8192 lanes=8 cpw=16 caller_cpu=31 worker_cpus={ 24, 25, 26, 27, 28, 29, 30 } checksum=13867102483616513078 allocations=0 allocated_bytes=0 serial_ns=921241 parallel_ns=152101 speedup=6.057 statistic=median repetitions=1 idle_ms=100

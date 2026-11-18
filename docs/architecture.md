@@ -26,14 +26,32 @@ direct callbacks.
 | File | Responsibility |
 |---|---|
 | `src/root.zig` | Public surface and module re-exports |
-| `src/core.zig` | `Pool`, `Worker`, `Task`, `Future`, caller slots, execute states |
+| `src/core.zig` | Coherent owner-local `Worker`, `Task`, `Future` protocol and compatible pool/options exports |
+| `src/scheduler/pool.zig` | Pool lifecycle, caller slots, shared-job publication, execute states |
+| `src/scheduler/heartbeat.zig` | Periodic pacing, idle shortcut and optional parking |
+| `src/scheduler/pool_options.zig`, `context.zig` | Resource policy and context lifetime |
+| `src/scheduler/ready_owners.zig` | Bounded shared-owner priority bitmap and optional rotation |
 | `src/job.zig` | Intrusive local/shared job list and tagged job state |
-| `src/parallel.zig` | Flat loop/fold planning, dispatch, serial fallbacks |
+| `src/parallel.zig` | Compatible flat callback API exports |
+| `src/parallel/index.zig`, `range.zig`, `fold.zig` | Direct index/grid callbacks, range callbacks and ordered folds |
+| `src/parallel/types.zig`, `planning.zig` | Options, balanced chunks and saturating work planning |
+| `src/parallel/dispatch.zig`, `scratch.zig` | Bounded lane/result storage and reusable caller scratch |
+| `src/parallel/serial.zig`, `executor.zig` | Serial fallback and explicit lane-context reuse |
+| `src/parallel/cancellation.zig` | Flat callback and reduction cancellation checkpoints |
 | `src/cancel.zig` | `CancelToken` |
 | `src/affinity.zig` | Linux CPU pinning and NUMA placement helpers |
 | `src/sync.zig` | Re-exports for the standalone sync module |
 | `src/sync/*.zig` | Queue, stack, semaphore, and wait-group implementations |
 | `src/numa.zig` | Optional NUMA-aware allocator |
+
+Unit tests live beside the implementation that owns their contract. Public
+exports preserve their names and instantiate each module's tests. Cross-module
+scheduler methods marked internal exist for the Worker/Future protocol; callers
+enter through `Worker.begin`, `Task.call` and Future joins. Moving heartbeat to a
+module retains a statically typed `Heartbeat(Pool).run(*Pool)` thread entry.
+A direct generic entry regressed the medium-tree comparison and was withdrawn.
+Worker, Task and Future stay together in `core.zig`: the initial attempt to
+separate those hot types was withdrawn after cumulative cold-scan regressions.
 
 ## Local-first scheduling
 
@@ -44,11 +62,18 @@ publication order; reclamation removes empty owners from both representations.
 The bitmap/list are protected by the pool mutex and updated only when jobs
 become shared or are removed. Local fork remains plain stores.
 
-Default idle heartbeats preserve the existing period but use atomic caller
-and stop snapshots to avoid locking the pool and writing idle worker flags
-when all background workers wait. Complete parking is opt-in through
-`park_idle_heartbeat`; automatic parking was rejected because cold first calls
-regressed on this host. Flat calls kickstart work directly; `Worker.begin()`
+Ready work can also wait for an execution state. A mutex-protected pressure
+bit records that exhaustion; each returned state then notifies an idle worker
+while ready work remains. Emptying the ready set clears the bit. Normal joins
+keep the original path without extra notifications. Multiple states returned
+before a worker resumes require multiple notifications, which is covered by
+blocked-peer tests and an intentionally failing transition-only control.
+
+Default idle heartbeats preserve the original periodic mutex/metadata path.
+`skip_idle_heartbeat_metadata` explicitly uses atomic caller/stop snapshots to
+skip the lock and idle lane writes. This shortcut and complete parking through
+`park_idle_heartbeat` are opt-in because cumulative cold calls regressed with
+automatic idle controls. Flat calls kickstart work directly; `Worker.begin()`
 requests pacing for recursive work in parking mode. A held normal caller keeps
 pacing active, and `idle_heartbeat_grace_ns` retains it across short idle gaps.
 

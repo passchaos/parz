@@ -5,6 +5,10 @@ summaries where applicable, and raw logs, patches, or assembly snapshots. The
 reports describe the code state and host at measurement time; re-run the
 benchmarks to verify a claim on another machine.
 
+- [2026-11-11 cumulative optimization validation](2026-11-11-final/README.md):
+  semantic modules, static heartbeat entry, capacity-pressure wake tests and
+  retained cumulative performance signals. This goal remains in progress.
+
 ## Scheduler and recursive fork/join
 
 - [2026-11-11 scheduler controls](2026-11-11-scheduler-controls/README.md):

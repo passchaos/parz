@@ -1,0 +1,124 @@
+1/123 root.test_0...OK
+2/123 job.test.job list: push, shift, and remove preserve order...OK
+3/123 job.test.job list: shared list supports single-element pop...OK
+4/123 job.test.job list: remove middle node repairs tail...OK
+5/123 core.test.future: nested begin preserves outstanding local work on registered and temporary lanes...OK
+6/123 core.test.future: fork/join tree sum with caller fallback...OK
+7/123 core.test.future: pending and error-union joins preserve caller fallback across lanes...OK
+8/123 core.test.Future shares input and output storage...OK
+9/123 core.test.future: initFork accepts undefined storage and reuses joined slots...OK
+10/123 core.test.future: reclaimed parent fallback publishes descendant forks...OK
+11/123 core.test.future: tryJoin/result and joinOrCall with a large payload...OK
+12/123 core.test_0...OK
+13/123 parallel.test_0...OK
+14/123 cancel.test.cancel token transitions...OK
+15/123 sync.test_0...OK
+16/123 numa.test.numa allocator validates policy node sets and copies wide masks...OK
+17/123 numa.test.numa allocator preserves contents alignment and failed reallocations...OK
+18/123 numa.test.numa required policy either applies or reports allocation failure...OK
+19/123 numa.test.numa allocator handles every policy and init-time allocation failure...OK
+20/123 numa.test.numa VMA policy survives reallocating an anonymous mapping...OK
+21/123 sync.spsc.test.spsc queue: single-threaded order and bounds...OK
+22/123 sync.spsc.test.spsc queue: capacity boundaries and cached cursors survive wraparound...OK
+23/123 sync.spsc.test.spsc queue: mixed slice and scalar transfers match FIFO through wrap...OK
+24/123 sync.spsc.test.spsc queue: slice transfers support empty elements...OK
+25/123 sync.spsc.test.spsc queue: concurrent mixed batch transfer and length observer...OK
+26/123 sync.spsc.test.spsc queue: concurrent observer length stays within capacity...OK
+27/123 sync.spsc.test.spsc queue: repeated threaded FIFO across capacities and counter wrap...OK
+28/123 sync.mpsc.test.mpsc queue: singleton rejects pushes until the value is consumed...OK
+29/123 sync.mpsc.test.mpsc queue: single-threaded order and bounds...OK
+30/123 sync.mpsc.test.mpsc queue: mixed slice and scalar prefixes preserve FIFO across counter wrap...OK
+31/123 sync.mpsc.test.mpsc queue: ready batches cannot skip an earlier reserved slot...OK
+32/123 sync.mpsc.test.mpsc queue: slice transfers retain aligned payloads and empty elements...OK
+33/123 sync.mpsc.test.mpsc queue: concurrent scalar and batch producers retain every value and producer order...OK
+34/123 sync.mpsc.test.mpsc queue: singleton concurrent producers preserve every value and producer order...OK
+35/123 sync.mpsc.test.mpsc queue: threaded producers and consumer...OK
+36/123 sync.sharded_mpsc.test.sharded mpsc queue: single-threaded round robin...OK
+37/123 sync.sharded_mpsc.test.sharded consumer view preserves selected FIFO and leaves other shards queued...OK
+38/123 sync.sharded_mpsc.test.sparse sharded view concurrently preserves per producer order...OK
+39/123 sync.sharded_mpsc.test.sharded mpsc queue: mixed slice transfers preserve per-shard FIFO through wrap...OK
+40/123 sync.sharded_mpsc.test.sharded mpsc queue: initialization failures release completed shards...OK
+41/123 sync.sharded_mpsc.test.sharded mpsc queue: threaded producers and consumer...OK
+42/123 sync.sharded_mpsc.test.sharded mpsc queue: concurrent mixed scalar and batch transfers...OK
+43/123 sync.blocking_queue.test.blocking queue: single-threaded order and bounds...OK
+44/123 sync.blocking_queue.test.blocking queue cancelled waits remove registration and preserve mutex reuse...OK
+45/123 sync.blocking_queue.test.blocking batch wakes every blocked reader and writer without stranding...OK
+46/123 sync.blocking_queue.test.blocking queue: mixed slice transfers handle partial prefixes and wrap...OK
+47/123 sync.blocking_queue.test.blocking queue: threaded producers and consumers...OK
+48/123 sync.blocking_queue.test.blocking queue: threaded batch producers and consumers...OK
+49/123 sync.treiber_stack.test.uncounted stack preserves mixed scalar batch LIFO and node reuse...OK
+50/123 sync.treiber_stack.test.uncounted stack concurrent producers retain every caller owned node...OK
+51/123 sync.treiber_stack.test.treiber stack: single-threaded order...OK
+52/123 sync.treiber_stack.test.treiber stack: mixed slice operations preserve LIFO order...OK
+53/123 sync.treiber_stack.test.treiber stack: concurrent length does not underflow...OK
+54/123 sync.treiber_stack.test.treiber stack: threaded producers and consumer...OK
+55/123 sync.treiber_stack.test.treiber stack: concurrent mixed scalar and batch producers and consumer...OK
+56/123 sync.coordination.test.semaphore wakes a waiter...OK
+57/123 sync.coordination.test.semaphore batch permits wake scalar and batch waiters...OK
+58/123 sync.coordination.test.semaphore mixed permit waiters do not strand available permits...OK
+59/123 sync.coordination.test.wait group waits for all members...OK
+60/123 sync.coordination.test.wait group batch completion wakes cancelable waiters...OK
+61/123 parallel.cancellation.test.final callback cancellation is observed across flat APIs and serial fallbacks...OK
+62/123 parallel.cancellation.test.cancellation from final ordered reduction is observed...OK
+63/123 parallel.cancellation.test.callback errors retain chunk-index precedence over exit cancellation...OK
+64/123 parallel.cancellation.test.cancelled calls drain callbacks and select errors by chunk index...OK
+65/123 parallel.cancellation.test.parallelFor returns Cancelled for an already-cancelled token...OK
+66/123 parallel.cancellation.test.parallelFold cancels from a callback...OK
+67/123 parallel.cancellation.test.parallelFoldInfallible honors cancellation...OK
+68/123 parallel.cancellation.test.serial fold honors cancellation...OK
+69/123 parallel.cancellation.test.parallelFor cancellation from another thread...OK
+70/123 parallel.index.test.parallelFor covers every index exactly once...OK
+71/123 parallel.index.test.nested parallelFor...OK
+72/123 parallel.index.test.parallelFor returns the first error by index...OK
+73/123 parallel.index.test.parallelFor2D covers every cell exactly once...OK
+74/123 parallel.index.test.parallelFor2D handles empty dimensions and overflow...OK
+75/123 parallel.range.test.parallelForRange partitions uneven counts into nonempty ordered ranges...OK
+76/123 parallel.range.test.parallelForRange accepts usize limits and saturates lane planning...OK
+77/123 parallel.range.test.parallelForRange enforces worker caps including the caller...OK
+78/123 parallel.range.test.range folds preserve deterministic chunk-index order across worker counts...OK
+79/123 parallel.range.test.range fold errors are selected by chunk index...OK
+80/123 parallel.fold.test.balanced folds preserve sequence order across worker counts...OK
+81/123 parallel.fold.test.capped folds preserve ordered results and errors across worker counts...OK
+82/123 parallel.fold.test.parallelFold is deterministic and ordered...OK
+83/123 parallel.fold.test.parallelFold is deterministic across worker counts...OK
+84/123 parallel.fold.test.infallible value and cancellable folds preserve noncommutative order across lanes...OK
+85/123 parallel.fold.test.parallelFoldInfallible matches the fallible fold...OK
+86/123 parallel.dispatch.test.capped allocation failures release caller slots before invoking callbacks...OK
+87/123 parallel.dispatch.test.capped nested calls and cancellation drain their lane futures...OK
+88/123 parallel.dispatch.test.parallelFold covers stack and heap dispatch storage...OK
+89/123 parallel.dispatch.test.uncancelled infallible fold fits 256 u64 results and lane futures on the stack...OK
+90/123 parallel.dispatch.test.infallible value dispatch allocation failures release caller before callbacks...OK
+91/123 parallel.planning.test.cost estimate adds a saturating work guard without changing explicit dispatch...OK
+92/123 parallel.serial.test.serial fallback worker index matches its context initialization index...OK
+93/123 parallel.serial.test.already cancelled serial calls skip temporary context construction...OK
+94/123 parallel.serial.test.serial fallback kickstart leaves jobs local across worker counts...OK
+95/123 parallel.serial.test.serial fallback destroys the mutated worker context...OK
+96/123 parallel.serial.test.parallelFor serial fallback with no background workers...OK
+97/123 parallel.executor.test.explicit worker reuses context for every flat API and keeps its caller slot...OK
+98/123 parallel.executor.test.nested worker dispatch retains parent futures and ordered output across lanes...OK
+99/123 parallel.scratch.test.dispatch scratch nested leases do not reset outstanding storage...OK
+100/123 parallel.scratch.test.explicit dispatch scratch handles aligned results order and no heap across lanes...OK
+101/123 parallel.scratch.test.strict dispatch scratch rejects both allocation stages before callbacks and releases slots...OK
+102/123 parallel.scratch.test.nested scratch calls use independent storage and retain outer results...OK
+103/123 parallel.scratch.test.cancellation drains scratch callbacks before storage and caller are released...OK
+104/123 scheduler.pool.test.zero worker caller accounting preserves serial fallback...OK
+105/123 scheduler.pool.test.shared ready owners rotate fairly and state exhaustion preserves reclamation...OK
+106/123 scheduler.pool.test.pool: start and stop without workers...OK
+107/123 scheduler.pool.test.pool pins workers when requested...OK
+108/123 scheduler.pool.test.affinity: pinned worker counts fit selected CPUs before startup...OK
+109/123 scheduler.pool.test.pool applies a preferred numa node...OK
+110/123 scheduler.pool.test.pool applies automatic numa policy...OK
+111/123 scheduler.pool.test.exhausted execution states wake ready work on capacity return across workers...OK
+112/123 scheduler.pool.test.multiple capacity returns wake blocked peers before any state is consumed...OK
+113/123 scheduler.context.test.pool: per-worker context init and deinit...OK
+114/123 scheduler.context.test.affinity: context initialization failure releases selected CPU storage...OK
+115/123 scheduler.heartbeat.test.heartbeat thread entry has a static pool parameter...OK
+116/123 scheduler.heartbeat.test.heartbeat parks with no callers wakes held callers and shuts down from park...OK
+117/123 scheduler.heartbeat.test.explicit idle shortcut skips worker writes and resumes periodic flags for callers...OK
+118/123 scheduler.heartbeat.test.default heartbeat preserves periodic idle lane flags...OK
+119/123 scheduler.heartbeat.test.flat callers keep heartbeat parked until recursive begin requests pacing...OK
+120/123 scheduler.ready_owners.test.ready owners preserve round robin and arbitrary reclamation order...OK
+121/123 scheduler.ready_owners.test.ready owner allocation failure and empty capacity...OK
+122/123 scheduler.ready_owners.test.ready owner priority bitmap crosses words and retains original index order...OK
+123/123 affinity.test.affinity: first allowed siblings survive restricted CPU sets...OK
+All 123 tests passed.

@@ -1,0 +1,140 @@
+--- a/src/scheduler/heartbeat.zig
++++ b/src/scheduler/heartbeat.zig
+@@ -10,65 +10,69 @@
+ /// Periodically mark every active worker as ready to share one batch
+ /// of local work. Small fork/join trees finish before the first
+ /// heartbeat, so they never pay thread-wakeup cost.
+-pub fn run(self: anytype) void {
+-    var interval = self.options.heartbeat_interval_ns;
+-    var observed_epoch: usize = 0;
+-    var idle_since: ?std.Io.Clock.Timestamp = null;
+-    while (true) {
+-        self.io.sleep(
+-            std.Io.Duration.fromNanoseconds(@max(interval, 1)),
+-            .awake,
+-        ) catch |err| switch (err) {
+-            error.Canceled => return,
+-        };
+-        if (self.is_stopping.load(.acquire)) return;
+-        // This shortcut is opt-in: repeated cumulative cold-scan comparisons
+-        // regressed, so defaults retain the original periodic metadata path.
+-        if (self.options.skip_idle_heartbeat_metadata and !self.options.park_idle_heartbeat and
+-            !self.has_callers.load(.acquire) and
+-            self.idle_workers.load(.monotonic) >= self.spawned_background)
+-        {
+-            interval = self.options.idle_heartbeat_interval_ns;
+-            continue;
+-        }
+-        self.mutex.lockUncancelable(self.io);
+-        if (self.options.park_idle_heartbeat) {
+-            if (observed_epoch != self.caller_epoch) {
+-                observed_epoch = self.caller_epoch;
+-                idle_since = null;
+-            }
+-            while (!self.is_stopping.load(.monotonic)) {
+-                if (self.heartbeat_demand.load(.monotonic)) {
+-                    if (self.active_callers != 0 or self.idle_workers.load(.monotonic) < self.spawned_background) {
++pub fn Heartbeat(comptime P: type) type {
++    return struct {
++        pub fn run(self: *P) void {
++            var interval = self.options.heartbeat_interval_ns;
++            var observed_epoch: usize = 0;
++            var idle_since: ?std.Io.Clock.Timestamp = null;
++            while (true) {
++                self.io.sleep(
++                    std.Io.Duration.fromNanoseconds(@max(interval, 1)),
++                    .awake,
++                ) catch |err| switch (err) {
++                    error.Canceled => return,
++                };
++                if (self.is_stopping.load(.acquire)) return;
++                // This shortcut is opt-in: repeated cumulative cold-scan comparisons
++                // regressed, so defaults retain the original periodic metadata path.
++                if (self.options.skip_idle_heartbeat_metadata and !self.options.park_idle_heartbeat and
++                    !self.has_callers.load(.acquire) and
++                    self.idle_workers.load(.monotonic) >= self.spawned_background)
++                {
++                    interval = self.options.idle_heartbeat_interval_ns;
++                    continue;
++                }
++                self.mutex.lockUncancelable(self.io);
++                if (self.options.park_idle_heartbeat) {
++                    if (observed_epoch != self.caller_epoch) {
++                        observed_epoch = self.caller_epoch;
+                         idle_since = null;
+-                        break;
+                     }
+-                    if (idle_since == null) idle_since = std.Io.Clock.Timestamp.now(self.io, .awake);
+-                    if (idle_since.?.untilNow(self.io).raw.toNanoseconds() <
+-                        @max(self.options.idle_heartbeat_grace_ns, 0)) break;
+-                    self.heartbeat_demand.store(false, .monotonic);
+-                }
+-                self.heartbeat_parked = true;
+-                self.heartbeat_ready.waitUncancelable(self.io, &self.mutex);
+-                self.heartbeat_parked = false;
+-                idle_since = null;
+-                observed_epoch = self.caller_epoch;
+-            }
+-        }
+-        if (self.is_stopping.load(.monotonic)) {
+-            self.mutex.unlock(self.io);
+-            return;
+-        }
+-        for (self.workers[0..self.worker_count]) |w| {
+-            if (w.active) w.heartbeat.store(true, .monotonic);
+-        }
+-        const idle = self.idle_workers.load(.monotonic);
+-        interval = if (idle >= self.spawned_background)
+-            self.options.idle_heartbeat_interval_ns
+-        else
+-            self.options.heartbeat_interval_ns;
+-        self.mutex.unlock(self.io);
+-    }
++                    while (!self.is_stopping.load(.monotonic)) {
++                        if (self.heartbeat_demand.load(.monotonic)) {
++                            if (self.active_callers != 0 or self.idle_workers.load(.monotonic) < self.spawned_background) {
++                                idle_since = null;
++                                break;
++                            }
++                            if (idle_since == null) idle_since = std.Io.Clock.Timestamp.now(self.io, .awake);
++                            if (idle_since.?.untilNow(self.io).raw.toNanoseconds() <
++                                @max(self.options.idle_heartbeat_grace_ns, 0)) break;
++                            self.heartbeat_demand.store(false, .monotonic);
++                        }
++                        self.heartbeat_parked = true;
++                        self.heartbeat_ready.waitUncancelable(self.io, &self.mutex);
++                        self.heartbeat_parked = false;
++                        idle_since = null;
++                        observed_epoch = self.caller_epoch;
++                    }
++                }
++                if (self.is_stopping.load(.monotonic)) {
++                    self.mutex.unlock(self.io);
++                    return;
++                }
++                for (self.workers[0..self.worker_count]) |w| {
++                    if (w.active) w.heartbeat.store(true, .monotonic);
++                }
++                const idle = self.idle_workers.load(.monotonic);
++                interval = if (idle >= self.spawned_background)
++                    self.options.idle_heartbeat_interval_ns
++                else
++                    self.options.heartbeat_interval_ns;
++                self.mutex.unlock(self.io);
++            }
++        }
++    };
+ }
+ 
+ test "heartbeat parks with no callers wakes held callers and shuts down from park" {
+--- a/src/scheduler/pool.zig
++++ b/src/scheduler/pool.zig
+@@ -445,7 +445,7 @@
+             affinity.pinCurrentThread(self.pinned_cpus[index]);
+         }
+ 
+-        const heartbeatWorker = @import("heartbeat.zig").run;
++        const heartbeatWorker = @import("heartbeat.zig").Heartbeat(Self).run;
+ 
+         fn backgroundWorker(self: *Self, w: *Worker(Ctx)) void {
+             self.pinWorker(w.index);

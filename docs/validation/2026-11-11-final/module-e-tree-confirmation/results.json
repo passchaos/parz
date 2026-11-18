@@ -1,0 +1,646 @@
+{
+  "environment": {
+    "cpus": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "caller_cpu": 31,
+    "rounds": 7,
+    "zig": "0.16.0",
+    "max_regression": 0.05,
+    "harness_hashes": {
+      "tree_sum.zig": "f0af74e4eb789cfc84475ebeacb21b3e9e7ceb91b9313fd7b68ee0fda9c58c95"
+    },
+    "source_roots": {
+      "candidate": "/home/passchaos/project-z/parz",
+      "baseline": "/tmp/parz-opt-20261111/module-checkpoint"
+    }
+  },
+  "summary": [
+    {
+      "case": "tree-100k",
+      "candidate": {
+        "serial_ns": 160923.0,
+        "parallel_ns": 95539.0,
+        "speedup": 1.702
+      },
+      "baseline": {
+        "serial_ns": 160652.0,
+        "parallel_ns": 96465.0,
+        "speedup": 1.743
+      },
+      "parallel_ratio": 0.9904006634530659
+    },
+    {
+      "case": "tree-1m",
+      "candidate": {
+        "serial_ns": 1744211.0,
+        "parallel_ns": 505126.0,
+        "speedup": 3.522
+      },
+      "baseline": {
+        "serial_ns": 1789741.0,
+        "parallel_ns": 510216.0,
+        "speedup": 3.473
+      },
+      "parallel_ratio": 0.9900238330432601
+    }
+  ],
+  "samples": [
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "162146",
+      "parallel_ns": "117389",
+      "speedup": "1.381",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "158358",
+      "parallel_ns": "74513",
+      "speedup": "2.125",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1721562",
+      "parallel_ns": "464342",
+      "speedup": "3.708",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 0,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1803059",
+      "parallel_ns": "503644",
+      "speedup": "3.580",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "163927",
+      "parallel_ns": "102136",
+      "speedup": "1.605",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160424",
+      "parallel_ns": "76259",
+      "speedup": "2.104",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1813030",
+      "parallel_ns": "504801",
+      "speedup": "3.592",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 1,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1779052",
+      "parallel_ns": "505126",
+      "speedup": "3.522",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "161081",
+      "parallel_ns": "110297",
+      "speedup": "1.460",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "157532",
+      "parallel_ns": "74718",
+      "speedup": "2.108",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1788417",
+      "parallel_ns": "487097",
+      "speedup": "3.672",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 2,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1789741",
+      "parallel_ns": "480828",
+      "speedup": "3.722",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "161315",
+      "parallel_ns": "89700",
+      "speedup": "1.798",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160923",
+      "parallel_ns": "94576",
+      "speedup": "1.702",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1716696",
+      "parallel_ns": "514935",
+      "speedup": "3.334",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 3,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1711928",
+      "parallel_ns": "527466",
+      "speedup": "3.246",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160143",
+      "parallel_ns": "112503",
+      "speedup": "1.423",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "160652",
+      "parallel_ns": "96465",
+      "speedup": "1.665",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1721675",
+      "parallel_ns": "480591",
+      "speedup": "3.582",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 4,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1827514",
+      "parallel_ns": "526175",
+      "speedup": "3.473",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "168742",
+      "parallel_ns": "96819",
+      "speedup": "1.743",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "168080",
+      "parallel_ns": "95539",
+      "speedup": "1.759",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1728391",
+      "parallel_ns": "515837",
+      "speedup": "3.351",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 5,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1744211",
+      "parallel_ns": "507694",
+      "speedup": "3.436",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "156845",
+      "parallel_ns": "88712",
+      "speedup": "1.768",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-100k",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "100000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "100000",
+      "workers": "7",
+      "serial_ns": "157258",
+      "parallel_ns": "104649",
+      "speedup": "1.503",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "candidate",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/candidate-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1847418",
+      "parallel_ns": "572993",
+      "speedup": "3.224",
+      "statistic": "median"
+    },
+    {
+      "case": "tree-1m",
+      "revision": "baseline",
+      "round": 6,
+      "command": [
+        "taskset",
+        "-c",
+        "24,25,26,27,28,29,30,31",
+        "/tmp/parz-perf-0ac5tasy/baseline-tree_sum.zig",
+        "1000000",
+        "heartbeat",
+        "measure",
+        "31"
+      ],
+      "nodes": "1000000",
+      "workers": "7",
+      "serial_ns": "1746104",
+      "parallel_ns": "510216",
+      "speedup": "3.422",
+      "statistic": "median"
+    }
+  ],
+  "failures": []
+}

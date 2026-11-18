@@ -14,6 +14,7 @@ const Config = struct {
     rounds: usize,
     repetitions: usize,
     idle_ms: usize,
+    heartbeat_cpu: ?usize,
 };
 
 const ScratchContext = struct {
@@ -45,6 +46,7 @@ fn benchmark(comptime Ctx: type, comptime heavy: bool, init: std.process.Init, c
     defer pool.deinit();
     try pool.start();
     try affinity.pinCaller(&pool, config.cpu);
+    if (config.heartbeat_cpu) |cpu| try affinity.pinHeartbeat(&pool, cpu);
     const borrowed = Ctx != void and @hasDecl(parz, "ParallelScratch");
     const worker: ?*parz.Worker(Ctx) = if (borrowed) pool.claimCaller() orelse return error.NoCallerSlot else null;
     defer if (worker) |w| pool.releaseCaller(w);
@@ -104,10 +106,10 @@ fn benchmark(comptime Ctx: type, comptime heavy: bool, init: std.process.Init, c
         try timing.pairedPrepared(u64, init.gpa, init.io, config.rounds, expected, &run, Run.prepare, Run.serial, Run.parallel)
     else
         try timing.pairedRepeated(u64, init.gpa, init.io, config.rounds, config.repetitions, expected, &run, Run.serial, Run.parallel);
-    std.debug.print("flat-dispatch kind={s} count={d} lanes={d} cpw={d} caller_cpu={d} worker_cpus={any} checksum={d} allocations={d} allocated_bytes={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median repetitions={d} idle_ms={d}\n", .{
+    std.debug.print("flat-dispatch kind={s} count={d} lanes={d} cpw={d} caller_cpu={d} worker_cpus={any} checksum={d} allocations={d} allocated_bytes={d} serial_ns={d} parallel_ns={d} speedup={d:.3} statistic=median repetitions={d} idle_ms={d} heartbeat_cpu={?d}\n", .{
         config.kind,                                  config.count,    pool.parallelWorkerCount(), config.chunks_per_worker, config.cpu,
         pool.pinned_cpus[0..pool.spawned_background], expected,        allocations,                allocated_bytes,          times.serial_ns,
-        times.parallel_ns,                            times.speedup(), config.repetitions,         config.idle_ms,
+        times.parallel_ns,                            times.speedup(), config.repetitions,         config.idle_ms,           config.heartbeat_cpu,
     });
 }
 
@@ -124,6 +126,7 @@ pub fn main(init: std.process.Init) !void {
         .rounds = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 21,
         .repetitions = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 1,
         .idle_ms = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else 0,
+        .heartbeat_cpu = if (args.next()) |a| try std.fmt.parseInt(usize, a, 10) else null,
     };
     if (config.count == 0 or config.lanes == 0 or config.rounds == 0 or config.repetitions == 0) return error.InvalidArguments;
     if (config.idle_ms != 0 and config.repetitions != 1) return error.InvalidArguments;

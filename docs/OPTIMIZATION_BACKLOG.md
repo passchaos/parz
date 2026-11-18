@@ -14,7 +14,7 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Light flat-work granularity | Complete | [Cost guard with E/P-core rows and unknown/heavy controls](validation/2026-11-11-flat-controls/README.md); defaults preserved |
 | Explicit lane context reuse | Complete | All ten API shapes, nested parent futures, zero-worker/error/cancel coverage, zero repeated context allocations |
 | Explicit reusable dispatch scratch | Complete | Aligned noncommutative results, strict two-stage OOM, nested/cancel drain tests and zero measured dispatch allocations |
-| Idle heartbeat parking | Complete | [Default idle shortcut and explicit parking evidence](validation/2026-11-11-scheduler-controls/README.md); automatic parking rejected to preserve cold latency |
+| Idle heartbeat parking | Complete | [Checkpoint trials](validation/2026-11-11-scheduler-controls/README.md) and [cumulative correction](validation/2026-11-11-final/README.md); parking and metadata shortcut are opt-in, original default periodic path preserved |
 | Multiple-caller owner lookup/fairness | Complete | Default priority bitmap, optional round robin, 1/2/4/8 caller controls and deterministic/state-exhaustion contracts |
 | BlockingQueue batch wake strategy | Complete | [Trial evidence](validation/2026-11-11-sync-arena/README.md): waiter tracking withdrawn for repeated small slowdowns; original hot path retained, cancellation/no-stranding coverage added |
 | Treiber optional count | Complete | Uncounted variant verified with mixed scalar/batch/reuse/TSan; default counted retry preserved after regression trial |

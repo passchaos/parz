@@ -1,4 +1,10 @@
-# Scheduler optimization trials in progress
+# Historical scheduler optimization trials
+
+This is the intermediate trial record before commit `0c8baaf`, not the
+current repository status. The accepted defaults and confirmations are in
+[scheduler controls](../2026-11-11-scheduler-controls/README.md); the final
+cumulative audit is in [final validation](../2026-11-11-final/README.md).
+The descriptions and pending checks below refer to that earlier worktree.
 
 Verified baseline for this phase: `85bdeb6`, exported at
 `/tmp/parz-opt-20261111/flat-checkpoint`. The scheduler changes in the current

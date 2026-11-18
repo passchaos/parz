@@ -211,7 +211,8 @@ taskset -c 24-31 zig build bench-multi-caller -- 4 4096 8 24,25,26,27,28,29,30,3
 python3 scripts/perf_gate.py --callers-only --baseline /path/to/baseline \
   --cpus 24-31 --rounds 5 --output /tmp/parz-callers
 python3 scripts/perf_gate.py --first-call-only --idle-ms 100 \
-  --baseline /path/to/baseline --cpus 24-31 --rounds 5 --output /tmp/parz-cold
+  --heartbeat-cpu 23 --baseline /path/to/baseline --cpus 24-31 \
+  --rounds 7 --output /tmp/parz-cold
 python3 scripts/idle_profile.py --baseline /path/to/baseline --cpus 24-31 \
   --rounds 3 --output /tmp/parz-idle
 ```
@@ -219,6 +220,12 @@ python3 scripts/idle_profile.py --baseline /path/to/baseline --cpus 24-31 \
 Cold-call preparation sleeps outside both timing intervals. Idle profiling
 uses per-thread context switches and scheduler CPU nanoseconds from `/proc`;
 `--parking` measures the explicit parking policy rather than the default.
+Cold-mode `--heartbeat-cpu` fixes the heartbeat to a separate physical CPU;
+workers and caller keep the requested CPU set. Choose another allowed CPU on
+your host. This is benchmark-only placement. Unfixed heartbeat placement
+produced a +10.77% cold signal even for identical machine code on this host;
+that calibration is retained in the final evidence. The runner records `.text`
+hashes using GNU `objcopy`, as well as source/harness hashes and all timings.
 Automatic parking and unconditional owner fairness are not enabled by default
 when their latency/throughput comparisons show regressions.
 
@@ -238,15 +245,18 @@ python3 scripts/perf_gate.py --baseline /path/to/baseline --cpus 24-31 \
 The regression runner compiles identical current benchmark sources against
 both core checkouts, alternates process order and saves every inner sample.
 It rejects a median parallel-time increase above the requested allowance
-(5% default, accounting for noisy hosts) and always enforces 0.9x small-tree
-parity. A failed row requires investigation and a repeated comparison; a
-passing row only supports the inputs and CPU placement measured. Set
+(5% default, accounting for noisy hosts) and enforces 0.9x parity whenever the
+1000-node row is selected. A failed row requires investigation and a repeated
+comparison; a passing row only supports the inputs and CPU placement measured. Set
 `PARZ_BENCH_CPUS` to fix the default check script's CPU set; otherwise it
 selects up to eight allowed physical cores and reserves the last for caller.
+Use `--only tree-100k,tree-1m --rounds 7` for a focused confirmation of those
+rows; case names are checked against the selected mode before anything builds.
+The full default run remains the cumulative regression gate.
 
 `bench-flat-dispatch` measures the opt-in cost guard, borrowed worker context
 and strict scratch against the old core with the same harness. Arguments are
-`kind count lanes caller_cpu chunks_per_worker rounds repetitions`, where
+`kind count lanes caller_cpu chunks_per_worker rounds repetitions [idle_ms [heartbeat_cpu]]`, where
 kind is `scan`, `cheap`, `compute`, `context`, or `scratch`:
 
 ```sh

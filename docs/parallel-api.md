@@ -76,8 +76,10 @@ not a platform-independent performance guarantee.
 heartbeat parking mode it does not keep the heartbeat awake until a callback
 starts recursive work with `Worker.begin()`. Normal `claimCaller()` retains
 recursive pacing. Both caller kinds must be released after all jobs/calls end.
-The default heartbeat timer remains periodic for predictable cold latency;
-parking is an explicit power/latency choice.
+The default heartbeat timer and idle metadata path preserve periodic pacing
+for predictable cold latency. `park_idle_heartbeat` and
+`skip_idle_heartbeat_metadata` are explicit power/latency choices, both false
+by default.
 
 ```zig
 const caller = pool.claimCaller() orelse return error.NoCallerSlot;

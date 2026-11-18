@@ -1,0 +1,8 @@
+command: zig build test --summary all
+Build Summary: 5/5 steps succeeded; 127/127 tests passed
+test success
++- run test 123 pass (123 total) 1s MaxRSS:10M
+|  +- compile test Debug native cached 46ms MaxRSS:35M
++- run test 4 pass (4 total) 53ms MaxRSS:6M
+   +- compile test Debug native cached 48ms MaxRSS:35M
+
