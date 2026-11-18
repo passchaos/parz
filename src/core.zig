@@ -423,9 +423,18 @@ pub fn Pool(comptime Ctx: type) type {
             }
             if (shared != 0) self.ready_owners.push(owner.index);
 
-            var i: usize = 0;
-            while (i < shared) : (i += 1) {
-                self.job_ready.signal(self.io);
+            // When the batch can occupy every idle lane, one broadcast replaces
+            // one futex wake per job. Smaller batches keep per-job signals so
+            // lanes without work are not woken. The count is stable while the
+            // pool mutex is held: workers enter and leave idle under it too.
+            const idle = self.idle_workers.load(.monotonic);
+            if (shared > 1 and shared >= idle) {
+                self.job_ready.broadcast(self.io);
+            } else {
+                var i: usize = 0;
+                while (i < shared) : (i += 1) {
+                    self.job_ready.signal(self.io);
+                }
             }
         }
 

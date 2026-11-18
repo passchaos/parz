@@ -66,6 +66,9 @@ Each worker owns a truly local intrusive job list:
   up.
 - Idle workers consume jobs from shared lists. They do not steal from another
   worker's local list. Work stealing is intentionally out of scope.
+- A share batch that can occupy every idle lane wakes them with one condition
+  broadcast; smaller batches keep one signal per job so lanes without work are
+  not woken.
 
 Tiny workloads usually finish before the first heartbeat and stay on the
 caller. Recursive algorithms should also stop creating `Future`s below a useful
