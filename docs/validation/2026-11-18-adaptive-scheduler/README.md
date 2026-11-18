@@ -109,6 +109,24 @@ inside the 5% allowance:
 Raw data: `sync-treiber-confirmation.json`, `sync-mpsc-confirmation.json`,
 `sync-sharded-confirmation.json`.
 
+## Evaluated and retained
+
+- **Future-embedded completion event.** Retained the bounded execute-state
+  pool. `cold-phases` shows dispatch is wake-dominated; state acquisition
+  happens under the already-held pool mutex and release is one uncontended
+  CAS. Removing the pool would delete the documented `max_execute_states`
+  fallback contract, and inline dispatch futures would need a Job kind/tag or
+  an extra Future field. The measured saving is below run-to-run noise.
+- **Per-owner locking and a shared heartbeat mask.** Retained the single pool
+  mutex and per-worker state byte. Caller claim/release measured ~0.1-0.6 us
+  and cold dispatch is dominated by worker wake; the adaptive heartbeat cut
+  idle ticks by ~15x, so per-worker flag writes are not a measured bottleneck.
+  A shared mask would add consume contention without evidence of a gain.
+- **Static scheduling and recursive grain.** Dynamic remains the default for
+  mixed-cost and heterogeneous CPUs. Static scheduling and the benchmark's
+  recursive serial depth are caller/benchmark policy; no new fixed-CPU
+  evidence justified changing the library default.
+
 ## Correctness
 
 - `zig build test` (Debug) and `zig build test -Doptimize=ReleaseSafe`: 129

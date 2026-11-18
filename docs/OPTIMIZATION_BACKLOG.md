@@ -29,6 +29,9 @@ the pool mutex. The 1000-node tree parity floor is 0.9x.
 | Topology-aware placement policies | Complete | Opt-in `prefer_performance_cores` and `use_smt_siblings` with pure ordering tests |
 | Configurable heartbeat share batch | Complete | `share_batch` option with bound/tail-retention test; default 4 preserves prior behavior |
 | Pool-owned dispatch storage | Complete | High-chunk flat calls reuse pool scratch; cpw=1024 allocations 1 -> 0; small calls keep the 4 KiB stack path |
+| Future-embedded completion event | Evaluated | Retained bounded state pool: cold dispatch is wake-dominated, release is one uncontended CAS, and the pool preserves the `max_execute_states` fallback contract |
+| Per-owner locking / shared heartbeat mask | Evaluated | Claim/release is ~0.1-0.6 us and adaptive pacing already cuts idle ticks; no measured pool-mutex or flag-write bottleneck |
+| Static scheduling / recursive grain | Evaluated | Dynamic remains the default; static and serial depth are caller/benchmark policy without new fixed-CPU evidence |
 | Final correctness/platform/performance gates and Git sync | Pending | Debug/ReleaseSafe/TSan/serial/WASM/cross-target, E/P/caller/sync gates pass; push remains |
 
 The original baseline is commit `04ab4e1`; the 2026-11-18 adaptive pass uses
